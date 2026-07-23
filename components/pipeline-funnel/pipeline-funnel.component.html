@@ -1,0 +1,34 @@
+<div class="ds-pipeline-funnel" role="group" [attr.aria-label]="ariaLabel()">
+  @for (item of items(); track item.key) {
+    <div class="ds-pipeline-funnel__item">
+      <div class="ds-pipeline-funnel__row">
+        <span
+          class="ds-pipeline-funnel__label"
+          [style.color]="item.labelColor || null"
+        >
+          {{ item.label }}
+        </span>
+        <div class="ds-pipeline-funnel__metrics">
+          <span class="ds-pipeline-funnel__value">{{ item.value }}</span>
+          @if (item.deltaPercent != null) {
+            <span
+              class="ds-pipeline-funnel__delta"
+              [class.ds-pipeline-funnel__delta--negative]="isDeltaNegative(item)"
+              [attr.aria-label]="
+                (isDeltaNegative(item) ? 'queda de ' : 'aumento de ') + item.deltaPercent + ' por cento'
+              "
+            >
+              {{ item.deltaPercent }}%
+              <span aria-hidden="true">{{ isDeltaNegative(item) ? '▼' : '▲' }}</span>
+            </span>
+          }
+        </div>
+      </div>
+      <ds-progress-bar
+        [value]="item.percent"
+        [variant]="item.variant"
+        size="md"
+      ></ds-progress-bar>
+    </div>
+  }
+</div>

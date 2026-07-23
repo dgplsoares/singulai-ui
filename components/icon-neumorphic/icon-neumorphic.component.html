@@ -1,0 +1,30 @@
+<span
+  class="ds-icon-neumorphic"
+  [class.ds-icon-neumorphic--sm]="size() === 'sm'"
+  [class.ds-icon-neumorphic--md]="size() === 'md'"
+  [class.ds-icon-neumorphic--lg]="size() === 'lg'"
+  [class.ds-icon-neumorphic--frameless]="frameless()"
+  [attr.data-variant]="variant()"
+  [attr.role]="ariaLabel() ? 'img' : 'presentation'"
+  [attr.aria-label]="ariaLabel()"
+  [attr.aria-hidden]="ariaLabel() ? null : 'true'"
+>
+  @if (iconImageSrc()) {
+    <img
+      class="ds-icon-neumorphic__glyph ds-icon-neumorphic__glyph--img"
+      [src]="iconImageSrc()!"
+      [style.width.px]="dimensions().inner"
+      [style.height.px]="dimensions().inner"
+      [attr.width]="dimensions().inner"
+      [attr.height]="dimensions().inner"
+      alt=""
+      aria-hidden="true"
+    />
+  } @else if (icon()) {
+    <ng-icon
+      class="ds-icon-neumorphic__glyph"
+      [name]="icon()!"
+      [size]="dimensions().inner + 'px'"
+    ></ng-icon>
+  }
+</span>

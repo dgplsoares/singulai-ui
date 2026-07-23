@@ -1,0 +1,558 @@
+// ============================================================================
+// ds-accordion — Pixel-perfect contra Figma 590:3272 (cradBody)
+// (C.3 Fase C, DEC-FIG-C-3 + DEC-C-3-A + DEC-C-3-B).
+//
+// LIGHTMODE-FIRST: zero :host-context(.dark) — convencao 2026-05-12.
+//
+// Specs canonicas:
+// - Module outer: bg rgba(255,255,255,0.25) + border 1px #FFF + radius 10
+//     padding 15 + gap 15 entre rows
+// - Module header: title Manrope Bold 14 #49566E + 2 btns dual-border
+// - Description: Manrope Regular 13 #4B5872
+// - Divider: bg #DFE5ED + border-b 1px #FFF (h 1px)
+// - Subsection: title Manrope Bold 13 #49566E + btn primary blue
+// - List container: border 1px #DFE3EA + radius 10
+// - Item: bg rgba(255,255,255,0.5) + border 1px #FFF + radius 10 + padding 15
+//     title Manrope SemiBold 13 #49566E
+// - Footer center: btn primary blue h 38
+//
+// BADGE VARIANTS (Figma 590:3272):
+// - success (Arquivo PDF, Vídeo, Slide, Roteiro, N Questões):
+//     border 1px #A0CED0 + inner border 0.5px #E5F5F6 + bg #E5F5F6
+//     text Manrope SemiBold 11 #46969C
+// - warning (Ebook/Vídeo/Slide pendente):
+//     border 1px #E2D9C4 + inner border 0.5px #F4F0E2 + bg #F4F0E2
+//     text Manrope SemiBold 11 #6E5A2E
+// - neutral (default): cinza tradicional do DS
+//
+// BTN DUAL-BORDER NEUMORPHIC (Figma 590:3272 — DEC-C-3-B: INLINE no v1):
+// - Editar Módulo: border #ADC2DD + bg #EDF1F6 + text #5D7FBD
+// - Deletar Módulo: border #DFC9C9 + bg #FAF4F4 + text #935050
+// - + Adicionar Aula (primary): border #84A2C9 + bg #D4E3F5 + text #12458E
+// - Drop shadow (5-layer effect_badge_button):
+//     0 1 1 -0.583 rgba(0,0,0,0.01)
+//     0 2 1.7 -0.875 rgba(0,0,0,0.01)
+//     0 3 2 -1.167 rgba(0,0,0,0.02)
+//     0 9 4 -1.458 rgba(0,0,0,0.02)
+//     0 10 10 -1.75 rgba(0,0,0,0.1)
+// - Inset light: inset 0 -2 2 rgba(0,0,0,0.12) + inset 0 2 1 #FFF
+// - Inset primary: inset 0 -2 2 #A1BCDB + inset 0 2 1 rgba(255,255,255,0.5)
+// ============================================================================
+
+:host {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+}
+
+// ============================================================================
+// MODULE OUTER (590:3272 — cradBody)
+// ============================================================================
+
+.ds-accordion-module {
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.25);
+  border: 1px solid #FFFFFF;
+  border-radius: 10px;
+  padding: 15px;
+  // NOTA: gap removido — body-wrapper controla espacamento via margin-top
+  // (necessario para animar collapse sem deixar gap "fantasma" quando
+  // body tem altura 0).
+}
+
+// ============================================================================
+// MODULE HEADER (icon + title + 2 actions)
+// ============================================================================
+
+.ds-accordion-module-header {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  width: 100%;
+}
+
+// Header-left e BUTTON clicavel — toggle expanded/collapsed (debito post-smoke
+// 2026-06-17). Toda a area do icon + title + chevron e clicavel.
+.ds-accordion-module-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  user-select: none;
+  transition: opacity 0.18s ease;
+
+  &:hover {
+    opacity: 0.78;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #3577EB;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+.ds-accordion-module-icon {
+  font-size: 16px;
+  color: #5C6F8E;
+  flex-shrink: 0;
+}
+
+// Chevron toggle — rotaciona 180deg quando collapsed (DS animation tokens).
+.ds-accordion-module-chevron {
+  font-size: 14px;
+  color: #5C6F8E;
+  flex-shrink: 0;
+  margin-left: 2px;
+  transition: transform var(--ds-duration-medium, 300ms)
+                       var(--ds-ease-in-out-soft, cubic-bezier(0.4, 0, 0.6, 1));
+}
+
+.ds-accordion-module--collapsed .ds-accordion-module-chevron {
+  transform: rotate(-90deg);
+}
+
+// ============================================================================
+// BODY COLLAPSABLE — animacao grid-template-rows 1fr↔0fr (DS tokens canonicos)
+// Mesmo pattern do form-section (C.4-polish). Content-aware (sem max-height
+// magico). Suportado em Angular 17+ / browsers modernos.
+// ============================================================================
+
+.ds-accordion-module-body-wrapper {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows
+              var(--ds-duration-medium, 300ms)
+              var(--ds-ease-in-out-soft, cubic-bezier(0.4, 0, 0.6, 1)),
+              margin-top
+              var(--ds-duration-medium, 300ms)
+              var(--ds-ease-in-out-soft, cubic-bezier(0.4, 0, 0.6, 1));
+  margin-top: 15px;
+}
+
+.ds-accordion-module--collapsed .ds-accordion-module-body-wrapper {
+  grid-template-rows: 0fr;
+  margin-top: 0; // colapsa o gap entre header e body quando fechado
+}
+
+.ds-accordion-module-body-clip {
+  overflow: hidden;
+  min-height: 0;
+}
+
+.ds-accordion-module-body {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+}
+
+.ds-accordion-module-title {
+  margin: 0;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: normal;
+  color: #49566E;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ds-accordion-module-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+// ============================================================================
+// DESCRIPTION + DIVIDER
+// ============================================================================
+
+.ds-accordion-module-desc-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.ds-accordion-module-desc {
+  margin: 0;
+  padding: 7px;
+  border-radius: 5px;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 400;
+  font-size: 13px;
+  line-height: normal;
+  color: #4B5872;
+  white-space: pre-wrap;
+}
+
+.ds-accordion-divider {
+  width: 100%;
+  height: 1px;
+  background: #DFE5ED;
+  border-bottom: 1px solid #FFFFFF;
+}
+
+// ============================================================================
+// SUBSECTION "Aulas do módulo"
+// ============================================================================
+
+.ds-accordion-subsection {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.ds-accordion-subsection-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.ds-accordion-subsection-icon {
+  font-size: 14px;
+  color: #5C6F8E;
+}
+
+.ds-accordion-subsection-title {
+  margin: 0;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  line-height: normal;
+  color: #49566E;
+}
+
+// ============================================================================
+// LIST CONTAINER — visual do accordion module (rows individuais migraram
+// para <ds-accordion-item> standalone em D.1.3.4 REFAC-2).
+// ============================================================================
+
+.ds-accordion-items {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0;
+  border: 1px solid #DFE3EA;
+  border-radius: 10px;
+  background: transparent;
+  overflow: hidden;
+}
+
+// ============================================================================
+// BTN DUAL-BORDER NEUMORPHIC (DEC-C-3-B: INLINE no accordion v1)
+// ============================================================================
+
+.ds-accordion-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 8px;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: normal;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: filter 0.18s ease, transform 0.05s ease;
+  // 5-layer drop shadow (effect_badge_button)
+  box-shadow:
+    0 1px 1px -0.583px rgba(0, 0, 0, 0.01),
+    0 2px 1.7px -0.875px rgba(0, 0, 0, 0.01),
+    0 3px 2px -1.167px rgba(0, 0, 0, 0.02),
+    0 9px 4px -1.458px rgba(0, 0, 0, 0.02),
+    0 10px 10px -1.75px rgba(0, 0, 0, 0.1);
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &:not(:disabled):hover {
+    filter: brightness(1.03);
+  }
+
+  &:not(:disabled):active {
+    transform: translateY(1px);
+  }
+}
+
+.ds-accordion-btn-icon {
+  font-size: 12px;
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+// Variant EDITAR (light) — border #ADC2DD + bg #EDF1F6 + text #5D7FBD
+.ds-accordion-btn--edit {
+  border: 1px solid #ADC2DD;
+  background: #EDF1F6;
+  color: #5D7FBD;
+  outline: 0.5px solid #EDF1F6;
+  outline-offset: -0.5px;
+
+  &::after {
+    box-shadow:
+      inset 0 -2px 2px 0 rgba(0, 0, 0, 0.12),
+      inset 0  2px 1px 0 #FFFFFF;
+  }
+
+  .ds-accordion-btn-icon { color: #5D7FBD; }
+}
+
+// Variant DELETAR (danger) — border #DFC9C9 + bg #FAF4F4 + text #935050
+.ds-accordion-btn--delete {
+  border: 1px solid #DFC9C9;
+  background: #FAF4F4;
+  color: #935050;
+  outline: 0.5px solid #FAF4F4;
+  outline-offset: -0.5px;
+
+  &::after {
+    box-shadow:
+      inset 0 -2px 2px 0 rgba(0, 0, 0, 0.12),
+      inset 0  2px 1px 0 #FFFFFF;
+  }
+
+  .ds-accordion-btn-icon { color: #935050; }
+}
+
+// Variant PRIMARY (+ Adicionar) — border #84A2C9 + bg #D4E3F5 + text #12458E
+.ds-accordion-btn--primary {
+  border: 1px solid #84A2C9;
+  background: #D4E3F5;
+  color: #12458E;
+  outline: 0.5px solid #EDF1F6;
+  outline-offset: -0.5px;
+
+  &::after {
+    box-shadow:
+      inset 0 -2px 2px 0 #A1BCDB,
+      inset 0  2px 1px 0 rgba(255, 255, 255, 0.5);
+  }
+
+  .ds-accordion-btn-icon { color: #12458E; }
+}
+
+// Header "+ Adicionar Aula" — h 32 (Figma 630:3219)
+.ds-accordion-btn--add-header {
+  height: 32px;
+}
+
+// Footer "+ Adicionar Aula" — h 38 (Figma 681:1860) — mais alto que do header
+.ds-accordion-btn--add-footer {
+  height: 38px;
+}
+
+// ============================================================================
+// FOOTER center (+ Adicionar Aula)
+// ============================================================================
+
+.ds-accordion-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+// ============================================================================
+// DnD placeholder (sub-fase futura ds-accordion-dnd)
+// ============================================================================
+
+// ============================================================================
+// E.4 (DEC-FIG-D-AULAS-E.4.* — 2026-06-22): drag-and-drop via Angular CDK.
+// dndEnabled aciona o handle (grip) à esquerda + cdkDrag. Persist via output
+// moduleReorder. Estados CDK (preview/placeholder/animating) abaixo.
+// ============================================================================
+
+.ds-accordion-list {
+  display: block;
+  width: 100%;
+}
+
+// dnd mode: shift dos módulos à direita para acomodar o handle (40px = handle 18px + padding 22px)
+.ds-accordion-list--dnd {
+  .ds-accordion-module {
+    padding-left: 40px;
+    transition: padding 0.18s ease;
+  }
+}
+
+.ds-accordion-module--dnd {
+  position: relative;
+}
+
+.ds-accordion-module-drag-handle {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #5A6571;
+  cursor: grab;
+  opacity: 0;
+  animation: ds-accordion-handle-fade 0.22s ease forwards;
+  z-index: 2;
+
+  ng-icon {
+    font-size: 18px;
+    filter: drop-shadow(0 1px 1px rgba(90, 101, 113, 0.75));
+  }
+
+  &:hover {
+    color: #2F3B52;
+  }
+
+  &:active,
+  &.cdk-drag-grabbing {
+    cursor: grabbing;
+  }
+}
+
+@keyframes ds-accordion-handle-fade {
+  from { opacity: 0; transform: translate(-6px, -50%); }
+  to   { opacity: 1; transform: translate(0, -50%); }
+}
+
+// CDK DragDrop states (preview/placeholder/animating)
+.cdk-drag-preview {
+  box-shadow:
+    0 5px 5px -3px rgba(0, 0, 0, 0.2),
+    0 8px 10px 1px rgba(0, 0, 0, 0.14),
+    0 3px 14px 2px rgba(0, 0, 0, 0.12);
+  opacity: 0.94;
+  border-radius: 12px;
+  background: #FFFFFF;
+}
+
+.cdk-drag-placeholder {
+  opacity: 0.35;
+  background: rgba(62, 111, 202, 0.06);
+  border: 1px dashed #5C8DE2;
+  border-radius: 12px;
+}
+
+.cdk-drag-animating {
+  transition: transform 0.25s cubic-bezier(0, 0, 0.2, 1);
+}
+
+.ds-accordion-list.cdk-drop-list-dragging .ds-accordion-module:not(.cdk-drag-placeholder) {
+  transition: transform 0.25s cubic-bezier(0, 0, 0.2, 1);
+}
+
+// ============================================================================
+// E.9 (DEC-FIG-D-AULAS-E.9.* — 2026-06-22): drag-and-drop AULAS per-module.
+// Header da subsection ganha grupo de ações; items dentro do módulo viram
+// cdkDrag com handle à esquerda; estados CDK próprios para items.
+// ============================================================================
+
+.ds-accordion-subsection-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+// Wrapper de cada item em modo dnd — comporta o handle absolute.
+.ds-accordion-item-wrap {
+  position: relative;
+  display: block;
+}
+
+.ds-accordion-item-wrap--dnd {
+  padding-left: 32px;
+  transition: padding 0.18s ease;
+}
+
+.ds-accordion-item-drag-handle {
+  position: absolute;
+  left: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #5A6571;
+  cursor: grab;
+  opacity: 0;
+  animation: ds-accordion-handle-fade 0.22s ease forwards;
+  z-index: 2;
+
+  ng-icon {
+    font-size: 16px;
+    filter: drop-shadow(0 1px 1px rgba(90, 101, 113, 0.55));
+  }
+
+  &:hover {
+    color: #2F3B52;
+  }
+
+  &:active,
+  &.cdk-drag-grabbing {
+    cursor: grabbing;
+  }
+}
+
+// Estado preview/placeholder para items (specificity > cdk-drag-preview base de módulo)
+.ds-accordion-items--dnd .cdk-drag-placeholder {
+  opacity: 0.35;
+  background: rgba(62, 111, 202, 0.06);
+  border: 1px dashed #5C8DE2;
+  border-radius: 8px;
+}
+
+.ds-accordion-items--dnd.cdk-drop-list-dragging .ds-accordion-item-wrap:not(.cdk-drag-placeholder) {
+  transition: transform 0.25s cubic-bezier(0, 0, 0.2, 1);
+}
+
+// ============================================================================
+// RESPONSIVE
+// ============================================================================
+
+@media (max-width: 768px) {
+  .ds-accordion-module {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .ds-accordion-module-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  // NOTA: .ds-accordion-item* responsive regras migraram para
+  // ds-accordion-item standalone (D.1.3.4 REFAC-2 — accordion-item.scss).
+}

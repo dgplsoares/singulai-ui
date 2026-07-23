@@ -1,0 +1,73 @@
+<div class="ds-accordion-item" [attr.data-kind]="item().kind">
+  <!-- Esquerda: icon + title -->
+  <div class="ds-accordion-item-left">
+    @if (item().iconSrc) {
+      <img [src]="item().iconSrc" alt="" class="ds-accordion-item-icon-img" />
+    } @else {
+      <ng-icon
+        [name]="iconName()"
+        class="ds-accordion-item-icon"
+      />
+    }
+    <span class="ds-accordion-item-title">{{ item().title }}</span>
+  </div>
+
+  <!-- Direita: badges + actions -->
+  <div class="ds-accordion-item-right">
+    <!-- Badges (Figma 590:3272 — variants success-teal e warning-bege) -->
+    @if (item().badges?.length) {
+      <div class="ds-accordion-badges">
+        @for (badge of item().badges; track $index) {
+          <span
+            class="ds-accordion-badge"
+            [class.ds-accordion-badge--success]="(badge.variant ?? 'neutral') === 'success'"
+            [class.ds-accordion-badge--warning]="badge.variant === 'warning'"
+            [class.ds-accordion-badge--neutral]="(badge.variant ?? 'neutral') === 'neutral'"
+          >
+            @if (badge.icon) {
+              <ng-icon [name]="badge.icon" class="ds-accordion-badge-icon" />
+            }
+            <span>{{ badge.label }}</span>
+          </span>
+        }
+      </div>
+    }
+
+    <!-- Row actions: REUSA ds-button action-icon (DEC-C-3-B) -->
+    <div class="ds-accordion-item-actions">
+      @if (showView()) {
+        <ds-button
+          variant="action-icon"
+          variantColor="info"
+          size="md"
+          iconLeft="heroEye"
+          iconSizeOverride="14px"
+          ariaLabel="Visualizar"
+          (clicked)="onView()"
+        />
+      }
+      @if (showEdit()) {
+        <ds-button
+          variant="action-icon"
+          variantColor="info"
+          size="md"
+          iconLeft="heroPencil"
+          iconSizeOverride="12px"
+          ariaLabel="Editar"
+          (clicked)="onEdit()"
+        />
+      }
+      @if (showDelete()) {
+        <ds-button
+          variant="action-icon"
+          variantColor="danger"
+          size="md"
+          iconLeft="heroTrash"
+          iconSizeOverride="12px"
+          ariaLabel="Excluir"
+          (clicked)="onDelete()"
+        />
+      }
+    </div>
+  </div>
+</div>

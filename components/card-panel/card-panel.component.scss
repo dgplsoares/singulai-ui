@@ -1,0 +1,200 @@
+// ============================================================================
+// CardPanel — Estilos
+// Envelope reutilizavel para cards do dashboard.
+//
+// Replica a estrutura visual do Figma 1088:13519 / 14206 / 1122:9836:
+//   outer #EFF3F8 → border #DBE0E5 → inner gradient com white border.
+//   Header: icon (34x34) + title + actions
+//   Body: border 1px #DFE3EA, bg rgba(white, 0.25), p:20
+//
+// Loading state: skeleton padrao com 4 linhas + shimmer animation.
+// ============================================================================
+
+:host {
+  display: block;
+  width: 100%;
+  height: 100%;  // permite stretch quando dentro de grid row (dashboard)
+}
+
+.ds-card-panel {
+  background: #EFF3F8;
+  border-radius: 12px;
+  width: 100%;
+  height: 100%;  // preenche o :host quando esticado pelo grid row
+  display: flex;
+  flex-direction: column;
+
+  &__border {
+    border: 1px solid #DBE0E5;
+    border-radius: 12px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__inner {
+    border: 1px solid #FFFFFF;
+    border-radius: 12px;
+    padding: 0 12px 15px;
+    background:
+      linear-gradient(90deg, rgba(229, 235, 242, 0.7), rgba(229, 235, 242, 0.7)),
+      #FFFFFF;
+    display: flex;
+    flex-direction: column;
+    flex: 1;  // expande o inner para preencher o border quando estica
+  }
+
+  // ==========================================================================
+  // Header
+  // ==========================================================================
+  &__header {
+    display: flex;
+    align-items: center;
+    padding: 15px 5px;
+    gap: 10px;
+  }
+
+  &__header-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__icon {
+    display: inline-flex;
+    flex-shrink: 0;
+  }
+
+  &__title {
+    font-family: var(--ds-font-family-base);
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 110%;
+    color: #7A94AC;
+    margin: 0;
+    // Quebra natural quando texto excede a largura disponivel
+    // (ex: "Matriculas e Inscricoes por periodo" em col 1/3).
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    white-space: normal;
+  }
+
+  &__header-actions {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-shrink: 0;
+  }
+
+  // ==========================================================================
+  // Mobile (<=991px) — quando o slot [card-panel-actions] contem
+  // <ds-segmented-tabs> (period selectors com 2 ou 3 tabs), empilha o header
+  // em coluna: title em cima, tabs+kebab em baixo centralizados.
+  //
+  // Quando NAO ha <ds-segmented-tabs> (ex: plan-usage com so kebab),
+  // o `:has()` nao casa e o layout horizontal e mantido.
+  //
+  // Browsers: :has() suportado em Chrome 105+, Safari 15.4+, Firefox 121+.
+  // ==========================================================================
+  @media (max-width: 991px) {
+    &__header:has(ds-segmented-tabs) {
+      position: relative;  // ancora para o kebab posicionado absoluto
+      flex-direction: column;
+      align-items: stretch;
+      gap: 10px;
+
+      .ds-card-panel__header-left,
+      .ds-card-panel__header-actions {
+        width: 100%;
+      }
+
+      // header-actions centralizado (centraliza o div projetado dentro do slot)
+      .ds-card-panel__header-actions {
+        justify-content: center;
+      }
+
+      // O div projetado em [card-panel-actions] (ex: .revenue-period__actions,
+      // .leads-recent__actions, etc.) ocupa 100% e centraliza tabs+kebab.
+      .ds-card-panel__header-actions > * {
+        width: 100%;
+        justify-content: center;
+      }
+
+      // Kebab (<ds-dropdown-menu>) sai do flow das tabs e vai pro canto
+      // superior direito do header — alinhado com a linha do title.
+      // Tabs ficam sozinhas no flow do header-actions (linha 2 centralizadas).
+      // ::ng-deep necessario porque <ds-dropdown-menu> e projetado pelo widget
+      // consumidor (encapsulation diferente da card-panel — sem ng-deep o
+      // seletor nao casa por causa do [_ngcontent-*] do Angular emulated).
+      .ds-card-panel__header-actions ::ng-deep ds-dropdown-menu {
+        position: absolute;
+        top: 12px;
+        right: 5px;
+        z-index: 2;
+      }
+    }
+  }
+
+  // ==========================================================================
+  // Body
+  // ==========================================================================
+  &__body {
+    border: 1px solid #DFE3EA;
+    border-radius: 10px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.25);
+    box-shadow: inset 0 0 0 1px #FFFFFF;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+  }
+
+  // ==========================================================================
+  // Skeleton loading
+  // ==========================================================================
+  &__skeleton {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+  }
+
+  &__skeleton-line {
+    height: 14px;
+    border-radius: 4px;
+    background: linear-gradient(
+      90deg,
+      #E5EBF2 0%,
+      #F3F6FB 50%,
+      #E5EBF2 100%
+    );
+    background-size: 200% 100%;
+    animation: ds-card-panel-shimmer 1.6s ease-in-out infinite;
+
+    &--w-80 { width: 80%; }
+    &--w-70 { width: 70%; }
+    &--w-60 { width: 60%; }
+    &--w-50 { width: 50%; }
+  }
+
+  // Helper visually-hidden p/ acessibilidade (texto "Carregando..." invisivel)
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+}
+
+@keyframes ds-card-panel-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

@@ -1,0 +1,90 @@
+<section
+  class="ds-card"
+  [class.ds-card--default]="variant() === 'default'"
+  [class.ds-card--dashboard]="variant() === 'dashboard'"
+  [class.ds-card--with-tabs]="variant() === 'with-tabs'"
+  [class.ds-card--simple]="variant() === 'simple'"
+  [class.ds-card--inner]="variant() === 'inner-card'"
+  [attr.data-state]="state()"
+  [attr.aria-label]="accessibleLabel()"
+  role="region"
+>
+  @if (hasHeader()) {
+    <header class="ds-card__header">
+      <div class="ds-card__header-left">
+        @if (icon()) {
+          <ds-icon-neumorphic [icon]="icon()!" size="md" variant="default" />
+        }
+        @if (title()) {
+          <h3 class="ds-card__title">{{ title() }}</h3>
+        }
+      </div>
+
+      <div class="ds-card__header-right">
+        @if (navTabs() && navTabs()!.length > 0) {
+          <div class="ds-card__nav-tabs" role="tablist">
+            @for (tab of navTabs(); track tab.key) {
+              <button
+                class="ds-card__nav-tab"
+                [class.ds-card__nav-tab--active]="tab.active"
+                role="tab"
+                [attr.aria-selected]="!!tab.active"
+                (click)="onTabClick(tab.key)"
+                type="button"
+              >
+                {{ tab.label }}
+              </button>
+            }
+          </div>
+        }
+
+        <!-- Slot para acoes customizadas no header (botoes, badges, etc) -->
+        <ng-content select="[card-header-extras]"></ng-content>
+
+        @if (dropdownItems() && dropdownItems()!.length > 0) {
+          <!--
+            Dropdown overlay completo sera implementado em DS-2.1.B com CDK Overlay.
+            Por enquanto, expomos um botao kebab que dispara dropdownAction com
+            o primeiro item — consumer pode interceptar para abrir overlay proprio.
+          -->
+          <button
+            class="ds-card__kebab"
+            type="button"
+            aria-label="Opcoes do card"
+            (click)="onDropdownClick('open')"
+          >
+            <span aria-hidden="true">⋮</span>
+          </button>
+        }
+      </div>
+    </header>
+  }
+
+  <div class="ds-card__body">
+    @switch (state()) {
+      @case ('loading') {
+        <ng-content select="[card-loading]">
+          <!-- Skeleton fallback default -->
+          <div class="ds-card__skeleton" aria-busy="true" aria-live="polite">
+            <span class="ds-skeleton-line ds-skeleton-line--75"></span>
+            <span class="ds-skeleton-line ds-skeleton-line--100"></span>
+            <span class="ds-skeleton-line ds-skeleton-line--50"></span>
+          </div>
+        </ng-content>
+      }
+      @case ('empty') {
+        <ng-content select="[card-empty]">
+          <p class="ds-card__empty-default">Nenhum dado disponivel</p>
+        </ng-content>
+      }
+      @case ('error') {
+        <ng-content select="[card-error]">
+          <p class="ds-card__error-default">Erro ao carregar dados</p>
+        </ng-content>
+      }
+      @default {
+        <ng-content></ng-content>
+      }
+    }
+  </div>
+</section>

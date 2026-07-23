@@ -1,0 +1,68 @@
+<a class="ds-skip-link" href="#ds-page-main">Pular para o conteudo principal</a>
+
+<div
+  class="ds-page-layout"
+  [class.ds-page-layout--ai-open]="aiOpen()"
+  [class.ds-page-layout--ai-maximized]="aiMaximized()"
+  [class.ds-page-layout--panel-open]="isAnyPanelOpen()"
+  [attr.data-variant]="variant()"
+>
+  <aside class="ds-page-layout__sidebar" aria-label="Navegacao principal">
+    <ng-content select="[page-layout-sidebar]"></ng-content>
+  </aside>
+
+  <div
+    class="ds-page-layout__main-area"
+    (click)="onMainAreaClick()"
+  >
+    <div class="ds-page-layout__main-area-inner">
+      <header class="ds-page-layout__header">
+        <ng-content select="[page-layout-header]"></ng-content>
+      </header>
+
+      @if (hasNav()) {
+        <div class="ds-page-layout__nav">
+          <ng-content select="[page-layout-nav]"></ng-content>
+        </div>
+      }
+
+      <main
+        id="ds-page-main"
+        class="ds-page-layout__main"
+        [attr.aria-label]="mainAriaLabel()"
+        tabindex="-1"
+      >
+        <ng-content select="[page-layout-main]"></ng-content>
+      </main>
+
+      @if (hasFooter()) {
+        <footer class="ds-page-layout__footer">
+          <ng-content select="[page-layout-footer]"></ng-content>
+        </footer>
+      }
+    </div>
+  </div>
+
+  <!--
+    Nav-footer slot — visivel apenas em mobile (<992px) via @media SCSS.
+    Recebe <ds-nav-footer> que renderiza os 5 botoes (Dashboard / Navegue /
+    Agente IA / Alertas / Conta) e os paineis correspondentes.
+
+    O nav-footer aceita inputs:
+      [activePanel]="navFooterPanel()"  — qual painel esta aberto (mutex)
+      [dashboardActive]="dashboardActive()"  — se rota = /dashboard
+
+    E emite outputs:
+      (panelToggle)="togglePanel($event)"  — chama togglePanel(panel) do parent
+      (closePanels)="closePanels()"  — botao close interno do painel
+
+    Os paineis ficam DENTRO do componente nav-footer (responsabilidade dele).
+    -->
+  <nav class="ds-page-layout__nav-footer" aria-label="Navegacao mobile">
+    <ng-content select="[page-layout-nav-footer]"></ng-content>
+  </nav>
+
+  <div class="ds-page-layout__ai-assistant" [class.ds-page-layout__ai-assistant--open]="aiOpen()">
+    <ng-content select="[page-layout-ai]"></ng-content>
+  </div>
+</div>

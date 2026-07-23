@@ -1,0 +1,28 @@
+<!--
+  <ds-step-tabs> — pixel-perfect contra Figma 706:1864.
+  Container outer com chrome neumorphic + items horizontais (icon + label).
+  Tab ativo tem chrome elaborado (border + bg + style_box_2 shadow).
+-->
+<div
+  class="ds-step-tabs"
+  [class.ds-step-tabs--disabled]="disabled()"
+  role="tablist"
+>
+  @for (item of items(); track item.key) {
+    <button
+      type="button"
+      class="ds-step-tabs__tab"
+      [class.ds-step-tabs__tab--active]="item.key === activeKey()"
+      [attr.aria-selected]="item.key === activeKey()"
+      [attr.aria-controls]="'step-panel-' + item.key"
+      [disabled]="disabled()"
+      role="tab"
+      (click)="onTabClick(item.key, $event)"
+    >
+      @if (item.iconLeft) {
+        <ng-icon [name]="item.iconLeft" class="ds-step-tabs__icon" />
+      }
+      <span class="ds-step-tabs__label">{{ item.label }}</span>
+    </button>
+  }
+</div>

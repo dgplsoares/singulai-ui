@@ -1,0 +1,31 @@
+<div class="ds-card-panel" [class.ds-card-panel--loading]="loading()">
+  <div class="ds-card-panel__border">
+    <div class="ds-card-panel__inner">
+      <header class="ds-card-panel__header">
+        <div class="ds-card-panel__header-left">
+          <span class="ds-card-panel__icon">
+            <ng-content select="[card-panel-icon]"></ng-content>
+          </span>
+          <h3 class="ds-card-panel__title">{{ title() }}</h3>
+        </div>
+        <div class="ds-card-panel__header-actions">
+          <ng-content select="[card-panel-actions]"></ng-content>
+        </div>
+      </header>
+
+      <div class="ds-card-panel__body">
+        @if (loading()) {
+          <div class="ds-card-panel__skeleton" aria-busy="true" aria-live="polite">
+            <span class="ds-card-panel__skeleton-line ds-card-panel__skeleton-line--w-80"></span>
+            <span class="ds-card-panel__skeleton-line ds-card-panel__skeleton-line--w-60"></span>
+            <span class="ds-card-panel__skeleton-line ds-card-panel__skeleton-line--w-70"></span>
+            <span class="ds-card-panel__skeleton-line ds-card-panel__skeleton-line--w-50"></span>
+            <span class="visually-hidden">Carregando...</span>
+          </div>
+        } @else {
+          <ng-content select="[card-panel-body]"></ng-content>
+        }
+      </div>
+    </div>
+  </div>
+</div>

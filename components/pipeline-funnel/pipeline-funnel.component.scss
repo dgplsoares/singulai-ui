@@ -1,0 +1,76 @@
+// ============================================================================
+// PipelineFunnel — Estilos
+// Figma 1042:28755 (Funil de Vendas) / 1042:28890 (Pipeline SDR IA)
+// ============================================================================
+
+@use '../../tokens' as ds;
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.ds-pipeline-funnel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+
+  &__item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  &__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  &__label {
+    font-family: var(--ds-font-family-base);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--ds-text-body, #334155);
+    line-height: 1.2;
+    flex: 1 1 auto;
+    min-width: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__metrics {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  &__value {
+    font-family: var(--ds-font-family-base);
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ds-text-title, #0B1E40);
+    line-height: 1.2;
+    min-width: 24px;
+    text-align: right;
+  }
+
+  &__delta {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    font-family: var(--ds-font-family-base);
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--ds-status-success, #38A173);
+    line-height: 1.2;
+
+    &--negative {
+      color: var(--ds-status-danger, #BC3232);
+    }
+  }
+}

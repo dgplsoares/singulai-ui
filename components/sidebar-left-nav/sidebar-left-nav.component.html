@@ -1,0 +1,337 @@
+<aside
+  class="ds-sidebar"
+  [class.ds-sidebar--expanded]="isExpanded()"
+  [class.ds-sidebar--collapsed]="isCollapsed()"
+  aria-label="Navegacao principal"
+>
+  <!-- Header: empilhado verticalmente — Toggle / Logo / Search -->
+  <header class="ds-sidebar__header">
+    <button
+      class="ds-sidebar__toggle"
+      type="button"
+      [attr.aria-label]="isExpanded() ? 'Colapsar menu' : 'Expandir menu'"
+      [attr.aria-expanded]="isExpanded()"
+      (click)="toggleSidebar()"
+    >
+      <img
+        class="ds-sidebar__toggle-icon"
+        [src]="isExpanded() ? menuToggleExpandedIconSrc() : menuToggleCollapsedIconSrc()"
+        alt=""
+        aria-hidden="true"
+        width="18"
+        height="17"
+      />
+    </button>
+
+    <a
+      class="ds-sidebar__logo"
+      routerLink="/dashboard"
+      [attr.aria-label]="logoAriaLabel()"
+    >
+      @if (isExpanded()) {
+        <img
+          class="ds-sidebar__logo-img ds-sidebar__logo-img--full"
+          [src]="logoFullSrc()"
+          width="106"
+          height="37"
+          [alt]="logoAlt()"
+        />
+      } @else {
+        <img
+          class="ds-sidebar__logo-img ds-sidebar__logo-img--icon"
+          [src]="logoIconSrc()"
+          width="49"
+          height="50"
+          [alt]="logoAlt()"
+        />
+      }
+    </a>
+
+    <!-- SBSEARCH-2026-05-25: container wrapper para click-outside detection -->
+    <div class="ds-sidebar__search-container">
+      @if (!searchActive()) {
+        <button
+          class="ds-sidebar__search"
+          type="button"
+          aria-label="Buscar"
+          (click)="onSearchClick()"
+        >
+          <span class="ds-sidebar__search-left">
+            <ng-icon
+              class="ds-sidebar__search-icon"
+              name="heroMagnifyingGlass"
+              size="18px"
+            ></ng-icon>
+            @if (isExpanded()) {
+              <span class="ds-sidebar__search-label">Pesquisar...</span>
+            }
+          </span>
+          @if (isExpanded()) {
+            <span class="ds-sidebar__search-shortcut">
+              <span class="ds-sidebar__search-shortcut-key">&#8984;</span>
+              <span class="ds-sidebar__search-shortcut-letter">K</span>
+            </span>
+          }
+        </button>
+      } @else {
+        <!-- Modo ativo: input inline no MESMO espaco do botao (mesma class) -->
+        <div class="ds-sidebar__search ds-sidebar__search--active">
+          <span class="ds-sidebar__search-left">
+            <ng-icon
+              class="ds-sidebar__search-icon"
+              name="heroMagnifyingGlass"
+              size="18px"
+            ></ng-icon>
+            <input
+              class="ds-sidebar__search-input"
+              type="text"
+              placeholder="Pesquisar..."
+              aria-label="Buscar no menu"
+              [value]="searchQuery()"
+              (input)="onSearchInput($event)"
+              (keydown)="onSearchInputKeydown($event)"
+            />
+          </span>
+          @if (searchQuery()) {
+            <button
+              type="button"
+              class="ds-sidebar__search-clear"
+              aria-label="Limpar busca"
+              (click)="deactivateSearch()"
+            >
+              <ng-icon name="heroChevronDown" size="14px"></ng-icon>
+            </button>
+          }
+        </div>
+
+        <!-- Dropdown de resultados -->
+        @if (hasSearchResults()) {
+          <ul class="ds-sidebar__search-results" role="listbox" aria-label="Resultados">
+            @for (result of filteredResults(); track result.item.key; let i = $index) {
+              <li role="none">
+                <button
+                  type="button"
+                  class="ds-sidebar__search-result"
+                  [class.ds-sidebar__search-result--highlighted]="i === highlightedIndex()"
+                  [class.ds-sidebar__search-result--disabled]="isComingSoon(result)"
+                  [disabled]="isComingSoon(result)"
+                  role="option"
+                  [attr.aria-selected]="i === highlightedIndex()"
+                  (click)="selectSearchResult(result)"
+                  (mouseenter)="highlightedIndex.set(i)"
+                >
+                  <ng-icon
+                    class="ds-sidebar__search-result-icon"
+                    [name]="result.item.icon"
+                    size="18px"
+                  ></ng-icon>
+                  <span class="ds-sidebar__search-result-text">
+                    <span class="ds-sidebar__search-result-label">{{ result.item.label }}</span>
+                    @if (result.parent) {
+                      <span class="ds-sidebar__search-result-parent">{{ result.parent.label }}</span>
+                    }
+                  </span>
+                  @if (isComingSoon(result)) {
+                    <span class="ds-sidebar__search-soon-badge">Em breve</span>
+                  }
+                </button>
+              </li>
+            }
+          </ul>
+        }
+
+        @if (showEmpty()) {
+          <div class="ds-sidebar__search-empty">Nenhum resultado encontrado</div>
+        }
+      }
+    </div>
+  </header>
+
+  <!-- Nav -->
+  <nav class="ds-sidebar__nav" aria-label="Menu principal">
+    @for (item of menuItems(); track item.key) {
+      <div
+        class="ds-sidebar__menu-item-wrap"
+        [class.ds-sidebar__menu-item-wrap--active]="isWrapActive(item)"
+        dsActiveSpin
+        [enabled]="isWrapActive(item)"
+        [trigger]="spinTrigger()"
+      >
+        @if (item.submenu && item.submenu.length > 0) {
+          <button
+            class="ds-sidebar__menu-item"
+            type="button"
+            [class.ds-sidebar__menu-item--active]="isRootActive(item)"
+            [attr.aria-expanded]="isSubmenuOpen(item.key)"
+            [attr.aria-controls]="'submenu-' + item.key"
+            [attr.aria-haspopup]="!isExpanded() ? 'menu' : null"
+            (click)="toggleSubmenu(item.key)"
+            dsActiveSpin
+            [enabled]="isRootActive(item) && !isWrapActive(item)"
+            [trigger]="spinTrigger()"
+          >
+            <span class="ds-sidebar__menu-icon-wrap" aria-hidden="true">
+              @if (item.iconSrc) {
+                <img
+                  class="ds-sidebar__menu-icon-img ds-sidebar__menu-icon-img--default"
+                  [src]="item.iconSrc"
+                  [attr.width]="item.iconWidth ?? null"
+                  [attr.height]="item.iconHeight ?? null"
+                  alt=""
+                />
+              }
+              @if (item.iconSrcActive) {
+                <img
+                  class="ds-sidebar__menu-icon-img ds-sidebar__menu-icon-img--active"
+                  [src]="item.iconSrcActive"
+                  [attr.width]="item.iconWidth ?? null"
+                  [attr.height]="item.iconHeight ?? null"
+                  alt=""
+                />
+              }
+              @if (!item.iconSrc) {
+                <ng-icon [name]="item.icon" size="20px"></ng-icon>
+              }
+            </span>
+
+            @if (isExpanded()) {
+              <span class="ds-sidebar__menu-label">{{ item.label }}</span>
+
+              <ng-icon
+                class="ds-sidebar__menu-chevron"
+                [class.ds-sidebar__menu-chevron--open]="isSubmenuOpen(item.key)"
+                name="heroChevronDown"
+                size="14px"
+              ></ng-icon>
+            }
+          </button>
+
+          @if (isExpanded() && isSubmenuOpen(item.key)) {
+            <ul
+              class="ds-sidebar__submenu"
+              [id]="'submenu-' + item.key"
+              role="menu"
+              @submenuExpand
+            >
+              @for (sub of item.submenu; track sub.key) {
+                <li role="none">
+                  <a
+                    class="ds-sidebar__submenu-item"
+                    routerLinkActive="ds-sidebar__submenu-item--active"
+                    [routerLink]="sub.route"
+                    role="menuitem"
+                    (click)="onSubmenuItemClick(sub.key)"
+                  >
+                    {{ sub.label }}
+                  </a>
+                </li>
+              }
+            </ul>
+          }
+
+          <!-- SBNAV2-2026-05-25 (DEC-SBNAV2-E): floating dropdown (collapsed) -->
+          @if (isFloatingDropdownOpen(item)) {
+            <div
+              class="ds-sidebar__floating-dropdown"
+              [id]="'submenu-' + item.key"
+              role="menu"
+            >
+              <!-- Header replicando o card secundario (root button) -->
+              <div class="ds-sidebar__floating-dropdown__header">
+                <span class="ds-sidebar__floating-dropdown__icon-wrap" aria-hidden="true">
+                  @if (item.iconSrc) {
+                    <img
+                      class="ds-sidebar__floating-dropdown__icon-img"
+                      [src]="item.iconSrcActive ?? item.iconSrc"
+                      [attr.width]="item.iconWidth ?? null"
+                      [attr.height]="item.iconHeight ?? null"
+                      alt=""
+                    />
+                  }
+                </span>
+                <span>{{ item.label }}</span>
+              </div>
+
+              <ul class="ds-sidebar__submenu" role="menu">
+                @for (sub of item.submenu; track sub.key) {
+                  <li role="none">
+                    <a
+                      class="ds-sidebar__submenu-item"
+                      routerLinkActive="ds-sidebar__submenu-item--active"
+                      [routerLink]="sub.route"
+                      role="menuitem"
+                      (click)="onSubmenuItemClick(sub.key)"
+                    >
+                      {{ sub.label }}
+                    </a>
+                  </li>
+                }
+              </ul>
+            </div>
+          }
+        } @else {
+          <a
+            class="ds-sidebar__menu-item"
+            [class.ds-sidebar__menu-item--active]="isRootActive(item)"
+            [routerLink]="item.route"
+            [attr.title]="!isExpanded() ? item.label : null"
+            dsActiveSpin
+            [enabled]="isRootActive(item)"
+            [trigger]="spinTrigger()"
+          >
+            <span class="ds-sidebar__menu-icon-wrap" aria-hidden="true">
+              @if (item.iconSrc) {
+                <img
+                  class="ds-sidebar__menu-icon-img ds-sidebar__menu-icon-img--default"
+                  [src]="item.iconSrc"
+                  [attr.width]="item.iconWidth ?? null"
+                  [attr.height]="item.iconHeight ?? null"
+                  alt=""
+                />
+              }
+              @if (item.iconSrcActive) {
+                <img
+                  class="ds-sidebar__menu-icon-img ds-sidebar__menu-icon-img--active"
+                  [src]="item.iconSrcActive"
+                  [attr.width]="item.iconWidth ?? null"
+                  [attr.height]="item.iconHeight ?? null"
+                  alt=""
+                />
+              }
+              @if (!item.iconSrc) {
+                <ng-icon [name]="item.icon" size="20px"></ng-icon>
+              }
+            </span>
+
+            @if (isExpanded()) {
+              <span class="ds-sidebar__menu-label">{{ item.label }}</span>
+            }
+          </a>
+        }
+      </div>
+    }
+  </nav>
+
+  <!-- Footer: botao redondo neumorphic com icone usuario (Figma 1102:15526) -->
+  <footer class="ds-sidebar__footer">
+    <button
+      class="ds-sidebar__user-button"
+      type="button"
+      aria-label="Minha Conta"
+      (click)="onAccountClick()"
+    >
+      <img
+        class="ds-sidebar__user-icon"
+        [src]="userIconSrc()"
+        width="14"
+        height="18"
+        alt=""
+        aria-hidden="true"
+      />
+    </button>
+
+    @if (isExpanded() && user()) {
+      <span class="ds-sidebar__user-name">{{ user()!.name }}</span>
+    }
+  </footer>
+</aside>

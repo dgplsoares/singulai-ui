@@ -1,0 +1,109 @@
+// ============================================================================
+// Design System Singulai — Light Theme
+// Mapeia tokens SCSS para CSS Variables disponiveis em runtime via var(--ds-...).
+// Cobertura: light mode. Dark mode em DS-6.
+// ============================================================================
+
+@use '../tokens/colors' as *;
+
+:root {
+  // Colors — apex blue
+  --ds-apex-blue-100: #{$apex-blue-100};
+  --ds-apex-blue-300: #{$apex-blue-300};
+  --ds-apex-blue-500: #{$apex-blue-500};
+  --ds-apex-blue-600: #{$apex-blue-600};
+  --ds-apex-blue-700: #{$apex-blue-700};
+  --ds-apex-blue-900: #{$apex-blue-900};
+
+  // Surfaces
+  --ds-surface-base: #{$surface-base};
+  --ds-surface-card: #{$surface-card};
+  --ds-surface-card-alt: #{$surface-card-alt};
+  --ds-surface-progress-bg: #{$surface-progress-bg};
+  --ds-surface-glass: #{$surface-glass};
+  --ds-surface-glass-25: #{$surface-glass-25};
+
+  // Borders
+  --ds-border-light: #{$border-light};
+  --ds-border-soft: #{$border-soft};
+  --ds-border-soft-alt: #{$border-soft-alt};
+  --ds-border-input: #{$border-input};
+  --ds-border-progress: #{$border-progress};
+
+  // Text
+  --ds-text-title: #{$text-title};
+  --ds-text-label: #{$text-label};
+  --ds-text-value: #{$text-value};
+  --ds-text-secondary: #{$text-secondary};
+  --ds-text-button-tab: #{$text-button-tab};
+  --ds-text-tab-inactive: #{$text-tab-inactive};
+  --ds-text-apex-900: #{$text-apex-900};
+
+  // Status
+  --ds-status-success: #{$status-success};
+  --ds-status-success-bg: #{$status-success-bg};
+  --ds-status-warning: #{$status-warning};
+  --ds-status-warning-bg: #{$status-warning-bg};
+  --ds-status-danger: #{$status-danger};
+  --ds-status-danger-bg: #{$status-danger-bg};
+  --ds-status-info: #{$status-info};
+  --ds-status-info-bg: #{$status-info-bg};
+
+  // Form fields (Figma 1088:13976 — neu_bg + style_neo_2)
+  --ds-form-bg: #F8FBFF;
+  --ds-form-border: #D7E2F2;
+  --ds-form-border-error: #A3534C;
+  --ds-form-label: #5C6F8E;
+  --ds-form-placeholder: #8491A9;
+  --ds-form-input-text: #4B5872;
+  --ds-form-error-text: #A3534C;
+  --ds-form-counter: #8491A9;
+
+  // Level
+  --ds-level-iniciante: #{$level-iniciante};
+  --ds-level-iniciante-bg: #{$level-iniciante-bg};
+  --ds-level-iniciante-border: #{$level-iniciante-border};
+
+  // Spacing
+  --ds-space-3xs: 2px;
+  --ds-space-2xs: 4px;
+  --ds-space-xs: 5px;
+  --ds-space-sm: 7px;
+  --ds-space-md: 10px;
+  --ds-space-lg: 12px;
+  --ds-space-xl: 15px;
+  --ds-space-2xl: 20px;
+  --ds-space-3xl: 30px;
+  --ds-space-4xl: 40px;
+
+  // Radii
+  --ds-radius-xs: 5px;
+  --ds-radius-sm: 8px;
+  --ds-radius-md: 10px;
+  --ds-radius-lg: 12px;
+  --ds-radius-xl: 16px;
+  --ds-radius-2xl: 20px;
+  --ds-radius-pill: 50px;
+  --ds-radius-circle: 9999px;
+
+  // Typography
+  --ds-font-family-base: 'Manrope', sans-serif;
+  --ds-font-size-2xs: 10px;
+  --ds-font-size-xs: 11px;
+  --ds-font-size-sm: 12px;
+  --ds-font-size-base: 14px;
+  --ds-font-size-md: 15px;
+  --ds-font-size-lg: 16px;
+  --ds-font-size-xl: 20px;
+  --ds-font-size-2xl: 28px;
+
+  // Animations
+  --ds-duration-fast: 150ms;
+  --ds-duration-base: 200ms;
+  --ds-duration-medium: 300ms;
+  --ds-duration-slow: 500ms;
+  --ds-duration-extra-slow: 800ms;
+  --ds-ease-default: cubic-bezier(0.4, 0, 0.2, 1);
+  --ds-ease-in-out-soft: cubic-bezier(0.4, 0, 0.6, 1);
+  --ds-ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+}

@@ -1,0 +1,57 @@
+// ============================================================================
+// Chart — Estilos
+// Wrapper SCSS sobre <app-chart-widget>. Aplica chrome neumorphic canonico
+// (Figma 1042:28615) e light-mode forced (mesmo pattern do <ds-datatable>).
+//
+// PREP-4 / DEC-PREP4-D: border #DFE3EA + radius 10 + bg semi-transparente +
+// inner border white. Funciona standalone OU dentro de <ds-card-panel>.
+// ============================================================================
+
+@use '../../tokens' as ds;
+
+:host {
+  display: block;
+}
+
+.ds-chart {
+  // CSS vars scoped (alinhadas com <ds-datatable> para consistencia visual)
+  --ds-chart-border: #DFE3EA;
+  --ds-chart-radius: 10px;
+  --ds-chart-bg: rgba(255, 255, 255, 0.25);
+  --ds-chart-padding: 20px;
+
+  display: block;
+  border: 1px solid var(--ds-chart-border);
+  border-radius: var(--ds-chart-radius);
+  background: var(--ds-chart-bg);
+  box-shadow: inset 0 0 0 1px #FFFFFF;
+  padding: var(--ds-chart-padding);
+  font-family: 'Manrope', sans-serif;
+}
+
+// ============================================================================
+// PREP-4/F — Forca LIGHT MODE
+// O <app-chart-widget> e shared legado (Tailwind classes em .scss e
+// hardcoded text colors via getTextColor). Quando <html class="dark">
+// ativo, alguns elementos do shared (placeholder "Sem dados" via dark:
+// class no template) virariam dark. Override scopado anula.
+//
+// REFERENCIA: pattern/ds-tailwind-legacy-dark-override (Engram)
+// REVERSAO: quando dark mode for re-habilitado (final do projeto, per
+// usuario), remover este bloco.
+// ============================================================================
+:host ::ng-deep .ds-chart {
+
+  // "Sem dados" placeholder do shared (template linha 7):
+  // <p class="text-sm text-gray-500 dark:text-gray-400">Sem dados</p>
+  .dark\:text-gray-400 {
+    color: var(--ds-chart-empty-color, #5C6F8E) !important;
+  }
+
+  // Garante que canvas-wrapper do shared nao herda bg dark.
+  // O canvas em si renderiza via Chart.js options (controlado pelo
+  // processedConfig do wrapper); aqui so cuidamos do wrapper DOM.
+  .w-full {
+    background-color: transparent !important;
+  }
+}

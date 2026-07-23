@@ -1,0 +1,46 @@
+<div
+  class="ds-empty-state"
+  [attr.data-variant]="variant()"
+  [attr.data-size]="size()"
+  role="status"
+  aria-live="polite"
+>
+  <!-- Icon (heroicon OU SVG asset) -->
+  @if (iconImageSrc()) {
+    <img
+      class="ds-empty-state__icon"
+      [src]="iconImageSrc()"
+      alt=""
+      aria-hidden="true"
+    />
+  } @else if (icon()) {
+    <ng-icon
+      class="ds-empty-state__icon"
+      [name]="icon()!"
+      aria-hidden="true"
+    ></ng-icon>
+  }
+
+  <!-- Title obrigatorio -->
+  <h3 class="ds-empty-state__title">{{ title() }}</h3>
+
+  <!-- Description opcional -->
+  @if (description()) {
+    <p class="ds-empty-state__description">{{ description() }}</p>
+  }
+
+  <!-- CTA opcional (so renderiza se ctaLabel presente) -->
+  @if (ctaLabel()) {
+    <ds-button
+      class="ds-empty-state__cta"
+      variant="solid"
+      variantColor="primary"
+      size="sm"
+      [iconLeft]="ctaIcon()"
+      [ariaLabel]="ctaAriaLabel() ?? ctaLabel()!"
+      (clicked)="onCtaClick()"
+    >
+      {{ ctaLabel() }}
+    </ds-button>
+  }
+</div>

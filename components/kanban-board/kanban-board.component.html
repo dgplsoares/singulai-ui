@@ -1,0 +1,140 @@
+<!-- DS KanbanBoard Container -->
+<div
+  class="ds-kanban"
+  [class]="config.containerClass || ''"
+  cdkDropListGroup
+>
+  @if (loading) {
+    <!-- Loading Skeleton -->
+    <div class="ds-kanban__skeleton">
+      <div class="ds-kanban__columns">
+        @for (i of [1, 2, 3, 4]; track i) {
+          <div class="ds-kanban__column ds-kanban__column--skeleton">
+            <div class="ds-kanban__column-header">
+              <div class="ds-kanban__skeleton-title"></div>
+              <div class="ds-kanban__skeleton-badge"></div>
+            </div>
+            <div class="ds-kanban__column-content">
+              @for (j of [1, 2, 3]; track j) {
+                <div class="ds-kanban__skeleton-card"></div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  } @else {
+    <!-- Kanban Columns -->
+    <div class="ds-kanban__columns">
+      @for (column of columnsSignal(); track trackByColumnId($index, column)) {
+        <div
+          class="ds-kanban__column"
+          [class]="config.columnClass || ''"
+          [attr.data-variant]="column.color"
+          [style.width]="config.columnWidth || '280px'"
+          [style.min-height]="config.minColumnHeight || '400px'"
+        >
+          <!-- Column Header (Figma 918:13736 — pill label + total + counter neumorphic) -->
+          <div
+            class="ds-kanban__column-header"
+            (click)="onColumnHeaderClick(column, $event)"
+          >
+            <div class="ds-kanban__column-title">
+              <span class="ds-kanban__column-label">{{ column.label }}</span>
+
+              @if (config.showTotalValue && column.totalValue !== undefined) {
+                <span class="ds-kanban__column-value">
+                  {{ formatValue(column.totalValue) }}
+                </span>
+              }
+            </div>
+
+            @if (config.showCount) {
+              <span class="ds-kanban__column-count">
+                {{ column.count ?? column.items.length }}
+              </span>
+            }
+
+            @if (isColumnAtLimit(column)) {
+              <span class="ds-kanban__column-limit" title="Limite atingido">
+                ⚠
+              </span>
+            }
+          </div>
+
+          <!-- Column Content (Drop List) -->
+          <div
+            class="ds-kanban__column-content"
+            cdkDropList
+            [id]="getColumnDropListId(column)"
+            [cdkDropListData]="column.items"
+            [cdkDropListConnectedTo]="columnIds()"
+            [cdkDropListEnterPredicate]="canDropPredicate(column)"
+            (cdkDropListDropped)="onDrop($event, column)"
+          >
+            <!-- Cards -->
+            @for (item of column.items; track trackByItemId($index, item); let i = $index) {
+              <div
+                class="ds-kanban__card"
+                [class]="config.cardClass || ''"
+                [class.is-dragging]="draggingItemId() === config.trackBy(item)"
+                cdkDrag
+                [cdkDragData]="item"
+                [cdkDragDisabled]="!config.enableDragDrop || column.draggable === false"
+                (cdkDragStarted)="onDragStarted(item)"
+                (cdkDragEnded)="onDragEnded()"
+                (click)="onCardClick(item, column, $event)"
+              >
+                <!-- Drag Handle -->
+                <div class="ds-kanban__drag-handle" cdkDragHandle aria-hidden="true">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9h16.5m-16.5 6.75h16.5" />
+                  </svg>
+                </div>
+
+                <!-- Card Content -->
+                @if (cardTemplate) {
+                  <ng-container
+                    [ngTemplateOutlet]="cardTemplate"
+                    [ngTemplateOutletContext]="getCardContext(item, i, column)"
+                  ></ng-container>
+                } @else {
+                  <div class="ds-kanban__default-card">
+                    <div class="ds-kanban__default-card-title">
+                      {{ getItemTitle(item) }}
+                    </div>
+                    @if (getItemEmail(item)) {
+                      <div class="ds-kanban__default-card-subtitle">
+                        {{ getItemEmail(item) }}
+                      </div>
+                    }
+                    @if (getItemValue(item)) {
+                      <div class="ds-kanban__default-card-value">
+                        {{ formatValue(getItemValue(item)!) }}
+                      </div>
+                    }
+                  </div>
+                }
+
+                <!-- Drag Placeholder -->
+                <div class="ds-kanban__drag-placeholder" *cdkDragPlaceholder></div>
+              </div>
+            }
+
+            <!-- Empty State -->
+            @if (column.items.length === 0 && config.showEmptyState) {
+              <div class="ds-kanban__column-empty">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 01-2.247 2.118H6.622a2.25 2.25 0 01-2.247-2.118L3.75 7.5m6 4.125l2.25 2.25m0 0l2.25 2.25M12 13.875l2.25-2.25M12 13.875l-2.25 2.25M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125z" />
+                </svg>
+                <span class="ds-kanban__empty-text">
+                  {{ config.emptyStateMessage || 'Nenhum item' }}
+                </span>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

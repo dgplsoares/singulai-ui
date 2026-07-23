@@ -1,0 +1,282 @@
+// ============================================================================
+// Skeleton — Estilos (REDASH-FASE-A A.8)
+// Pattern shimmer canonico extraido de <ds-card-panel>.
+// ============================================================================
+
+@use '../../tokens' as ds;
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.ds-skeleton {
+  display: block;
+  width: 100%;
+
+  // ==========================================================================
+  // Shimmer base — aplicado a TODOS os blocos de skeleton
+  // ==========================================================================
+  &__shimmer {
+    background: linear-gradient(
+      90deg,
+      #E5EBF2 0%,
+      #F3F6FB 50%,
+      #E5EBF2 100%
+    );
+    background-size: 200% 100%;
+    animation: ds-skeleton-shimmer 1.6s ease-in-out infinite;
+  }
+
+  // ==========================================================================
+  // Primitivos
+  // ==========================================================================
+  &__line {
+    height: 14px;
+    border-radius: 4px;
+    width: 100%;
+
+    // Modificadores de width (uteis em composites)
+    &--w80 { width: 80%; }
+    &--w70 { width: 70%; }
+    &--w60 { width: 60%; }
+    &--w50 { width: 50%; }
+    &--title {
+      height: 16px;
+      width: 60%;
+    }
+  }
+
+  &__circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  &__rect {
+    width: 100%;
+    height: 80px;
+    border-radius: 8px;
+  }
+
+  &__pill {
+    height: 22px;
+    width: 70px;
+    border-radius: 999px;
+    flex-shrink: 0;
+  }
+
+  &__avatar-square {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    flex-shrink: 0;
+  }
+
+  // Multi-line primitivo (variant=line, count>1)
+  &[data-variant='line'] {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  // ==========================================================================
+  // Composite: card (mirror do ds-card-panel skeleton)
+  // ==========================================================================
+  &__card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+    background: #FFFFFF;
+    border-radius: 12px;
+    border: 1px solid #E5EBF2;
+  }
+
+  // ==========================================================================
+  // Composite: row (tabela)
+  // ==========================================================================
+  &__rows {
+    display: flex;
+    flex-direction: column;
+    gap: 1px; // mimica divisao de rows
+  }
+
+  &__row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: #FFFFFF;
+    border-bottom: 1px solid #E5EBF2;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+
+  &__row-avatar {
+    width: 32px;
+    height: 32px;
+  }
+
+  &__row-cell--lg {
+    flex: 2;
+    min-width: 0;
+    height: 14px;
+  }
+
+  &__row-cell--md {
+    flex: 1.4;
+    min-width: 0;
+    height: 12px;
+  }
+
+  &__row-cell--sm {
+    flex: 1;
+    min-width: 0;
+    height: 12px;
+  }
+
+  &__row-pill {
+    width: 72px;
+  }
+
+  // ==========================================================================
+  // Composite: chart
+  // ==========================================================================
+  &__chart {
+    position: relative;
+    width: 100%;
+    height: 220px;
+    padding: 16px;
+    background: #FFFFFF;
+    border-radius: 12px;
+    border: 1px solid #E5EBF2;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  &__chart-area {
+    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+  }
+
+  &__chart-line {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      #E5EBF2 50%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+  }
+
+  &__chart-bars {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 8px;
+    height: 80px;
+  }
+
+  &__chart-bar {
+    flex: 1;
+    min-height: 12px;
+    border-radius: 4px 4px 0 0;
+  }
+
+  // ==========================================================================
+  // Composite: statsbar
+  // ==========================================================================
+  &__statsbar {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+
+    @media (max-width: 768px) {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    @media (max-width: 480px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  &__stat {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px;
+    background: #FFFFFF;
+    border-radius: 12px;
+    border: 1px solid #E5EBF2;
+  }
+
+  &__stat-label {
+    height: 10px;
+    width: 50%;
+  }
+
+  &__stat-value {
+    height: 22px;
+    width: 60%;
+  }
+
+  &__stat-trend {
+    height: 10px;
+    width: 40%;
+  }
+
+  // ==========================================================================
+  // Composite: list-item
+  // ==========================================================================
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  &__list-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px;
+    background: #FFFFFF;
+    border-radius: 10px;
+    border: 1px solid #E5EBF2;
+  }
+
+  &__list-item-text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+}
+
+// Helper screen-reader-only (a11y do label)
+.ds-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@keyframes ds-skeleton-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

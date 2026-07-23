@@ -1,0 +1,16 @@
+<!--
+  Container fixed top-right do app shell. Renderiza o stack do service como
+  uma lista vertical de toasts. @for com track no id permite que o Angular
+  reutilize DOM nodes e dispare a animacao de entrada apenas em itens novos.
+-->
+<div class="ds-toast-host" aria-live="polite" aria-atomic="false">
+  @for (toast of toasts(); track toast.id) {
+    <div class="ds-toast-host__item">
+      <ds-toast
+        [variant]="toast.variant"
+        [message]="toast.message"
+        (dismissed)="onDismiss(toast.id)"
+      />
+    </div>
+  }
+</div>

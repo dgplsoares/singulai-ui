@@ -1,0 +1,418 @@
+// ============================================================================
+// FormField — Estilos
+// 5 variants essenciais. Inner shadow neumorphic + estados padronizados.
+// ============================================================================
+
+@use '../../tokens' as ds;
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.ds-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px; // Figma: gap 7px entre label e field
+
+  // ==========================================================================
+  // Label — Figma: Manrope SemiBold 13px line-height 14px color #5C6F8E
+  // ==========================================================================
+  &__label {
+    font-family: var(--ds-font-family-base);
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 14px;
+    color: var(--ds-form-label);
+  }
+
+  &__required {
+    color: var(--ds-form-error-text);
+    margin-left: 2px;
+  }
+
+  // ==========================================================================
+  // Control wrapper (containeriza input + icon overlays + loading spinner)
+  // ==========================================================================
+  &__control {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+  }
+
+  // ==========================================================================
+  // Input base (text, textarea, select, search) — Figma 1088:13988
+  //   bg #F8FBFF, border 1px #D7E2F2, radius 5px, padding 17px 15px,
+  //   inner shadow style_neo_2
+  // ==========================================================================
+  &__input {
+    width: 100%;
+    background: var(--ds-form-bg);
+    border: 1px solid var(--ds-form-border);
+    border-radius: 5px;
+    padding: 17px 15px;
+    font-family: var(--ds-font-family-base);
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 13px;
+    color: var(--ds-form-input-text);
+    box-sizing: border-box;
+    transition:
+      border-color var(--ds-duration-fast) var(--ds-ease-default),
+      box-shadow var(--ds-duration-fast) var(--ds-ease-default);
+    @include ds.shadow-form-field-inset;
+
+    &::placeholder {
+      color: var(--ds-form-placeholder);
+      font-weight: 600;
+    }
+
+    &:hover:not(:disabled) {
+      border-color: var(--ds-form-label);
+    }
+
+    &:focus {
+      outline: none;
+      border-color: var(--ds-apex-blue-300);
+      box-shadow:
+        inset 5px 5px 15px 0 rgba(208, 221, 234, 0.5),
+        inset -3px -3px 10px 0 #FFFFFF,
+        0 0 0 2px rgba(62, 111, 202, 0.2);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    // ----------------------------------------------------------------------
+    // Textarea-specific (Figma h: 120)
+    // ----------------------------------------------------------------------
+    &--textarea {
+      resize: vertical;
+      min-height: 120px;
+      line-height: 1.4;
+    }
+
+    // ----------------------------------------------------------------------
+    // Select-specific (esconde chevron nativo, deixa nosso overlay aparecer)
+    // ----------------------------------------------------------------------
+    &--select {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      padding-right: var(--ds-space-3xl);
+      background-image: none;
+      cursor: pointer;
+    }
+
+    // ----------------------------------------------------------------------
+    // Search-specific (espaco para icone esquerda + clear direita)
+    // Figma 892:9024 (DEC-G4.3-H): radius 10, border #C4D1E4, min-height 48
+    // Padding-left 33px deve sobreviver aos overrides de size (--sm/--md/--lg).
+    // Ver bloco final do arquivo onde reforcamos com specificity superior.
+    // ----------------------------------------------------------------------
+    &--search {
+      padding-left: 33px;
+      padding-right: 33px;
+      border-radius: 10px;
+      border-color: #C4D1E4;
+      min-height: 48px;
+    }
+  }
+
+  // ==========================================================================
+  // Icone esquerda (variant search)
+  // ==========================================================================
+  &__icon-left {
+    position: absolute;
+    left: var(--ds-space-lg);
+    top: 50%;
+    transform: translateY(-50%);
+    display: inline-flex;
+    color: var(--ds-text-tab-inactive);
+    pointer-events: none;
+  }
+
+  // ==========================================================================
+  // Chevron (variant select)
+  // ==========================================================================
+  &__chevron {
+    position: absolute;
+    right: var(--ds-space-lg);
+    top: 50%;
+    transform: translateY(-50%);
+    display: inline-flex;
+    color: var(--ds-text-secondary);
+    pointer-events: none;
+  }
+
+  // ==========================================================================
+  // Clear button (variant search com valor)
+  // ==========================================================================
+  &__clear {
+    position: absolute;
+    right: var(--ds-space-md);
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    border: none;
+    background: var(--ds-surface-card);
+    color: var(--ds-text-secondary);
+    border-radius: var(--ds-radius-circle);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background var(--ds-duration-fast) var(--ds-ease-default);
+
+    &:hover {
+      background: var(--ds-border-soft);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--ds-apex-blue-500);
+      outline-offset: 2px;
+    }
+  }
+
+  // ==========================================================================
+  // Loading spinner
+  // ==========================================================================
+  &__loading {
+    position: absolute;
+    right: var(--ds-space-md);
+    top: 50%;
+    transform: translateY(-50%);
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--ds-text-secondary);
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: ds-form-loading-spin 0.8s var(--ds-ease-linear) infinite;
+  }
+
+  // ==========================================================================
+  // Variant: toggle (switch ON/OFF) — Figma 487:1731 (ON) / 478:2110 (OFF)
+  // 70x34, border 1px #AAB8C9, radius 100px, inset neumorphic.
+  // Thumb 24x24 com gradient + 3-layer shadow + label "on/off" interno.
+  // ==========================================================================
+  &--toggle {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--ds-space-md);
+
+    .ds-form-field__label {
+      order: 2;
+      cursor: pointer;
+    }
+
+    .ds-form-field__control {
+      order: 1;
+    }
+  }
+
+  &__toggle-wrap {
+    display: inline-flex;
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+  }
+
+  &__toggle-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+
+    // Focus visivel via track
+    &:focus-visible + .ds-form-field__toggle-track {
+      outline: 2px solid var(--ds-apex-blue-500);
+      outline-offset: 2px;
+    }
+
+    // CHECKED (ON): bg azul-claro + thumb desliza pra direita + label muda
+    &:checked + .ds-form-field__toggle-track {
+      background: #B5D0F5;
+
+      .ds-form-field__toggle-thumb {
+        left: 41px;
+        background: linear-gradient(141.95deg, #B0C5D9 0.4%, #E1EFFD 64.3%);
+      }
+
+      .ds-form-field__toggle-label {
+        left: 17px;
+        color: #638DB7;
+
+        &::before {
+          content: 'on';
+        }
+      }
+    }
+
+    &:disabled + .ds-form-field__toggle-track {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  // Track — Figma 70x34
+  &__toggle-track {
+    width: 70px;
+    height: 34px;
+    // Border solid (pre-blended) — fica idêntica em OFF e ON, sem o bg vazar
+    border: 1px solid #D7DEE6;
+    border-radius: 100px;
+    background: #EEF4FA; // OFF default
+    position: relative;
+    transition: background var(--ds-duration-medium) var(--ds-ease-in-out-soft);
+    @include ds.shadow-toggle-track-inset;
+  }
+
+  // Thumb — 24x24 com gradient OFF (sobrescrito quando :checked)
+  &__toggle-thumb {
+    position: absolute;
+    top: 4px;
+    left: 5px; // OFF default
+    width: 24px;
+    height: 24px;
+    border: 1px solid #FFFFFF;
+    border-radius: 100px;
+    background: linear-gradient(141.95deg, #C3D3E3 0.4%, #FFFFFF 64.3%);
+    transition:
+      left var(--ds-duration-medium) var(--ds-ease-in-out-soft),
+      background var(--ds-duration-medium) var(--ds-ease-in-out-soft);
+    @include ds.shadow-toggle-thumb;
+  }
+
+  // Label "on/off" interno — Figma: Manrope Bold 13px com text-shadow neumorphic
+  // OFF default: posicao left:37, color #9AB6D3, texto "off"
+  // ON via :checked override (left:17, #638DB7, texto "on")
+  &__toggle-label {
+    position: absolute;
+    top: 50%;
+    left: 37px;
+    transform: translateY(-50%);
+    font-family: var(--ds-font-family-base);
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 14px;
+    color: #9AB6D3;
+    pointer-events: none;
+    transition:
+      left var(--ds-duration-medium) var(--ds-ease-in-out-soft),
+      color var(--ds-duration-medium) var(--ds-ease-in-out-soft);
+    @include ds.text-shadow-toggle-label;
+
+    &::before {
+      content: 'off';
+    }
+  }
+
+  // ==========================================================================
+  // Hint — Figma: Manrope Medium 11px color #8491A9
+  // ==========================================================================
+  &__hint {
+    font-family: var(--ds-font-family-base);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--ds-form-counter);
+    margin: 0;
+  }
+
+  // ==========================================================================
+  // Counter (textarea) — Figma: Manrope Medium 11px color #8491A9, alinhado a direita
+  // ==========================================================================
+  &__counter {
+    font-family: var(--ds-font-family-base);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--ds-form-counter);
+    margin: 0;
+    align-self: flex-end;
+  }
+
+  // ==========================================================================
+  // Error — Figma: Manrope Regular 12px color #A3534C, gap 3px do field
+  // ==========================================================================
+  &__error {
+    font-family: var(--ds-font-family-base);
+    font-size: 12px;
+    font-weight: 400;
+    color: var(--ds-form-error-text);
+    margin: 3px 0 0;
+    animation: ds-form-error-slide var(--ds-duration-base) var(--ds-ease-default);
+  }
+
+  // ==========================================================================
+  // Estado de erro — borda do input fica #A3534C
+  // ==========================================================================
+  &--error .ds-form-field__input {
+    border-color: var(--ds-form-border-error);
+
+    &:focus {
+      box-shadow:
+        inset 5px 5px 15px 0 rgba(208, 221, 234, 0.5),
+        inset -3px -3px 10px 0 #FFFFFF,
+        0 0 0 2px rgba(163, 83, 76, 0.2);
+    }
+  }
+
+  // ==========================================================================
+  // Sizes
+  // ==========================================================================
+  &--sm .ds-form-field__input {
+    padding: 8px var(--ds-space-md);
+    font-size: 12px;
+  }
+
+  &--lg .ds-form-field__input {
+    padding: 16px var(--ds-space-xl);
+    font-size: 14px;
+  }
+
+  // ==========================================================================
+  // DEC-G4.3-I: search overrides — devem vencer size-sm/md/lg (specificity)
+  // Figma 892:9024 — campo busca pixel-perfect na toolbar do datatable
+  // ==========================================================================
+  &--sm .ds-form-field__input--search,
+  &--lg .ds-form-field__input--search,
+  & .ds-form-field__input--search {
+    padding-left: 33px;
+    padding-right: 33px;
+    border-radius: 10px;
+    border-color: #C4D1E4;
+  }
+
+  // ==========================================================================
+  // DEC-G4.3-L: cap altura 48px em TODOS os inputs nao-textarea.
+  // Alinha com altura do <ds-filter-dropdown> trigger (48px) e demais
+  // botoes lg da toolbar. Padding vertical zerado para box-sizing:border-box
+  // nao estourar; centralizacao vertical herdada do default do browser.
+  // Textarea (auto-grow) e exclusivo desta regra via :not().
+  // ==========================================================================
+  &__input:not(.ds-form-field__input--textarea) {
+    height: 48px;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+}
+
+// ==========================================================================
+// Animations locais
+// ==========================================================================
+@keyframes ds-form-loading-spin {
+  from { transform: translateY(-50%) rotate(0deg); }
+  to   { transform: translateY(-50%) rotate(360deg); }
+}
+
+@keyframes ds-form-error-slide {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

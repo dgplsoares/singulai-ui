@@ -1,0 +1,794 @@
+// ============================================================================
+// Button — Estilos
+// 10+ variants em um unico componente. Estados padronizados.
+// Doc: .claude/design-system/components/button-neumorphic.md
+// ============================================================================
+
+@use '../../tokens' as ds;
+
+:host {
+  display: inline-flex;
+}
+
+.ds-button {
+  // Reset base
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ds-space-sm);
+  font-family: var(--ds-font-family-base);
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition:
+    background var(--ds-duration-base) var(--ds-ease-default),
+    box-shadow var(--ds-duration-base) var(--ds-ease-default),
+    color var(--ds-duration-fast) var(--ds-ease-default),
+    transform var(--ds-duration-fast) var(--ds-ease-default),
+    border-color var(--ds-duration-fast) var(--ds-ease-default);
+
+  // Acessibilidade — focus visible padrao DS
+  &:focus-visible {
+    outline: 2px solid var(--ds-apex-blue-500);
+    outline-offset: 2px;
+  }
+
+  // Disabled
+  &[disabled],
+  &[aria-disabled='true'] {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+
+  &--loading {
+    cursor: wait;
+    pointer-events: none;
+  }
+
+  // Spinner de loading
+  &__spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: ds-button-spin 0.8s var(--ds-ease-linear) infinite;
+  }
+
+  &__label {
+    line-height: 1;
+  }
+
+  &__icon {
+    display: inline-flex;
+    line-height: 0;
+  }
+
+  // ==========================================================================
+  // Variant: primary-cta (CTA com gradiente animado)
+  // ==========================================================================
+  &[data-variant='primary-cta'] {
+    background: linear-gradient(
+      90deg,
+      var(--ds-apex-blue-500) 0%,
+      var(--ds-apex-blue-300) 50%,
+      var(--ds-apex-blue-500) 100%
+    );
+    background-size: 200% 100%;
+    animation: ds-gradient-walk 3s var(--ds-ease-linear) infinite;
+    color: #fff;
+    border: 1px solid var(--ds-apex-blue-300);
+    border-radius: var(--ds-radius-sm);
+    padding: var(--ds-space-lg) var(--ds-space-3xl);
+    font-size: var(--ds-font-size-base);
+    @include ds.shadow-neo-silhueta-final;
+
+    &:hover:not([disabled]) {
+      filter: brightness(1.05);
+    }
+
+    &:active:not([disabled]) {
+      transform: scale(0.98);
+    }
+  }
+
+  // ==========================================================================
+  // Variant: action (Reorganizar, Personalizar, "+ Adicionar X")
+  // ==========================================================================
+  &[data-variant='action'] {
+    background: #e7ecf4;
+    color: #5e7296;
+    border: 1px solid #dadada;
+    border-radius: var(--ds-radius-sm);
+    padding: 8px var(--ds-space-xl);
+    font-size: 13px;
+    @include ds.shadow-card-2;
+
+    &:hover:not([disabled]) {
+      background: #dde3ed;
+    }
+
+    &:active:not([disabled]) {
+      transform: scale(0.98);
+    }
+  }
+
+  // ==========================================================================
+  // Variant: icon (acoes em datatable: view, edit, delete)
+  // ==========================================================================
+  &[data-variant='icon'] {
+    background: #edf1f6;
+    color: #5d7fbd;
+    border: 1px solid #adc2dd;
+    border-radius: var(--ds-radius-sm);
+    padding: 0 var(--ds-space-md);
+    height: 26px;
+    @include ds.shadow-card-2;
+    box-shadow:
+      0 1px 1px -0.583px rgba(0, 0, 0, 0.01),
+      0 2px 1.7px -0.875px rgba(0, 0, 0, 0.01),
+      0 3px 2px -1.167px rgba(0, 0, 0, 0.02),
+      0 9px 4px -1.458px rgba(0, 0, 0, 0.02),
+      0 10px 10px -1.75px rgba(0, 0, 0, 0.1),
+      inset 0 -2px 2px 0 rgba(0, 0, 0, 0.12),
+      inset 0 2px 1px 0 #fff;
+
+    // Cor variante danger (botao deletar)
+    &[data-variant-color='danger'] {
+      background: #faf4f4;
+      border-color: #dfc9c9;
+      color: var(--ds-status-danger);
+    }
+
+    &[data-variant-color='success'] {
+      background: #e5f5f6;
+      border-color: #a0ced0;
+      color: var(--ds-status-success);
+    }
+
+    &:hover:not([disabled]) {
+      filter: brightness(0.97);
+    }
+  }
+
+  // ==========================================================================
+  // Variant: action-icon (BTN-1 v2 — DEC-BTN-V2-B) — PIXEL-PERFECT v3
+  // Cobre Familias 1 (row datatable actions) + 2 (inline accordion actions)
+  // + 4.1 (header plataformas) do Figma buttons-inner-singulai.svg.
+  //
+  // PATTERN 2-LAYER (per Figma get_design_context):
+  //   - Camada externa = <button>: border 1px colorida + radius 8px + 5-layer
+  //                     drop shadows externos + bg transparente
+  //   - Camada interna = ::before pseudo-element: bg cor clara + border
+  //                     0.5px ainda mais clara + inset shadows neumorphic
+  //   - Content (icon + label) renderiza por cima com z-index: 1
+  //
+  // SIZE via prop `size`:
+  //   - sm (26px): row datatable icon-only (Familia 1)
+  //   - md (30px, default): inline accordion icon+text (Familia 2)
+  //   - lg (48px): header datatable (Familia 4.1 Plataformas)
+  //
+  // LABEL-AWARE: empty label span = icon centralizado; com label = pill.
+  //
+  // 3 colorVariants per Figma colors (DEC-BTN-V2-C):
+  //   - info (default — view/Visualizar): outer #ADC2DD / inner #EDF1F6 / text #5d7fbd
+  //   - danger (delete/Deletar):           outer #dfc9c9 / inner #faf4f4 / text #935050
+  //   - warning (edit/Editar):             outer #e2d9c4 / inner #f4f0e2 / text #6e5a2e
+  // ==========================================================================
+  &[data-variant='action-icon'] {
+    position: relative;
+    border-radius: 8px;
+    padding: 0 10px;
+    height: 26px;
+    min-width: 26px;
+    gap: 5px;
+    font-family: 'Manrope', var(--ds-font-family-base);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+    overflow: visible;
+    background: transparent;
+
+    // 5-layer outer drop shadows (effect_badge_button do Figma)
+    box-shadow:
+      0 1px 1px -0.583px rgba(0, 0, 0, 0.01),
+      0 2px 1.7px -0.875px rgba(0, 0, 0, 0.01),
+      0 3px 2px -1.167px rgba(0, 0, 0, 0.02),
+      0 9px 4px -1.458px rgba(0, 0, 0, 0.02),
+      0 10px 10px -1.75px rgba(0, 0, 0, 0.1);
+
+    // Camada interna (bg + inner border + inset shadows neumorphic)
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 8px;
+      border: 0.5px solid transparent;
+      box-shadow:
+        inset 0 -2px 2px 0 rgba(0, 0, 0, 0.12),
+        inset 0 2px 1px 0 #FFFFFF;
+      pointer-events: none;
+      z-index: 0;
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+
+    // Content acima da camada interna
+    > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    // Empty label span (icon-only mode) → hide para centralizacao perfeita
+    .ds-button__label:empty {
+      display: none;
+    }
+
+    // Sizes
+    &.ds-button--sm,
+    & { // default sm para action-icon (Familia 1 row)
+      height: 26px;
+      min-width: 26px;
+    }
+    &.ds-button--md {
+      height: 30px;
+      min-width: 30px;
+    }
+    &.ds-button--lg {
+      height: 48px;
+      min-width: 48px;
+      padding: 0 15px;
+      font-size: 13px;
+      gap: 5px;
+    }
+
+    // ------------------------------------------------------------------------
+    // Color: info (default — Visualizar/heroEye)
+    // Figma: outer #ADC2DD / inner #EDF1F6 / text #5d7fbd
+    // ------------------------------------------------------------------------
+    &,
+    &[data-variant-color='info'] {
+      border: 1px solid #ADC2DD;
+      color: #5D7FBD;
+
+      &::before {
+        background: #EDF1F6;
+        border-color: #EDF1F6;
+      }
+
+      &:hover:not([disabled])::before {
+        background: #DEE6F0;
+      }
+    }
+
+    // ------------------------------------------------------------------------
+    // Color: danger (Deletar/heroTrash)
+    // Figma: outer #dfc9c9 / inner #faf4f4 / text #935050
+    // ------------------------------------------------------------------------
+    &[data-variant-color='danger'] {
+      border: 1px solid #DFC9C9;
+      color: #935050;
+
+      &::before {
+        background: #FAF4F4;
+        border-color: #FAF4F4;
+      }
+
+      &:hover:not([disabled])::before {
+        background: #F3E5E5;
+      }
+    }
+
+    // ------------------------------------------------------------------------
+    // Color: warning (Editar/heroPencilSquare)
+    // Figma: outer #e2d9c4 / inner #f4f0e2 / text #6e5a2e
+    // ------------------------------------------------------------------------
+    &[data-variant-color='warning'] {
+      border: 1px solid #E2D9C4;
+      color: #6E5A2E;
+
+      &::before {
+        background: #F4F0E2;
+        border-color: #F4F0E2;
+      }
+
+      &:hover:not([disabled])::before {
+        background: #ECE5C9;
+      }
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--ds-apex-blue-500, #3C72D0);
+      outline-offset: 2px;
+    }
+  }
+
+  // ==========================================================================
+  // Variant: action-add (BTN-1 v2 — DEC-BTN-V2-D) — PIXEL-PERFECT v3
+  // Cobre Familias 3 (accordion add) + 4.2 (header add) do Figma.
+  //
+  // PATTERN 2-LAYER (mesmo de action-icon):
+  //   - Camada externa = button: border colorida + radius 8px + drop shadows
+  //   - Camada interna = ::before: bg cor + inset shadows
+  //
+  // MODE-AWARE:
+  //   - default (sem variantColor)            → outline neumorphic branco
+  //     (Familia 3 Adicionar Modulo, Familia 4 Plataformas)
+  //   - variantColor="primary" (apex/info)    → FILLED azul (per Figma)
+  //     outer #84a2c9 / inner #d4e3f5 / text #12458e (Familia 3 Adicionar Aula,
+  //     Familia 4 Adicionar Campanha)
+  //
+  // SIZE:
+  //   - md (32px, default): accordion add (Familia 3)
+  //   - lg (48px): header datatable (Familia 4)
+  // ==========================================================================
+  &[data-variant='action-add'] {
+    position: relative;
+    border-radius: 8px;
+    padding: 0 15px;
+    height: 32px;
+    gap: 5px;
+    font-family: 'Manrope', var(--ds-font-family-base);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+    overflow: visible;
+    background: transparent;
+
+    // 5-layer outer drop shadows (mesmo que action-icon)
+    box-shadow:
+      0 1px 1px -0.583px rgba(0, 0, 0, 0.01),
+      0 2px 1.7px -0.875px rgba(0, 0, 0, 0.01),
+      0 3px 2px -1.167px rgba(0, 0, 0, 0.02),
+      0 9px 4px -1.458px rgba(0, 0, 0, 0.02),
+      0 10px 10px -1.75px rgba(0, 0, 0, 0.1);
+
+    // Camada interna
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 8px;
+      border: 0.5px solid transparent;
+      pointer-events: none;
+      z-index: 0;
+      transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+
+    > * {
+      position: relative;
+      z-index: 1;
+    }
+
+    .ds-button__label:empty {
+      display: none;
+    }
+
+    // Sizes
+    &.ds-button--lg {
+      height: 48px;
+      padding: 0 15px;
+      font-size: 14px;
+    }
+
+    // ------------------------------------------------------------------------
+    // DEFAULT (sem variantColor) — outline neumorphic
+    // Adicionar Módulo (1088:14082) usa pattern complex; aqui usamos versao
+    // simplificada compativel com Plataformas (1088:14048):
+    //   outer #ADC2DD / inner #EDF1F6 / text #5D7FBD
+    // ------------------------------------------------------------------------
+    &:not([data-variant-color='primary']):not([data-variant-color='apex']):not([data-variant-color='info']) {
+      border: 1px solid #ADC2DD;
+      color: #5D7FBD;
+
+      &::before {
+        background: #EDF1F6;
+        border-color: #EDF1F6;
+        box-shadow:
+          inset 0 -2px 2px 0 rgba(0, 0, 0, 0.12),
+          inset 0 2px 1px 0 #FFFFFF;
+      }
+
+      &:hover:not([disabled])::before {
+        background: #DEE6F0;
+      }
+    }
+
+    // ------------------------------------------------------------------------
+    // FILLED azul (primary/apex/info) — "+ Adicionar Aula" / "+ Adicionar Campanha"
+    // Figma: outer #84a2c9 / inner #d4e3f5 / text #12458e
+    // Inset shadow tintada de azul #a1bcdb (vs preta dos outline)
+    // ------------------------------------------------------------------------
+    &[data-variant-color='primary'],
+    &[data-variant-color='apex'],
+    &[data-variant-color='info'] {
+      border: 1px solid #84A2C9;
+      color: #12458E;
+
+      &::before {
+        background: #D4E3F5;
+        border-color: #EDF1F6;
+        box-shadow:
+          inset 0 -2px 2px 0 #A1BCDB,
+          inset 0 2px 1px 0 rgba(255, 255, 255, 0.5);
+      }
+
+      &:hover:not([disabled])::before {
+        background: #BFD4ED;
+      }
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--ds-apex-blue-500, #3C72D0);
+      outline-offset: 2px;
+    }
+  }
+
+  // ==========================================================================
+  // Variant: submit (form submit no AI Assistant prompt)
+  // ==========================================================================
+  &[data-variant='submit'] {
+    background: linear-gradient(
+      143.7deg,
+      #dde2e8 19.4%,
+      #eff1f4 46.1%,
+      #ffffff 63.2%
+    );
+    color: var(--ds-apex-blue-500);
+    border: 4px solid #d7dfe9;
+    border-radius: 11px;
+    width: 41px;
+    height: 41px;
+    padding: 8px;
+    @include ds.shadow-neo-silhueta-final;
+
+    &:hover:not([disabled]) {
+      @include ds.shadow-neo-silhueta-final-hover;
+    }
+  }
+
+  // ==========================================================================
+  // Variant: sidebar (logo, search, avatar do sidebar)
+  // ==========================================================================
+  &[data-variant='sidebar'] {
+    background: var(--ds-surface-card);
+    color: var(--ds-text-secondary);
+    border: 1px solid var(--ds-border-light);
+    border-radius: var(--ds-radius-lg);
+    width: 40px;
+    height: 40px;
+    padding: 8px;
+    @include ds.shadow-neo-silhueta-final;
+
+    &:hover:not([disabled]) {
+      @include ds.shadow-neo-silhueta-final-hover;
+    }
+  }
+
+  // ==========================================================================
+  // Variant: solid (DEC-DS-001) — botao primario com bg solido + inner shadows
+  // duplas (clara em cima + escura embaixo) + outer shadow 5-layer.
+  // 8 colorVariants: primary/secondary/tertiary/success/danger/warning/dark/goal.
+  // Substitui (deprecated) modal-primary.
+  //
+  // Spec Figma node 1088:13374 + DEC-DS-001 do refinement-plan.
+  // ==========================================================================
+  &[data-variant='solid'] {
+    color: #fff;
+    border: none;
+    border-radius: var(--ds-radius-sm);
+    padding: 14px var(--ds-space-2xl);
+    font-family: var(--ds-font-family-base);
+    font-size: 13px;
+    font-weight: 700;
+    line-height: 1;
+    @include ds.shadow-button-solid-outer;
+
+    // Default colorVariant = primary (quando atributo ausente)
+    &:not([data-variant-color]),
+    &[data-variant-color='primary'],
+    &[data-variant-color='apex'] {
+      background: #3E6FCA;
+      @include ds.shadow-button-solid-inner(rgba(104, 148, 232, 0.8), #2B57AA);
+    }
+
+    // secondary — Figma 1088:13383 (bg #617BA9 / Figma var: blue_4)
+    &[data-variant-color='secondary'] {
+      background: #617BA9;
+      @include ds.shadow-button-solid-inner(rgba(142, 166, 207, 0.8), #49628D);
+    }
+
+    // tertiary — Figma 1088:13391 — VARIANT LIGHT (nao escuro como apex-blue-700).
+    // bg #F6F6F6, text #7285A4, border 1px #DADADA, outer shadow style_box_2
+    // mais sutil + inner shadow inversa (white em cima, sombra fraca embaixo).
+    // Padding herdado do .ds-button[data-variant='solid'] (14px 20px) para
+    // manter altura igual aos demais colorVariants.
+    &[data-variant-color='tertiary'] {
+      background: #F6F6F6;
+      color: #7285A4;
+      border: 1px solid #DADADA;
+      box-shadow:
+        0 1px 1px -0.58px rgba(0, 0, 0, 0.03),
+        0 2px 1.7px -0.88px rgba(0, 0, 0, 0.03),
+        0 5px 3px -1.17px rgba(0, 0, 0, 0.05),
+        0 9px 7px -1.46px rgba(0, 0, 0, 0.05),
+        0 25px 15px -1.75px rgba(0, 0, 0, 0.04),
+        inset 0 4px 4px 0 #FFFFFF,
+        inset 0 -4px 4px 0 rgba(94, 114, 150, 0.14);
+    }
+
+    &[data-variant-color='success'] {
+      background: #3BA36F;
+      @include ds.shadow-button-solid-inner(rgba(110, 200, 150, 0.8), #2A7A53);
+    }
+
+    &[data-variant-color='danger'] {
+      background: #D04A3F;
+      @include ds.shadow-button-solid-inner(rgba(232, 135, 128, 0.8), #9B362E);
+    }
+
+    &[data-variant-color='warning'],
+    &[data-variant-color='alert'] {
+      background: #A8841C;
+      @include ds.shadow-button-solid-inner(rgba(225, 190, 90, 0.8), #7A5F11);
+    }
+
+    // dark — Figma 1088:13461 (bg #4B5872 — charcoal blue-gray)
+    &[data-variant-color='dark'] {
+      background: #4B5872;
+      @include ds.shadow-button-solid-inner(rgba(105, 121, 153, 0.8), #3C4A66);
+    }
+
+    // info (alias) — usa color status-info como base
+    &[data-variant-color='info'] {
+      background: var(--ds-status-info);
+    }
+
+    // goal: spec Figma pendente — placeholder usando primary ate chegar
+    &[data-variant-color='goal'] {
+      background: #3E6FCA;
+      @include ds.shadow-button-solid-inner(rgba(104, 148, 232, 0.8), #2B57AA);
+    }
+
+    &:hover:not([disabled]) {
+      filter: brightness(1.05);
+    }
+
+    &:active:not([disabled]) {
+      filter: brightness(0.95);
+      transform: translateY(1px);
+    }
+  }
+
+  // ==========================================================================
+  // Variant: outline (DEC-DS-001) — botao secundario com border + bg transparente.
+  // Substitui (deprecated) modal-cancel. NAO confundir com 'ghost' (sem bg nem
+  // border; ainda nao implementado em DS-2.1).
+  //
+  // colorVariant define a cor do texto e da border.
+  // ==========================================================================
+  &[data-variant='outline'] {
+    background: transparent;
+    border: 1px solid var(--ds-border-soft);
+    border-radius: var(--ds-radius-sm);
+    padding: 14px var(--ds-space-2xl);
+    font-family: var(--ds-font-family-base);
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1;
+    color: var(--ds-text-secondary);
+
+    &:not([data-variant-color]),
+    &[data-variant-color='primary'],
+    &[data-variant-color='apex'] {
+      color: var(--ds-apex-blue-500);
+      border-color: var(--ds-apex-blue-300);
+    }
+
+    &[data-variant-color='secondary'] {
+      color: var(--ds-apex-blue-500);
+      border-color: var(--ds-apex-blue-500);
+    }
+
+    &[data-variant-color='tertiary'] {
+      color: var(--ds-apex-blue-700);
+      border-color: var(--ds-apex-blue-700);
+    }
+
+    &[data-variant-color='success'] {
+      color: var(--ds-status-success);
+      border-color: var(--ds-status-success);
+    }
+
+    &[data-variant-color='danger'] {
+      color: var(--ds-status-danger);
+      border-color: var(--ds-status-danger);
+    }
+
+    &[data-variant-color='warning'],
+    &[data-variant-color='alert'] {
+      color: var(--ds-status-warning);
+      border-color: var(--ds-status-warning);
+    }
+
+    &[data-variant-color='dark'] {
+      color: var(--ds-text-title);
+      border-color: var(--ds-text-title);
+    }
+
+    &[data-variant-color='info'] {
+      color: var(--ds-status-info);
+      border-color: var(--ds-status-info);
+    }
+
+    &:hover:not([disabled]) {
+      background: var(--ds-surface-glass);
+    }
+
+    &:active:not([disabled]) {
+      transform: translateY(1px);
+    }
+  }
+
+  // ==========================================================================
+  // Variant: modal-cancel (Cancelar em modal/offcanvas)
+  // ==========================================================================
+  &[data-variant='modal-cancel'] {
+    background: #f6f6f6;
+    color: #7285a4;
+    border: 1px solid #dadada;
+    border-radius: var(--ds-radius-sm);
+    padding: 8px var(--ds-space-2xl);
+    font-size: 13px;
+    @include ds.shadow-card-2;
+
+    &:hover:not([disabled]) {
+      background: #ededed;
+    }
+  }
+
+  // ==========================================================================
+  // Variant: modal-primary (acao primaria modal — cor por variantColor)
+  // ==========================================================================
+  &[data-variant='modal-primary'] {
+    color: #fff;
+    border: none;
+    border-radius: var(--ds-radius-sm);
+    padding: 14px var(--ds-space-2xl);
+    font-size: 13px;
+    box-shadow:
+      0 10px 7px 0 rgba(0, 0, 0, 0.1),
+      0 6px 3px 0 rgba(0, 0, 0, 0.04),
+      0 4px 3px 0 rgba(0, 0, 0, 0.04),
+      0 2px 1.7px 0 rgba(0, 0, 0, 0.02),
+      0 1px 1px 0 rgba(0, 0, 0, 0.02);
+
+    &[data-variant-color='danger'] {
+      background: var(--ds-status-danger);
+      box-shadow:
+        0 10px 7px 0 rgba(0, 0, 0, 0.1),
+        inset 0 -4px 4px 0 #763a3a,
+        inset 0 4px 4px 0 #be8383;
+    }
+
+    &[data-variant-color='alert'] {
+      background: var(--ds-status-warning);
+    }
+
+    &[data-variant-color='success'] {
+      background: var(--ds-status-success);
+    }
+
+    &[data-variant-color='info'] {
+      background: var(--ds-status-info);
+    }
+
+    &[data-variant-color='apex'] {
+      background: var(--ds-apex-blue-500);
+    }
+
+    &:hover:not([disabled]) {
+      filter: brightness(1.05);
+    }
+
+    &:active:not([disabled]) {
+      transform: scale(0.98);
+    }
+  }
+
+  // ==========================================================================
+  // Variant: nav-tab (tab interno de card)
+  // ==========================================================================
+  &[data-variant='nav-tab'] {
+    background: #f6f8fb;
+    color: var(--ds-text-tab-inactive);
+    border: 1px solid var(--ds-border-input);
+    border-radius: var(--ds-radius-sm);
+    padding: var(--ds-space-md) var(--ds-space-lg);
+    font-size: var(--ds-font-size-sm);
+    font-weight: 600;
+    box-shadow:
+      inset 0 -2px 3px 0 rgba(94, 114, 150, 0.1),
+      inset 0 3px 3px 0 #fff;
+
+    &:hover:not([disabled]) {
+      color: var(--ds-apex-blue-300);
+    }
+
+    &.ds-button--active {
+      background: linear-gradient(
+        0deg,
+        rgb(217, 224, 238) 0%,
+        rgb(246, 249, 251) 50%,
+        rgb(255, 255, 255) 100%
+      );
+      color: var(--ds-text-button-tab);
+      box-shadow: 0 8px 10px 0 rgba(0, 0, 0, 0.05);
+    }
+  }
+
+  // ==========================================================================
+  // Variant: pagination (numero de pagina em datatable)
+  // ==========================================================================
+  &[data-variant='pagination'] {
+    background: var(--ds-surface-card);
+    color: #425c76;
+    border: 1px solid var(--ds-border-light);
+    border-radius: 7px;
+    width: 32px;
+    height: 30px;
+    padding: 0;
+    font-size: 13px;
+    font-weight: 500;
+
+    &.ds-button--active {
+      @include ds.shadow-neo-silhueta-final;
+    }
+
+    &:hover:not([disabled]):not(.ds-button--active) {
+      background: var(--ds-surface-card-alt);
+    }
+  }
+
+  // ==========================================================================
+  // Variant: toggle-status (datatable switch ativo/inativo)
+  // ==========================================================================
+  &[data-variant='toggle-status'] {
+    background: var(--ds-surface-base);
+    color: #638db7;
+    border: 1px solid #aab8c9;
+    border-radius: var(--ds-radius-pill);
+    height: 34px;
+    padding: 0 var(--ds-space-2xl) 0 var(--ds-space-md);
+    font-size: 13px;
+    font-weight: 700;
+    box-shadow:
+      inset -3px -3px 7px 0 #fff,
+      inset 3px 3px 10px 0 rgba(187, 198, 215, 0.9);
+    position: relative;
+    text-align: left;
+    min-width: 89px;
+
+    &.ds-button--active {
+      background: #e2f0fe;
+    }
+  }
+
+  // ==========================================================================
+  // Sizes (afetam padding/font apenas em variants que aceitam)
+  // ==========================================================================
+  &--sm {
+    font-size: 12px;
+  }
+
+  &--lg {
+    font-size: 16px;
+  }
+}
+
+// Spinner keyframes (local — nao polui global animations)
+@keyframes ds-button-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}

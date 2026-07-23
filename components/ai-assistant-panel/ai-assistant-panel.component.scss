@@ -1,0 +1,746 @@
+// ============================================================================
+// AI Assistant Panel — Estilos
+// Card 2 camadas (mesmo padrao do <ds-page-layout>__main-area / nav-footer):
+//   Outer: bg #FFF, border 1px rgba(204,209,234,0.75), radius 15, padding 2,
+//          dhadow_card_3 (5-layer shadow)
+//   Inner: bg gradient #F6F9FB, border 1px #E1E1E5, radius 13
+//
+// Adapta-se ao container via flex 100% width/height. Sub-blocos (header/tabs/
+// timeline/prompts/form) crescem em proporcao do conteudo + scroll na timeline.
+// ============================================================================
+
+@use '../../tokens' as ds;
+
+:host {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+}
+
+// Embedded mode — remove card chrome para projetar em container que ja tem
+// seu proprio card 2 camadas (ex: nav-footer panel-area mobile inline).
+:host(.ds-ai-assistant-panel--embedded) {
+  .ds-ai-assistant-panel__outer {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    padding: 0;
+    box-shadow: none;
+  }
+
+  .ds-ai-assistant-panel__inner {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+  }
+
+  // Header padding compacto no mobile inline (em vez de 20px desktop).
+  // 15px horizontal compensa a remocao do padding lateral do panel-area
+  // (que agora nao aplica — sub-componentes que cuidem do seu).
+  .ds-ai-assistant-panel__header {
+    padding: 5px 15px 15px 15px;
+  }
+
+  // No mobile inline (modo normal/minimizado), so exibe a primeira sugestao
+  // de action prompt — economiza espaco vertical limitado do nav-footer.
+  // Quando maximizado, AI vira para slot desktop (sem classe embedded) e
+  // todas as 3 sugestoes ficam visiveis.
+  .ds-ai-assistant-panel__prompts {
+    .ds-ai-assistant-panel__prompt:not(:first-child) {
+      display: none;
+    }
+  }
+}
+
+.ds-ai-assistant-panel {
+  // ----- Outer layer (card 2 camadas — outer) -----
+  &__outer {
+    flex: 1;
+    min-height: 0;
+    background: #FFFFFF;
+    border: 1px solid rgba(204, 209, 234, 0.75);
+    border-radius: 15px;
+    padding: 2px;
+    display: flex;
+    flex-direction: column;
+    box-shadow:
+      0 2.5px 2.5px 0 rgba(0, 0, 0, 0.01),
+      0 5px 5px 0 rgba(0, 0, 0, 0.01),
+      0 10px 7px 0 rgba(0, 0, 0, 0.02),
+      0 17px 15px 0 rgba(0, 0, 0, 0.02),
+      0 32px 28px 0 rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+  }
+
+  // ----- Inner layer (card 2 camadas — inner) -----
+  &__inner {
+    flex: 1;
+    min-height: 0;
+    background:
+      linear-gradient(90deg, #F6F9FB, #F6F9FB),
+      #FFFFFF;
+    border: 1px solid #E1E1E5;
+    border-radius: 13px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  // ----- Sub-blocos (estilos completos serao adicionados em F-AI-2..6) -----
+
+  // ==========================================================================
+  // HEADER (F-AI-2) — Figma 1149:14553 mobile / 1160:16956 desktop
+  // Layout: brand (label condicional, esquerda) + actions (4 botoes, direita).
+  // Padding 20px conforme Figma; gap actions 8px; gap brand 7px.
+  // ==========================================================================
+  &__header {
+    flex-shrink: 0;
+    border-bottom: 1px solid #E1E1E5;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  &__brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    flex-shrink: 0;
+  }
+
+  &__brand-icon {
+    color: #7390B9;
+    flex-shrink: 0;
+  }
+
+  &__title {
+    font-family: 'Manrope', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: #7390B9;
+    line-height: 13px;
+  }
+
+  &__actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+    margin-left: auto;
+  }
+
+  // ----- Action button wrapper (transparente) -----
+  // O visual (28x28 neumorphic) vem de <ds-icon-neumorphic size="sm"> dentro;
+  // o wrapper <button> serve apenas para click handling + a11y.
+  &__action-btn {
+    appearance: none;
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: inline-flex;
+    flex-shrink: 0;
+
+    &:focus-visible {
+      outline: 2px solid var(--ds-apex-blue-500);
+      outline-offset: 2px;
+      border-radius: var(--ds-radius-sm);
+    }
+  }
+
+  // Wrapper relativo para action button + seu dropdown menu (ex: settings).
+  // Mesmo padrao do __credits-wrap, mas com dropdown ancorado a ESQUERDA
+  // (settings fica a esquerda do header — dropdown deve estender para direita).
+  &__action-wrap {
+    position: relative;
+    display: inline-flex;
+    flex-shrink: 0;
+
+    > .ds-ai-assistant-panel__dropdown {
+      left: 0;
+      right: auto;
+    }
+  }
+
+  // ----- Credits pill — alinhado ao visual de <ds-icon-neumorphic size="sm">
+  // (28 height, bg surface-card, border light, shadow-icon-card). Largura
+  // auto pra acomodar texto + chevron.
+  &__credits-wrap {
+    position: relative;
+    display: inline-flex;
+    flex-shrink: 0;
+  }
+
+  &__credits {
+    // R.14e (2026-05-14): paridade visual com <ds-icon-neumorphic size="sm">
+    // dos action-btn vizinhos (showcase section-icon-neumorphic). Usa os
+    // mesmos tokens DS: surface-card bg + border-light + shadow-icon-card
+    // (4-layer soft) + radius-sm. Mantem padding 0 10 + height 28 para
+    // acomodar o conteudo text+chevron.
+    height: 28px;
+    border-radius: var(--ds-radius-sm);
+    border: 1px solid var(--ds-border-light);
+    background: var(--ds-surface-card);
+    @include ds.shadow-icon-card;
+    padding: 0 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    flex-shrink: 0;
+    font-family: 'Manrope', sans-serif;
+    font-size: 12px;
+    line-height: 11px;
+    transition: box-shadow var(--ds-duration-fast) var(--ds-ease-default);
+
+    &:focus-visible {
+      outline: 2px solid var(--ds-apex-blue-500);
+      outline-offset: 2px;
+    }
+  }
+
+  // R.14c: Figma 1160-16973/16974 — label e value uniformes em #8491A9
+  // (`--color_placeholder`). Antes: #426FB3 (apex blue) + #617BA9 (cinza)
+  // divergiam do design system canonico.
+  &__credits-label {
+    font-weight: 800;
+    color: #8491A9;
+  }
+
+  &__credits-value {
+    font-weight: 500;
+    color: #8491A9;
+  }
+
+  &__credits-chevron {
+    color: #8491A9;
+    margin-left: 2px;
+    transition: transform var(--ds-duration-fast) var(--ds-ease-default);
+
+    &--open {
+      transform: rotate(180deg);
+      color: #426FB3;
+    }
+  }
+
+  // ----- Dropdown menu — mesmo estilo do showcase__dropdown (card menu)
+  // Posicionado absoluto abaixo do credits trigger. Z-index alto para sobrepor
+  // o conteudo. Animacao via @if no template (no transition por simplicidade).
+  &__dropdown {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    z-index: 10;
+    min-width: 180px;
+    background: #EDF1F6;
+    border: 1px solid #ADC2DD;
+    border-radius: 8px;
+    padding: 11px;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+    box-shadow:
+      0 1px 1px -0.58px rgba(0, 0, 0, 0.01),
+      0 2px 1.7px -0.88px rgba(0, 0, 0, 0.01),
+      0 3px 2px -1.17px rgba(0, 0, 0, 0.02),
+      0 9px 4px -1.46px rgba(0, 0, 0, 0.02),
+      0 10px 10px -1.75px rgba(0, 0, 0, 0.10),
+      inset 0 2px 1px #FFFFFF,
+      inset 0 -2px 2px rgba(0, 0, 0, 0.12);
+  }
+
+  &__dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-family: 'Manrope', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: #5D7FBD;
+    text-align: left;
+    transition: color var(--ds-duration-fast) var(--ds-ease-default);
+
+    &:hover {
+      color: #3E6FCA;
+    }
+
+    &:focus-visible {
+      outline: 1px solid var(--ds-apex-blue-500);
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+  }
+
+  &__dropdown-icon {
+    flex-shrink: 0;
+    color: inherit;
+  }
+
+  // ==========================================================================
+  // G1 (DEC-CHAT1-API-6): Settings dropdown com 4 data-switchers
+  // ==========================================================================
+  &__dropdown--settings {
+    min-width: 240px;
+    padding: 10px;
+    gap: 10px;
+  }
+
+  &__cfg-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 4px 0;
+  }
+
+  &__cfg-label {
+    font-family: 'Manrope', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: #5C6F8E;
+    white-space: nowrap;
+  }
+
+  // Criatividade — segmented (3 buttons low/medium/high)
+  &__cfg-segments {
+    display: inline-flex;
+    border-radius: 8px;
+    background: #E5EBF3;
+    padding: 2px;
+    box-shadow:
+      inset 2px 2px 4px 0 rgba(111, 140, 176, 0.18),
+      inset -2px -2px 4px 0 #FFFFFF;
+  }
+
+  &__cfg-seg {
+    padding: 4px 10px;
+    border: none;
+    background: transparent;
+    color: #7A8AA3;
+    font-family: 'Manrope', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    border-radius: 6px;
+    cursor: pointer;
+    transition:
+      background-color var(--ds-duration-fast) var(--ds-ease-default),
+      color var(--ds-duration-fast) var(--ds-ease-default);
+
+    &:hover:not(.is-active) {
+      color: #466FA9;
+    }
+
+    &.is-active {
+      background: #FFFFFF;
+      color: #466FA9;
+      box-shadow:
+        0 1px 2px rgba(0, 0, 0, 0.05),
+        0 1px 1px rgba(0, 0, 0, 0.03);
+    }
+  }
+
+  // Tom de voz — select nativo estilizado
+  &__cfg-select {
+    appearance: none;
+    -webkit-appearance: none;
+    padding: 5px 26px 5px 10px;
+    border: 1px solid #D7DEE6;
+    border-radius: 6px;
+    background:
+      linear-gradient(135deg, transparent calc(50% - 1px), #5C6F8E 50%, transparent calc(50% + 1px)) calc(100% - 9px) 50% / 5px 5px no-repeat,
+      #F6F9FB;
+    color: #466FA9;
+    font-family: 'Manrope', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow:
+      inset 0 1px 2px rgba(111, 140, 176, 0.1),
+      inset 0 -1px 1px #FFFFFF;
+
+    &:focus {
+      outline: 1px solid #466FA9;
+      outline-offset: 1px;
+    }
+  }
+
+  // Toggle row (search external + reasoning estendido)
+  &__cfg-toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 4px 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    width: 100%;
+    text-align: left;
+    font-family: inherit;
+
+    &:focus-visible {
+      outline: 1px solid #466FA9;
+      outline-offset: 2px;
+      border-radius: 4px;
+    }
+  }
+
+  &__cfg-toggle {
+    position: relative;
+    flex-shrink: 0;
+    width: 30px;
+    height: 16px;
+    border-radius: 100px;
+    background: #E3EDF7;
+    border: 1px solid #D6E3F3;
+    box-shadow:
+      inset 0 1px 3px rgba(111, 140, 176, 0.2),
+      inset 0 -1px 1px #FFFFFF;
+    transition:
+      background-color var(--ds-duration-fast) var(--ds-ease-default);
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 1px;
+      top: 1px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: linear-gradient(180deg, #FFFFFF 0%, #E5EBF3 100%);
+      box-shadow:
+        1px 1px 2px rgba(111, 140, 176, 0.35),
+        -1px -1px 2px #FFFFFF;
+      transition: transform var(--ds-duration-fast) var(--ds-ease-default);
+    }
+
+    &.is-on {
+      background: linear-gradient(180deg, #5C8DE2 0%, #27467C 100%);
+      border-color: #FFFFFF;
+
+      &::after {
+        transform: translateX(14px);
+      }
+    }
+  }
+
+  // ==========================================================================
+  // CHAT-1.3 (DEC-CHAT1-API-1): body slot — quando useBodySlot=true caller
+  // projeta <app-ai-chat-timeline> aqui.
+  // ==========================================================================
+  &__body-slot {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+
+    // Filho projetado ocupa todo o espaco
+    > * {
+      flex: 1;
+      min-height: 0;
+    }
+  }
+
+  // ==========================================================================
+  // TABS — usa <ds-segmented-tabs> (componente reutilizavel do DS).
+  // R.15d (2026-05-14): padding 20px 4 lados + border-bottom #E1E1E5
+  // (Figma 1224:10941 — header tem divider bottom apos as nav-tabs).
+  // Removido max-width:500 interno do ds-segmented-tabs (Figma mostra
+  // tabs full-width).
+  // ==========================================================================
+  &__tabs {
+    flex-shrink: 0;
+    padding: 20px;
+    border-bottom: 1px solid #E1E1E5;
+
+    ds-segmented-tabs {
+      display: block;
+      width: 100%;
+    }
+  }
+
+  // ==========================================================================
+  // TIMELINE (F-AI-4) — chat body com mensagens AI + user.
+  // Padding 15px conforme Figma. msgs container com gap 25px vertical.
+  // Mensagens AI sao bubbles transparentes a esquerda; user bubbles bg #E7EDF5
+  // arredondado a direita. margin-top: auto na lista mantem chat colado embaixo.
+  // ==========================================================================
+  &__timeline {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__messages {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    width: 100%;
+    margin-top: auto; // gruda no fim da timeline (chat-style)
+  }
+
+  &__line {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+
+    &--ai {
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    &--user {
+      align-items: flex-end;
+    }
+  }
+
+  &__bubble-text {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    color: #49566E;
+  }
+
+  &__paragraph {
+    margin: 0;
+    font-family: 'Manrope', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: normal;
+  }
+
+  &__seg--bold {
+    font-weight: 700;
+  }
+
+  &__bubble-user {
+    background: #E7EDF5;
+    border-radius: 15px;
+    padding: 10px 15px;
+    max-width: 85%;
+    color: #49566E;
+
+    .ds-ai-assistant-panel__paragraph {
+      font-weight: 600;
+    }
+  }
+
+  &__meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  &__agent-label {
+    font-family: 'Poppins', sans-serif;
+    font-style: italic;
+    font-size: 10px;
+    line-height: 12px;
+    color: #49566E;
+  }
+
+  &__meta-action {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #49566E;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity var(--ds-duration-fast) var(--ds-ease-default);
+
+    &:hover {
+      opacity: 0.6;
+    }
+
+    &:focus-visible {
+      outline: 1px solid var(--ds-apex-blue-500);
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+  }
+
+  // ==========================================================================
+  // ACTION PROMPTS (F-AI-5) — Figma actions, sugestoes clicaveis com seta ↳
+  // Cada line: arrow icon (6x8 visual ~ ↳ unicode) + label Manrope 12 #5B6A86.
+  // ==========================================================================
+  &__prompts {
+    flex-shrink: 0;
+    padding: 15px 15px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__prompt {
+    appearance: none;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 0;
+    text-align: left;
+    font-family: 'Manrope', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    color: #5B6A86;
+    line-height: normal;
+    transition: color var(--ds-duration-fast) var(--ds-ease-default);
+
+    &:hover {
+      color: #466FA9;
+    }
+
+    &:focus-visible {
+      outline: 1px solid var(--ds-apex-blue-500);
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+  }
+
+  &__prompt-arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 14px;
+    font-size: 14px;
+    line-height: 1;
+    color: inherit;
+  }
+
+  &__prompt-text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  // ==========================================================================
+  // FORM PROMPT (F-AI-6) — textarea + send button neumorphic 41x41.
+  // Card outer com gradient sutil; textarea ocupa o card; send btn absoluto
+  // no canto inferior direito do card.
+  // ==========================================================================
+  &__form {
+    flex-shrink: 0;
+    // Divider 2-tone (gray + white inset) acima do form, conforme Figma.
+    border-top: 1px solid #E2E4E8;
+    box-shadow: inset 0 1px 0 #FFFFFF;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    margin-top: 15px;
+  }
+
+  &__prompt-card {
+    position: relative;
+    border: 1px solid #E1E1E5;
+    border-radius: 12px;
+    padding: 10px;
+    background:
+      linear-gradient(90deg, rgba(231, 237, 245, 0.6), rgba(231, 237, 245, 0.6)),
+      #FFFFFF;
+    min-height: 130px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__textarea {
+    flex: 1;
+    min-height: 60px;
+    background: #FFFFFF;
+    border: none;
+    border-radius: 13px;
+    padding: 12px 60px 12px 16px; // padding-right deixa espaco pro send btn
+    font-family: 'Manrope', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: #49566E;
+    resize: none;
+    outline: none;
+    width: 100%;
+    line-height: 1.4;
+
+    &::placeholder {
+      color: #8599AC;
+      font-weight: 500;
+    }
+  }
+
+  // Send button — Figma: 41x41 com border 1px #648DC4 + inner ring 4px #D7DFE9
+  // + bg gradient + outer neumorphic shadow.
+  &__send {
+    position: absolute;
+    right: 18px;
+    bottom: 18px;
+    width: 41px;
+    height: 41px;
+    border-radius: 12px;
+    border: 1px solid #648DC4;
+    background:
+      linear-gradient(143.7deg, #DDE2E8 19.4%, #EFF1F4 46.1%, #FFFFFF 63.2%);
+    box-shadow:
+      // outer neumorphic
+      2px 2px 4px 0 rgba(114, 142, 171, 0.1),
+      -5px -5px 14px 0 #FFFFFF,
+      3px 3px 15px 0 rgba(111, 140, 176, 0.41),
+      // inner ring 4px
+      inset 0 0 0 4px #D7DFE9;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: #648DC4;
+    padding: 0;
+    flex-shrink: 0;
+    transition:
+      box-shadow var(--ds-duration-fast) var(--ds-ease-default),
+      transform var(--ds-duration-fast) var(--ds-ease-default),
+      color var(--ds-duration-fast) var(--ds-ease-default),
+      opacity var(--ds-duration-fast) var(--ds-ease-default);
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    // G6 (DEC-CHAT1-API): micro-animacao no hover — scale 1.04 + glow azul
+    // sutil aumentando o spread do drop shadow azul. Reverte ao sair.
+    &:not([disabled]):hover {
+      color: #426FB3;
+      transform: scale(1.04);
+      box-shadow:
+        2px 2px 6px 0 rgba(114, 142, 171, 0.12),
+        -5px -5px 14px 0 #FFFFFF,
+        3px 3px 18px 0 rgba(66, 111, 179, 0.55),
+        inset 0 0 0 4px #D7DFE9;
+    }
+
+    &:not([disabled]):active {
+      transform: scale(0.98);
+      box-shadow:
+        inset 2px 2px 4px 0 rgba(111, 140, 176, 0.3),
+        inset 0 0 0 4px #D7DFE9;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--ds-apex-blue-500);
+      outline-offset: 2px;
+    }
+  }
+}

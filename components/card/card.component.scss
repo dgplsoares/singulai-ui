@@ -1,0 +1,247 @@
+// ============================================================================
+// Card — Estilos
+// Doc: .claude/design-system/components/card.md
+// ============================================================================
+
+@use '../../tokens' as ds;
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.ds-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--ds-surface-card);
+  border: 1px solid var(--ds-border-soft);
+  border-radius: var(--ds-radius-lg);
+  position: relative;
+  overflow: hidden;
+
+  // Sombra principal — versao mais leve que neo-silhueta para nao competir com elementos internos
+  @include ds.shadow-card;
+
+  // Inner border branca (efeito "entalhe")
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border: 1px solid var(--ds-border-light);
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  // ==========================================================================
+  // Header
+  // ==========================================================================
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--ds-space-xl);
+    padding: var(--ds-space-xl) var(--ds-space-lg);
+    border-bottom: 1px solid var(--ds-border-soft-alt);
+    position: relative;
+    z-index: 2;
+  }
+
+  &__header-left {
+    display: flex;
+    align-items: center;
+    gap: var(--ds-space-xl);
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__header-right {
+    display: flex;
+    align-items: center;
+    gap: var(--ds-space-md);
+    flex-shrink: 0;
+  }
+
+  &__title {
+    @include ds.text-card-title;
+    margin: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  // ==========================================================================
+  // Nav tabs (period-selector, etc) — implementacao basica
+  // Para variant completa, usar componente nav-tabs-card (DS-2.2)
+  // ==========================================================================
+  &__nav-tabs {
+    display: flex;
+    background: var(--ds-surface-base);
+    border: 1px solid var(--ds-border-input);
+    border-radius: var(--ds-radius-sm);
+    overflow: hidden;
+    height: 34px;
+  }
+
+  &__nav-tab {
+    background: transparent;
+    border: none;
+    padding: 0 var(--ds-space-lg);
+    font-family: var(--ds-font-family-base);
+    font-size: var(--ds-font-size-sm);
+    font-weight: 600;
+    color: var(--ds-text-tab-inactive);
+    cursor: pointer;
+    transition: color var(--ds-duration-fast) var(--ds-ease-default),
+      background var(--ds-duration-base) var(--ds-ease-default);
+
+    &:hover {
+      color: var(--ds-apex-blue-300);
+    }
+
+    &--active {
+      background: linear-gradient(
+        0deg,
+        rgb(217, 224, 238) 0%,
+        rgb(246, 249, 251) 50%,
+        rgb(255, 255, 255) 100%
+      );
+      color: var(--ds-text-button-tab);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--ds-apex-blue-500);
+      outline-offset: -2px;
+    }
+  }
+
+  // ==========================================================================
+  // Kebab (botao "⋮" para dropdown opcoes — implementacao temporaria DS-2.1)
+  // ==========================================================================
+  &__kebab {
+    width: 24px;
+    height: 24px;
+    border: none;
+    background: transparent;
+    color: var(--ds-text-secondary);
+    font-size: 18px;
+    cursor: pointer;
+    border-radius: var(--ds-radius-xs);
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background var(--ds-duration-fast) var(--ds-ease-default);
+
+    &:hover {
+      background: var(--ds-surface-glass);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--ds-apex-blue-500);
+      outline-offset: 2px;
+    }
+  }
+
+  // ==========================================================================
+  // Body
+  // Gradient duplo replicando o Figma: glass com tom #E5EBF2 a 70% sobre branco
+  // ==========================================================================
+  &__body {
+    padding: var(--ds-space-2xl);
+    background:
+      linear-gradient(
+        90deg,
+        rgba(229, 235, 242, 0.7) 0%,
+        rgba(229, 235, 242, 0.7) 100%
+      ),
+      linear-gradient(
+        90deg,
+        rgb(255, 255, 255) 0%,
+        rgb(255, 255, 255) 100%
+      );
+    flex: 1;
+    position: relative;
+    z-index: 1;
+  }
+
+  // ==========================================================================
+  // Estados
+  // ==========================================================================
+  &__skeleton {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ds-space-md);
+  }
+
+  &__empty-default,
+  &__error-default {
+    text-align: center;
+    color: var(--ds-text-tab-inactive);
+    @include ds.text-body;
+    margin: 0;
+    padding: var(--ds-space-2xl);
+  }
+
+  &__error-default {
+    color: var(--ds-status-danger);
+  }
+
+  // ==========================================================================
+  // Variants
+  // ==========================================================================
+
+  // dashboard — sombra ligeiramente mais forte
+  &--dashboard {
+    @include ds.shadow-effects-neumorfismo;
+  }
+
+  // with-tabs — sem mudanca visual significativa do default
+  &--with-tabs {
+    // header ja tem nav-tabs por composicao
+  }
+
+  // simple — sem dropdown options no header (controlado pelo @if no template)
+  &--simple {
+    // sem mudanca visual
+  }
+
+  // inner-card — usado dentro de outros cards (ex: datatable wrapper)
+  // Sem header com icon-neumorphic, sombra mais leve
+  &--inner {
+    box-shadow: none;
+    border-radius: var(--ds-radius-md);
+    background: transparent;
+
+    &::before {
+      display: none;
+    }
+
+    .ds-card__body {
+      padding: 0;
+      background: transparent;
+    }
+  }
+}
+
+// ==========================================================================
+// Skeleton lines (utilitarias do card — usadas em fallback default)
+// ==========================================================================
+.ds-skeleton-line {
+  display: block;
+  height: 12px;
+  border-radius: var(--ds-radius-xs);
+  background: linear-gradient(
+    90deg,
+    var(--ds-surface-card) 25%,
+    var(--ds-surface-glass) 50%,
+    var(--ds-surface-card) 75%
+  );
+  background-size: 200% 100%;
+  animation: ds-shimmer 1.5s var(--ds-ease-linear) infinite;
+
+  &--100 { width: 100%; }
+  &--75  { width: 75%; }
+  &--50  { width: 50%; }
+  &--25  { width: 25%; }
+}

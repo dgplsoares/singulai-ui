@@ -1,0 +1,105 @@
+// ============================================================================
+// AiAssistantButton — Estados:
+//   DEFAULT      (Figma 1094:15285): SVG limpo + neo_silhueta_final via filter
+//   HOVER        (Figma 1098:15339): recolor primary + sombras realcadas
+//   ACTIVE       (Figma 1088:13824): AI Assistant panel aberto — reaproveita
+//                a estrutura visual do dashboard menu-item-active (triple ring
+//                + bg #EFF3F8 + inset neumorphic + filter drop-shadow externo).
+// ============================================================================
+
+@use '../../tokens' as ds;
+@use '../../tokens/shadows' as shadows;
+
+:host {
+  display: inline-flex;
+}
+
+.ds-ai-assistant-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  // Square 32x32 (Figma 1190:9646 frame 31x31). box-sizing: border-box garante
+  // que padding+border do active nao expandam o botao para alem de 32x32.
+  box-sizing: border-box;
+  width: 32px;
+  height: 32px;
+  padding: 0 6px;
+  margin: 0;
+  cursor: pointer;
+  font-family: inherit;
+  overflow: visible;
+  // position: relative para que o pseudo-element ::before do active spin
+  // ancore corretamente em torno do botao (PREP-5).
+  position: relative;
+  transition:
+    background var(--ds-duration-medium) var(--ds-ease-in-out-soft),
+    border-color var(--ds-duration-medium) var(--ds-ease-in-out-soft),
+    box-shadow var(--ds-duration-medium) var(--ds-ease-in-out-soft);
+
+  &:focus-visible {
+    outline: 2px solid var(--ds-apex-blue-500);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  // Sparkles SVG — square 20x20 (Figma 1190:9647 Group 172)
+  &__icon {
+    display: block;
+    width: 20px;
+    height: 20px;
+    @include shadows.filter-neo-silhueta-icon;
+    transition: filter var(--ds-duration-medium) var(--ds-ease-in-out-soft);
+  }
+
+  // Hover (node Figma 1098:15339) — recolor para primary #3E6FCA + sombras realcadas
+  // Nao aplica no estado active (panel aberto preserva sparkles colorido fixo).
+  &:hover:not([disabled]):not(.ds-ai-assistant-button--active) .ds-ai-assistant-button__icon {
+    @include shadows.filter-neo-silhueta-icon-hover;
+  }
+
+  // ==========================================================================
+  // ACTIVE — Figma 1088:13824
+  // Reaproveita a mesma cascade visual do dashboard menu-item-active:
+  //   border 2px white inner + ring 1.375px #3577EB + ring 5px white 0.35
+  //   bg #EFF3F8, inset neumorphic, filter drop-shadow para lift externo.
+  // Radius 7px (proporcional ao botao 32px de altura, equivalente ao 9px do
+  // dashboard active de 40px = ~22% do height).
+  // ==========================================================================
+  &--active {
+    background: #EFF3F8;
+    border: 2px solid #FFFFFF;
+    border-radius: 7px;
+    // box-sizing: border-box no host garante que border 2px + padding 4px
+    // somam 12px horizontais, fechando 20+12=32px square (Figma 1190:9661 30x30).
+    padding: 0 4px;
+    box-shadow:
+      0 0 0 1.375px #3577EB,
+      0 0 0 5px rgba(255, 255, 255, 0.35),
+      0 8px 10px 0 rgba(0, 0, 0, 0.05),
+      inset -5px -5px 7px -2px #FFFFFF,
+      inset  5px  5px 10px -2px #B3C0CF;
+    filter:
+      drop-shadow(2px 2px 4px rgba(64, 95, 125, 0.25))
+      drop-shadow(-8px -8px 6px rgb(255, 255, 255))
+      drop-shadow(4px 4px 15px rgba(77, 103, 136, 0.15));
+
+    // No active, o container ja gera depth — icon mantem recolor primary
+    // (mesmo tratamento do hover) para enfatizar que esta selecionado.
+    .ds-ai-assistant-button__icon {
+      @include shadows.filter-neo-silhueta-icon-hover;
+    }
+
+    // Spin one-shot via mixin centralizado (REDASH-PREP-5.1).
+    // Pattern + decisoes tecnicas: .claude/design-system/patterns/active-button-spin.md
+    // Animacao SO dispara quando classe `.ds-spinning` esta presente (controlada
+    // pela diretiva [dsActiveSpin] no template).
+    // Defaults do mixin: $iterations: 1, $duration: 500ms
+    // $border-radius: 7px sincroniza com border-radius do --active acima.
+    @include ds.ds-active-spin-ring(
+      $border-radius: 7px,
+      $inset: -3px
+    );
+  }
+}

@@ -1,0 +1,349 @@
+// ============================================================================
+// Datatable — Estilos
+// Wrapper SCSS sobre <app-data-table>. Aplica overrides para alinhar com
+// Figma 862:10798 (DEC-FIG-PREP3-4) + correcoes PREP-3.5:
+//   - PREP-3.5/F: forca LIGHT MODE (anula classes dark:* do Tailwind)
+//   - PREP-3.5/G: toggle switch refeito visualmente para igualar o
+//     <ds-form-field__toggle> (track 70x34, thumb gradient, label "on/off")
+//
+// IMPORTANTE: o <app-data-table> existente usa Tailwind (bg-gray-50,
+// dark:bg-gray-700, etc.). Override aqui aplica theme DS via CSS vars +
+// :host ::ng-deep com !important onde precisa anular Tailwind dark:*
+// (DEC-PREP3.5-D — reversivel quando dark mode for re-habilitado no
+// final do projeto).
+// ============================================================================
+
+@use '../../tokens' as ds;
+
+:host {
+  display: block;
+}
+
+.ds-datatable {
+  // CSS vars scoped para o tema DS canonico do Figma 862:10798
+  --ds-dt-border: #DFE3EA;
+  --ds-dt-radius: 10px;
+  --ds-dt-bg: rgba(255, 255, 255, 0.25);
+  --ds-dt-header-color: #516D87;
+  --ds-dt-cell-color: #5C6F8E;
+  --ds-dt-divider: #D5DCE6;
+
+  display: block;
+  border: 1px solid var(--ds-dt-border);
+  border-radius: var(--ds-dt-radius);
+  background: var(--ds-dt-bg);
+  box-shadow: inset 0 0 0 1px #FFFFFF;
+  overflow: hidden;
+  font-family: 'Manrope', sans-serif;
+}
+
+// ============================================================================
+// Overrides do <app-data-table> (DEC-PREP3-E)
+// :host ::ng-deep escopado via .ds-datatable.
+// !important aplicado consistentemente para vencer Tailwind dark em empates
+// de specificity (3 classes vs 3 classes + ordem do bundle).
+// ============================================================================
+:host ::ng-deep .ds-datatable {
+
+  // Container interno do app-data-table (data-table.scss linha 8 tem
+  // @apply bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200
+  // dark:border-gray-700) — neutralizamos tudo
+  .data-table-container {
+    background: transparent !important;
+    background-color: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  // Headers — cor + tipografia canonica
+  thead th,
+  table thead th {
+    color: var(--ds-dt-header-color) !important;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 14px;
+    background: transparent !important;
+    background-color: transparent !important;
+    border-bottom: 1px solid var(--ds-dt-divider) !important;
+  }
+
+  // Cells — cor + tipografia canonica
+  tbody td,
+  table tbody td {
+    color: var(--ds-dt-cell-color) !important;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    line-height: 14px;
+    background: transparent !important;
+    background-color: transparent !important;
+  }
+
+  // Linhas — divider sutil entre rows + bg light forcado
+  tbody tr,
+  table tbody tr {
+    border-bottom: 1px solid rgba(213, 220, 230, 0.5) !important;
+    background: transparent !important;
+    background-color: transparent !important;
+
+    &:last-child {
+      border-bottom: none !important;
+    }
+  }
+
+  // Row hover (data-table.scss linha 47-53: tbody tr:hover td uses
+  // @apply bg-gray-50 dark:bg-gray-700). Override com bg light sutil.
+  tbody tr:hover,
+  table tbody tr:hover {
+    background-color: rgba(231, 238, 247, 0.5) !important;
+
+    td {
+      background-color: rgba(231, 238, 247, 0.5) !important;
+    }
+  }
+
+  // ==========================================================================
+  // PREP-3.5/F — FORCA LIGHT MODE
+  // O <app-data-table> e shared legado e usa Tailwind extensivamente,
+  // incluindo classes dark:* que ativam quando <html class="dark">. Aqui
+  // neutralizamos TODAS as classes dark usadas no template do shared,
+  // mapeando 1:1 para o equivalente light do DS, com !important para vencer
+  // specificity do Tailwind class strategy.
+  //
+  // REFERENCIA: pattern/ds-tailwind-legacy-dark-override (Engram)
+  // REVERSAO: quando dark mode for re-habilitado para listagens (final do
+  // projeto, per usuario), remover este bloco inteiro.
+  // ==========================================================================
+
+  // --- Backgrounds ---
+  // Anula dark:bg-gray-{600,700,800} aplicados em divs, dropdowns, table rows
+  .dark\:bg-gray-600,
+  .dark\:bg-gray-700,
+  .dark\:bg-gray-800 {
+    background-color: transparent !important;
+  }
+
+  // dark:bg-gray-700/30, dark:bg-gray-800/50, dark:bg-gray-700/20 (com alpha)
+  // Selectors Tailwind escapam o slash com \/
+  [class*='dark\\:bg-gray-700\\/'],
+  [class*='dark\\:bg-gray-800\\/'],
+  [class*='dark\\:bg-gray-600\\/'] {
+    background-color: transparent !important;
+  }
+
+  // dark:bg-blue-* (filter dropdown active state)
+  .dark\:bg-blue-600 {
+    background-color: var(--ds-apex-blue-500, #3C72D0) !important;
+  }
+  [class*='dark\\:bg-blue-900\\/'] {
+    background-color: rgba(60, 114, 208, 0.1) !important; // tint sutil light
+  }
+
+  // dark:bg-{red,yellow,green}-900/30 — error/warning/success states
+  [class*='dark\\:bg-red-900\\/'] {
+    background-color: rgba(188, 50, 50, 0.08) !important;
+  }
+  [class*='dark\\:bg-yellow-900\\/'] {
+    background-color: rgba(190, 131, 63, 0.08) !important;
+  }
+  [class*='dark\\:bg-green-900\\/'] {
+    background-color: rgba(56, 161, 115, 0.08) !important;
+  }
+
+  // --- Texts ---
+  // dark:text-white -> texto principal escuro (header)
+  .dark\:text-white {
+    color: var(--ds-dt-header-color, #0B1E40) !important;
+  }
+
+  // dark:text-gray-{200,300,400,500} -> cor cell DS
+  .dark\:text-gray-200,
+  .dark\:text-gray-300,
+  .dark\:text-gray-400,
+  .dark\:text-gray-500 {
+    color: var(--ds-dt-cell-color, #5C6F8E) !important;
+  }
+
+  // dark:text-blue-{300,400} (filter active text)
+  .dark\:text-blue-300,
+  .dark\:text-blue-400 {
+    color: var(--ds-apex-blue-500, #3C72D0) !important;
+  }
+
+  // dark:text-{red,yellow,green}-{200,300,400} (state texts)
+  .dark\:text-red-200,
+  .dark\:text-red-300,
+  .dark\:text-red-400 {
+    color: #BC3232 !important;
+  }
+  .dark\:text-yellow-400 {
+    color: #BE833F !important;
+  }
+  .dark\:text-green-400 {
+    color: #38A173 !important;
+  }
+
+  // --- Borders ---
+  // dark:border-gray-{600,700,800} -> divider DS
+  .dark\:border-gray-600,
+  .dark\:border-gray-700,
+  .dark\:border-gray-800 {
+    border-color: var(--ds-dt-divider, #D5DCE6) !important;
+  }
+  .dark\:border-red-800 {
+    border-color: rgba(188, 50, 50, 0.3) !important;
+  }
+
+  // --- Hovers ---
+  // dark:hover:bg-gray-{600,700} (filter dropdown rows, table rows)
+  .dark\:hover\:bg-gray-600:hover,
+  .dark\:hover\:bg-gray-700:hover {
+    background-color: rgba(231, 238, 247, 0.5) !important;
+  }
+  .dark\:hover\:text-gray-200:hover,
+  .dark\:hover\:text-gray-300:hover {
+    color: var(--ds-dt-header-color, #0B1E40) !important;
+  }
+
+  // --- Focus rings ---
+  .dark\:focus\:ring-blue-600:focus,
+  .dark\:focus\:ring-blue-800:focus {
+    --tw-ring-color: var(--ds-apex-blue-500, #3C72D0) !important;
+  }
+  .dark\:ring-offset-gray-800 {
+    --tw-ring-offset-color: #FFFFFF !important;
+  }
+
+  // --- Inputs (search) ---
+  // Quando dark ativo aplicava dark:bg-gray-700 dark:text-white dark:border-gray-600
+  // — neutralizado acima. Reforco aqui para nao deixar input sem bg.
+  input[type='text'],
+  input[type='search'] {
+    background-color: #FFFFFF !important;
+    color: #0B1E40 !important;
+    border-color: #D7DEE6 !important;
+  }
+
+  // --- Defesa em profundidade ---
+  // Skeleton/loading / placeholders nao mapeados acima
+  .animate-pulse,
+  [class*='skeleton'] {
+    background-color: #F1F5F9 !important;
+  }
+
+  // ==========================================================================
+  // PREP-3.5/G — Toggle switch visual ds-form-field
+  // Re-estiliza o <button role="switch"> interno do data-table para ter
+  // o mesmo visual do <ds-form-field__toggle> (track 70x34, thumb
+  // gradient, label "on/off" inset).
+  //
+  // O button original tem classes Tailwind: w-11 (44px), h-6 (24px),
+  // rounded-full. A geometria muda para 70x34. Span interno do thumb
+  // tem h-4 w-4 + transform translate-x; sobrescrevemos via position
+  // absolute para usar o pattern do form-field.
+  // ==========================================================================
+  button[role='switch'] {
+    // Reset Tailwind defaults
+    width: 70px !important;
+    height: 34px !important;
+    padding: 0 !important;
+    border: 1px solid #D7DEE6 !important;
+    border-radius: 100px !important;
+    background-color: #EEF4FA !important; // OFF default
+    position: relative !important;
+    transition:
+      background-color var(--ds-duration-medium, 250ms) var(--ds-ease-in-out-soft, ease) !important;
+    @include ds.shadow-toggle-track-inset;
+
+    // Anula classes de cor que app-data-table aplica via [class] dynamic
+    // (getSwitchActiveColorClass retorna 'bg-blue-600', 'bg-green-600' etc.)
+    &.bg-blue-600,
+    &.bg-green-600,
+    &.bg-purple-600,
+    &.bg-indigo-600,
+    &.bg-teal-600 {
+      background-color: #B5D0F5 !important; // ON state
+    }
+
+    // Thumb (span interno do button) — overridestransform Tailwind
+    > span {
+      position: absolute !important;
+      top: 4px !important;
+      left: 5px !important;
+      width: 24px !important;
+      height: 24px !important;
+      border: 1px solid #FFFFFF !important;
+      border-radius: 100px !important;
+      background: linear-gradient(141.95deg, #C3D3E3 0.4%, #FFFFFF 64.3%) !important;
+      transform: none !important; // anula translate-x do Tailwind
+      transition:
+        left var(--ds-duration-medium, 250ms) var(--ds-ease-in-out-soft, ease),
+        background var(--ds-duration-medium, 250ms) var(--ds-ease-in-out-soft, ease) !important;
+      @include ds.shadow-toggle-thumb;
+    }
+
+    // ON: thumb desliza para direita + gradient azul-claro
+    &[aria-checked='true'],
+    &.bg-blue-600,
+    &.bg-green-600,
+    &.bg-purple-600,
+    &.bg-indigo-600,
+    &.bg-teal-600 {
+      > span {
+        left: 41px !important;
+        background: linear-gradient(141.95deg, #B0C5D9 0.4%, #E1EFFD 64.3%) !important;
+      }
+    }
+
+    // Label "on/off" — pseudo-element no botao (fallback se nao tiver
+    // span dedicado de label). Posicao depende do estado.
+    &::before {
+      content: 'off';
+      position: absolute;
+      top: 50%;
+      left: 37px;
+      transform: translateY(-50%);
+      font-family: 'Manrope', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 14px;
+      color: #9AB6D3;
+      pointer-events: none;
+      transition:
+        left var(--ds-duration-medium, 250ms) var(--ds-ease-in-out-soft, ease),
+        color var(--ds-duration-medium, 250ms) var(--ds-ease-in-out-soft, ease);
+      @include ds.text-shadow-toggle-label;
+    }
+
+    &[aria-checked='true']::before,
+    &.bg-blue-600::before,
+    &.bg-green-600::before,
+    &.bg-purple-600::before,
+    &.bg-indigo-600::before,
+    &.bg-teal-600::before {
+      content: 'on';
+      left: 17px;
+      color: #638DB7;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--ds-apex-blue-500, #3C72D0);
+      outline-offset: 2px;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  // Label textual ao lado do switch (Ativo/Inativo) — light forcado
+  td .flex.items-center.gap-2 > span {
+    font-family: 'Manrope', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ds-dt-cell-color) !important;
+  }
+}

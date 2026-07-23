@@ -1,0 +1,18 @@
+// ============================================================================
+// ds-form-section — Estilos
+// Wrapper SCSS sobre <app-form-section>. Visual e comportamento canonicos
+// (Figma 590:1220/1242/1243) ficam no shared apos refator pixel-perfect.
+//
+// Pattern de espacamento universal (DEC-POLISH-4 — 2026-06-17):
+// quando 2 <ds-form-section> aparecem como irmaos diretos, aplicar 20px
+// de margem entre eles. Funciona em qualquer contexto (form, div, etc)
+// sem o caller precisar configurar gap no parent.
+//
+// LIGHTMODE-FIRST: zero classes :host-context(.dark) — convencao vigente.
+// ============================================================================
+
+// NOTA (DEC-POLISH-4): :host { display: block } + espacamento 20px entre
+// <ds-form-section> adjacentes foram movidos para styles.scss global.
+// Razao: `:host + :host` no SCSS encapsulado nao bate consistentemente
+// em Angular Emulated. Mantemos este arquivo limpo — a regra vive em
+// frontend/src/styles.scss.

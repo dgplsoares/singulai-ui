@@ -1,0 +1,71 @@
+<!-- Trigger button (pill neumorphic) -->
+<button
+  #trigger
+  type="button"
+  class="ds-filter-dropdown__trigger"
+  [class.is-open]="isOpen()"
+  [attr.aria-label]="ariaLabel()"
+  [attr.aria-expanded]="isOpen()"
+  aria-haspopup="listbox"
+  (click)="toggle()"
+>
+  <ng-icon class="ds-filter-dropdown__trigger-icon" [name]="triggerIcon()" aria-hidden="true"></ng-icon>
+  <span class="ds-filter-dropdown__trigger-label">{{ triggerLabel() }}</span>
+  <ng-icon
+    class="ds-filter-dropdown__trigger-chevron"
+    [class.is-rotated]="isOpen()"
+    name="heroChevronDown"
+    aria-hidden="true"
+  ></ng-icon>
+</button>
+
+<!-- Overlay panel -->
+<ng-template
+  cdkConnectedOverlay
+  [cdkConnectedOverlayOrigin]="trigger"
+  [cdkConnectedOverlayOpen]="isOpen()"
+  [cdkConnectedOverlayPositions]="positions()"
+  [cdkConnectedOverlayHasBackdrop]="true"
+  cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+  [cdkConnectedOverlayMinWidth]="minWidth()"
+  (backdropClick)="close()"
+  (detach)="close()"
+  (overlayKeydown)="$event.key === 'Escape' ? close() : null"
+>
+  <div
+    class="ds-filter-dropdown__panel"
+    role="listbox"
+    [attr.aria-multiselectable]="mode() === 'multi'"
+    [attr.aria-label]="ariaLabel()"
+  >
+    @for (opt of options(); track opt.value) {
+      <button
+        type="button"
+        class="ds-filter-dropdown__item"
+        [class.is-selected]="isSelected(opt.value)"
+        [class.is-disabled]="opt.disabled"
+        [disabled]="opt.disabled ?? false"
+        role="option"
+        [attr.aria-selected]="isSelected(opt.value)"
+        (click)="onOptionClick(opt)"
+      >
+        <span class="ds-filter-dropdown__checkbox" aria-hidden="true">
+          @if (isSelected(opt.value)) {
+            <svg class="ds-filter-dropdown__checkbox-tick" viewBox="0 0 12 12" fill="none">
+              <path
+                d="M2.5 6.5L4.8 8.8L9.5 4"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+            </svg>
+          }
+        </span>
+        <span class="ds-filter-dropdown__label">
+          {{ opt.label }}@if (opt.count !== undefined) {<span class="ds-filter-dropdown__count"> ({{ opt.count }})</span>}
+        </span>
+      </button>
+    }
+  </div>
+</ng-template>

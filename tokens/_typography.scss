@@ -1,0 +1,79 @@
+// ============================================================================
+// Design System Singulai — Typography
+// Fonte: .claude/design-system/tokens/typography.md
+// ============================================================================
+
+// Family
+$font-family-base: 'Manrope', sans-serif;
+
+// Weights
+$font-weight-regular: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+$font-weight-extrabold: 800;
+
+// Sizes
+$font-size-2xs: 10px;
+$font-size-xs: 11px;
+$font-size-sm: 12px;
+$font-size-base: 14px;
+$font-size-md: 15px;
+$font-size-lg: 16px;
+$font-size-xl: 20px;
+$font-size-2xl: 28px;
+
+// ----------------------------------------------------------------------------
+// Mixins por contexto (uso em componentes)
+// ----------------------------------------------------------------------------
+
+@mixin text-card-title {
+  font-family: $font-family-base;
+  font-size: $font-size-md;
+  font-weight: $font-weight-bold;
+  line-height: 14px;
+  color: var(--ds-text-title);
+}
+
+@mixin text-page-title {
+  font-family: $font-family-base;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  line-height: 16px;
+}
+
+@mixin text-list-label {
+  font-family: $font-family-base;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  line-height: 11px;
+  color: var(--ds-text-label);
+}
+
+@mixin text-body {
+  font-family: $font-family-base;
+  font-size: $font-size-base;
+  font-weight: $font-weight-regular;
+  line-height: 1.4;
+}
+
+@mixin text-button {
+  font-family: $font-family-base;
+  font-size: 13px;
+  font-weight: $font-weight-bold;
+  line-height: 13px;
+}
+
+@mixin text-big-number {
+  font-family: $font-family-base;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-extrabold;
+  line-height: 1;
+}
+
+@mixin text-badge {
+  font-family: $font-family-base;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-semibold;
+  line-height: 1;
+}

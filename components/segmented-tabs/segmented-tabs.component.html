@@ -1,0 +1,38 @@
+<div class="ds-segmented-tabs">
+  <div class="ds-segmented-tabs__frame">
+    @for (item of items(); track item.key; let first = $first; let last = $last) {
+      <button
+        type="button"
+        class="ds-segmented-tabs__tab"
+        [class.ds-segmented-tabs__tab--first]="first"
+        [class.ds-segmented-tabs__tab--last]="last"
+        [class.ds-segmented-tabs__tab--active]="item.key === activeKey()"
+        [class.ds-segmented-tabs__tab--has-close]="item.closable"
+        [attr.aria-pressed]="item.key === activeKey()"
+        (click)="onTabClick(item.key)"
+      >
+        @if (item.icon) {
+          <ng-icon
+            class="ds-segmented-tabs__icon"
+            [name]="item.icon"
+            [size]="item.iconSize ?? '17px'"
+          ></ng-icon>
+        }
+        <span class="ds-segmented-tabs__label">{{ item.label }}</span>
+        @if (item.closable) {
+          <span
+            class="ds-segmented-tabs__close"
+            role="button"
+            tabindex="0"
+            [attr.aria-label]="item.closeAriaLabel ?? 'Fechar'"
+            (click)="onCloseClick($event, item.key)"
+            (keydown.enter)="onCloseKey($event, item.key)"
+            (keydown.space)="onCloseKey($event, item.key)"
+          >
+            <ng-icon name="heroXMark" size="10px"></ng-icon>
+          </span>
+        }
+      </button>
+    }
+  </div>
+</div>

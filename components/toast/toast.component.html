@@ -1,0 +1,27 @@
+<!--
+  Estrutura: border-left de accent (4px colorido) + icone + mensagem + X.
+  ARIA: role="alert" com aria-live polite (success/info/warning) ou assertive
+  (error). Screen reader anuncia automaticamente quando o toast aparece.
+-->
+<div
+  class="ds-toast"
+  [class]="'ds-toast--' + variant()"
+  [attr.role]="variant() === 'error' ? 'alert' : 'status'"
+  [attr.aria-live]="variant() === 'error' ? 'assertive' : 'polite'"
+  aria-atomic="true"
+>
+  <span class="ds-toast__icon" aria-hidden="true">
+    <ng-icon [name]="iconName()" size="20px"></ng-icon>
+  </span>
+
+  <p class="ds-toast__message">{{ message() }}</p>
+
+  <button
+    type="button"
+    class="ds-toast__close"
+    aria-label="Fechar notificacao"
+    (click)="onDismiss()"
+  >
+    <ng-icon name="heroXMark" size="16px" aria-hidden="true"></ng-icon>
+  </button>
+</div>

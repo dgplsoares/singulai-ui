@@ -1,0 +1,170 @@
+@let ro = readOnly();
+
+<div class="ds-rich-text-editor" [class.ds-rich-text-editor--read-only]="ro">
+  @if (!ro) {
+    <!-- Toolbar (13 grupos conforme Figma 725:10407) -->
+    <div class="ds-rte-toolbar" role="toolbar" aria-label="Formatação">
+      <!-- Group: undo/redo -->
+      <div class="ds-rte-toolbar__group">
+        <button type="button" class="ds-rte-toolbar__btn"
+                aria-label="Desfazer" title="Desfazer"
+                (click)="undo()">
+          <ng-icon name="heroArrowUturnLeft" class="ds-rte-toolbar__icon" />
+        </button>
+        <button type="button" class="ds-rte-toolbar__btn"
+                aria-label="Refazer" title="Refazer"
+                (click)="redo()">
+          <ng-icon name="heroArrowUturnRight" class="ds-rte-toolbar__icon" />
+        </button>
+      </div>
+
+      <!-- Group: headings dropdown -->
+      <div class="ds-rte-toolbar__group ds-rte-toolbar__group--dropdown">
+        <button type="button" class="ds-rte-toolbar__btn ds-rte-toolbar__btn--dropdown"
+                [attr.aria-expanded]="headingsOpen()"
+                (click)="toggleHeadingsMenu($event)">
+          <span class="ds-rte-toolbar__label">{{ currentHeading() }}</span>
+          <ng-icon name="heroChevronDown" class="ds-rte-toolbar__chevron" />
+        </button>
+        @if (headingsOpen()) {
+          <ul class="ds-rte-menu" role="menu">
+            <li class="ds-rte-menu__item" role="menuitem" (click)="setHeading(0)">Texto normal</li>
+            <li class="ds-rte-menu__item ds-rte-menu__item--h1" role="menuitem" (click)="setHeading(1)">Título 1</li>
+            <li class="ds-rte-menu__item ds-rte-menu__item--h2" role="menuitem" (click)="setHeading(2)">Título 2</li>
+            <li class="ds-rte-menu__item ds-rte-menu__item--h3" role="menuitem" (click)="setHeading(3)">Título 3</li>
+          </ul>
+        }
+      </div>
+
+      <!-- Group: text-align dropdown -->
+      <div class="ds-rte-toolbar__group ds-rte-toolbar__group--dropdown">
+        <button type="button" class="ds-rte-toolbar__btn ds-rte-toolbar__btn--dropdown"
+                aria-label="Alinhamento" title="Alinhamento"
+                [attr.aria-expanded]="alignOpen()"
+                (click)="toggleAlignMenu($event)">
+          <ng-icon name="heroBars2" class="ds-rte-toolbar__icon" />
+          <ng-icon name="heroChevronDown" class="ds-rte-toolbar__chevron" />
+        </button>
+        @if (alignOpen()) {
+          <ul class="ds-rte-menu" role="menu">
+            <li class="ds-rte-menu__item" role="menuitem" (click)="setAlign('left')">Esquerda</li>
+            <li class="ds-rte-menu__item" role="menuitem" (click)="setAlign('center')">Centro</li>
+            <li class="ds-rte-menu__item" role="menuitem" (click)="setAlign('right')">Direita</li>
+            <li class="ds-rte-menu__item" role="menuitem" (click)="setAlign('justify')">Justificado</li>
+          </ul>
+        }
+      </div>
+
+      <!-- Group: color dropdown -->
+      <div class="ds-rte-toolbar__group ds-rte-toolbar__group--dropdown">
+        <button type="button" class="ds-rte-toolbar__btn ds-rte-toolbar__btn--dropdown"
+                aria-label="Cor do texto" title="Cor do texto"
+                [attr.aria-expanded]="colorOpen()"
+                (click)="toggleColorMenu($event)">
+          <ng-icon name="heroSwatch" class="ds-rte-toolbar__icon" />
+          <ng-icon name="heroChevronDown" class="ds-rte-toolbar__chevron" />
+        </button>
+        @if (colorOpen()) {
+          <ul class="ds-rte-menu ds-rte-menu--color" role="menu">
+            @for (color of colorPalette; track color) {
+              <li class="ds-rte-menu__color-swatch"
+                  [style.background]="color"
+                  role="menuitem"
+                  (click)="setColor(color)"
+                  [attr.aria-label]="'Aplicar cor ' + color"></li>
+            }
+            <li class="ds-rte-menu__item ds-rte-menu__item--reset"
+                role="menuitem" (click)="unsetColor()">Padrão</li>
+          </ul>
+        }
+      </div>
+
+      <!-- Group: formatting (B/I/U/S/code/clear) — labels de texto (heroicons não tem estes) -->
+      <div class="ds-rte-toolbar__group">
+        <button type="button" class="ds-rte-toolbar__btn ds-rte-toolbar__btn--text"
+                [class.ds-rte-toolbar__btn--active]="isBold()"
+                aria-label="Negrito" title="Negrito (Ctrl+B)"
+                (click)="toggleBold()">
+          <span class="ds-rte-toolbar__text ds-rte-toolbar__text--bold">B</span>
+        </button>
+        <button type="button" class="ds-rte-toolbar__btn ds-rte-toolbar__btn--text"
+                [class.ds-rte-toolbar__btn--active]="isItalic()"
+                aria-label="Itálico" title="Itálico (Ctrl+I)"
+                (click)="toggleItalic()">
+          <span class="ds-rte-toolbar__text ds-rte-toolbar__text--italic">I</span>
+        </button>
+        <button type="button" class="ds-rte-toolbar__btn ds-rte-toolbar__btn--text"
+                [class.ds-rte-toolbar__btn--active]="isUnderline()"
+                aria-label="Sublinhado" title="Sublinhado (Ctrl+U)"
+                (click)="toggleUnderline()">
+          <span class="ds-rte-toolbar__text ds-rte-toolbar__text--underline">U</span>
+        </button>
+        <button type="button" class="ds-rte-toolbar__btn ds-rte-toolbar__btn--text"
+                [class.ds-rte-toolbar__btn--active]="isStrike()"
+                aria-label="Tachado" title="Tachado"
+                (click)="toggleStrike()">
+          <span class="ds-rte-toolbar__text ds-rte-toolbar__text--strike">S</span>
+        </button>
+        <button type="button" class="ds-rte-toolbar__btn"
+                [class.ds-rte-toolbar__btn--active]="isCode()"
+                aria-label="Código inline" title="Código inline"
+                (click)="toggleCode()">
+          <ng-icon name="heroCodeBracket" class="ds-rte-toolbar__icon" />
+        </button>
+        <button type="button" class="ds-rte-toolbar__btn"
+                aria-label="Limpar formatação" title="Limpar formatação"
+                (click)="clearFormatting()">
+          <ng-icon name="heroTrash" class="ds-rte-toolbar__icon" />
+        </button>
+      </div>
+
+      <!-- Group: lists -->
+      <div class="ds-rte-toolbar__group">
+        <button type="button" class="ds-rte-toolbar__btn"
+                [class.ds-rte-toolbar__btn--active]="isBulletList()"
+                aria-label="Lista com marcadores" title="Lista com marcadores"
+                (click)="toggleBulletList()">
+          <ng-icon name="heroListBullet" class="ds-rte-toolbar__icon" />
+        </button>
+        <button type="button" class="ds-rte-toolbar__btn ds-rte-toolbar__btn--text"
+                [class.ds-rte-toolbar__btn--active]="isOrderedList()"
+                aria-label="Lista numerada" title="Lista numerada"
+                (click)="toggleOrderedList()">
+          <span class="ds-rte-toolbar__text ds-rte-toolbar__text--num">1.</span>
+        </button>
+      </div>
+
+      <!-- Group: link/image/codeBlock/blockquote -->
+      <div class="ds-rte-toolbar__group">
+        <button type="button" class="ds-rte-toolbar__btn"
+                [class.ds-rte-toolbar__btn--active]="isLink()"
+                aria-label="Inserir link" title="Inserir link"
+                (click)="addLink()">
+          <ng-icon name="heroLink" class="ds-rte-toolbar__icon" />
+        </button>
+        <button type="button" class="ds-rte-toolbar__btn"
+                aria-label="Inserir imagem" title="Inserir imagem"
+                (click)="addImage()">
+          <ng-icon name="heroPhoto" class="ds-rte-toolbar__icon" />
+        </button>
+        <button type="button" class="ds-rte-toolbar__btn"
+                [class.ds-rte-toolbar__btn--active]="isCodeBlock()"
+                aria-label="Bloco de código" title="Bloco de código"
+                (click)="toggleCodeBlock()">
+          <ng-icon name="heroCodeBracketSquare" class="ds-rte-toolbar__icon" />
+        </button>
+        <button type="button" class="ds-rte-toolbar__btn"
+                [class.ds-rte-toolbar__btn--active]="isBlockquote()"
+                aria-label="Citação" title="Citação"
+                (click)="toggleBlockquote()">
+          <ng-icon name="heroChatBubbleBottomCenterText" class="ds-rte-toolbar__icon" />
+        </button>
+      </div>
+    </div>
+  }
+
+  <!-- Editor content -->
+  <div class="ds-rte-content-wrap" [style.min-height.px]="minHeight()">
+    <tiptap-editor [editor]="editor" [outputFormat]="'json'" />
+  </div>
+</div>

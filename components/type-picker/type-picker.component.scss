@@ -1,0 +1,206 @@
+// ============================================================================
+// ds-type-picker — Pixel-perfect contra Figma 657:4912 (D.2.1 Fase D).
+//
+// LIGHTMODE-FIRST: zero :host-context(.dark) — convencao 2026-05-12.
+//
+// Specs canonicas:
+//
+// Container row:
+//   - flex row, gap 10, items-center, wrap em mobile
+//
+// Card individual (104px x 99px no Figma — mantido como default):
+//   - 2-layer nested
+//   - Outer (button): radius 10, border 1px (default) ou sem border (selected)
+//   - Inner: radius 10, border 1px, padding 20
+//
+// DEFAULT state:
+//   - Outer: border 1px #DFE3EA
+//   - Inner: bg rgba(255,255,255,0.25), border 1px #FFFFFF
+//   - Icon color: #5C6F8E
+//   - Label Manrope SemiBold 13/14, color #5C6F8E
+//
+// SELECTED state:
+//   - Outer: SEM border (border-color transparent)
+//   - Inner: bg #F5F7FA, border 1px #CFD7E2
+//   - 5-layer drop shadow (sutil — effect_box_2):
+//       0 25 15 -1.75 rgba(0,0,0,0.04)
+//       0 9 7 -1.46 rgba(0,0,0,0.05)
+//       0 5 3 -1.17 rgba(0,0,0,0.05)
+//       0 2 1.7 -0.875 rgba(0,0,0,0.03)
+//       0 1 1 -0.583 rgba(0,0,0,0.03)
+//   - Inset shadow neumorphic:
+//       inset 0 -4 4 rgba(94,114,150,0.14)
+//       inset 0 4 4 #FFFFFF
+//   - Icon color: pode ser herdada/customizada per kind
+//   - Label color: #2C5CB1
+//
+// DISABLED state:
+//   - opacity 0.5, cursor not-allowed, sem hover
+// ============================================================================
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.ds-type-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+// ============================================================================
+// CARD (button outer)
+// ============================================================================
+
+.ds-type-picker-card {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: stretch;
+  min-width: 104px;
+  height: 99px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid #DFE3EA;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: filter 0.15s ease, transform 0.05s ease;
+  font-family: 'Manrope', sans-serif;
+  user-select: none;
+  outline: none;
+
+  &:focus-visible {
+    outline: 2px solid #3577EB;
+    outline-offset: 2px;
+  }
+
+  &:hover:not(.ds-type-picker-card--selected):not(.ds-type-picker-card--disabled) {
+    filter: brightness(0.98);
+    transform: translateY(-1px);
+  }
+
+  &:active:not(.ds-type-picker-card--disabled) {
+    transform: translateY(0);
+  }
+
+  &--disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+    pointer-events: none;
+  }
+}
+
+// ============================================================================
+// CARD INNER (Layer 2)
+// ============================================================================
+
+.ds-type-picker-card-inner {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  border: 1px solid #FFFFFF;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.25);
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.ds-type-picker-card-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.ds-type-picker-card-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ds-type-picker-card-icon-img {
+  display: block;
+  object-fit: contain;
+  // dimensoes via style binding inline (per option)
+  transition: opacity 0.15s ease;
+}
+
+.ds-type-picker-card-icon {
+  color: #5C6F8E;
+  display: inline-flex;
+  flex-shrink: 0;
+  transition: color 0.15s ease;
+}
+
+.ds-type-picker-card-label {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 600;
+  font-size: 13px;
+  line-height: 14px;
+  color: #5C6F8E;
+  white-space: nowrap;
+  transition: color 0.15s ease;
+}
+
+// ============================================================================
+// SELECTED state (Figma node 657:2287/2362/2450/2527)
+// ============================================================================
+
+.ds-type-picker-card--selected {
+  border-color: transparent;
+  // 5-layer drop shadow (effect_box_2)
+  box-shadow:
+    0 1px 1px -0.583px rgba(0, 0, 0, 0.03),
+    0 2px 1.7px -0.875px rgba(0, 0, 0, 0.03),
+    0 5px 3px -1.167px rgba(0, 0, 0, 0.05),
+    0 9px 7px -1.458px rgba(0, 0, 0, 0.05),
+    0 25px 15px -1.75px rgba(0, 0, 0, 0.04);
+
+  .ds-type-picker-card-inner {
+    background: #F5F7FA;
+    border-color: #CFD7E2;
+    // Inset shadow neumorphic
+    box-shadow:
+      inset 0 -4px 4px 0 rgba(94, 114, 150, 0.14),
+      inset 0  4px 4px 0 #FFFFFF;
+  }
+
+  .ds-type-picker-card-label {
+    color: #2C5CB1;
+  }
+
+  .ds-type-picker-card-icon {
+    color: #2C5CB1;
+  }
+}
+
+// ============================================================================
+// Responsive — mobile <=480px: cards menores
+// ============================================================================
+
+@media (max-width: 480px) {
+  .ds-type-picker {
+    gap: 8px;
+  }
+
+  .ds-type-picker-card {
+    min-width: 80px;
+    height: 88px;
+  }
+
+  .ds-type-picker-card-inner {
+    padding: 14px;
+  }
+}

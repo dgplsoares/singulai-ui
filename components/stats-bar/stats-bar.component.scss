@@ -1,0 +1,60 @@
+// ============================================================================
+// StatsBar — Container chrome (REDASH-FASE-A A.2 revisado 2026-05-12)
+//
+// Pattern verbatim do `showcase__statsbar` (showcase canonico ja validado
+// em producao). Visual extraido do Figma 787-5195 (Cursos list) + 842-10268
+// (Lives dashboard) — bg gradient sobre white, border #DBE0E5, radius 12,
+// inner white shadow.
+// ============================================================================
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.ds-stats-bar {
+  display: flex;
+  gap: 15px;
+  padding: 15px;
+  background: linear-gradient(
+    90deg,
+    rgba(229, 235, 242, 0.7) 0%,
+    rgba(229, 235, 242, 0.7) 100%
+  ),
+  #FFFFFF;
+  border: 1px solid #DBE0E5;
+  border-radius: 12px;
+  box-shadow: inset 0 0 0 1px #FFFFFF;
+  width: 100%;
+  box-sizing: border-box;
+
+  // Cada card filho ocupa 1 fracao igual (flex grow)
+  ::ng-deep > * {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  // Mobile: grid 2 colunas — pattern verbatim do .dashboard-statsbar
+  // (main-dashboard.page.scss linha 184-189). MT-E.1-1: simplificado para
+  // aplicar grid-template-columns sempre, evitando dependencia de match em
+  // data-columns selector (mais robusto).
+  //
+  // Pattern impar (data-columns 3 ou 5): ultimo card ocupa 2 cols full-width
+  // — evita "card perdido" em meia largura (Figma 814:9571 mobile).
+  @media (max-width: 991px) {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+
+    // Override para 1 coluna explicita
+    &[data-columns='1'] {
+      grid-template-columns: 1fr;
+    }
+
+    // Pattern impar: ultimo card full-width
+    &[data-columns='3'] ::ng-deep > *:last-child,
+    &[data-columns='5'] ::ng-deep > *:last-child {
+      grid-column: 1 / -1;
+    }
+  }
+}

@@ -1,0 +1,205 @@
+// ============================================================================
+// FilterDropdown — Estilos (REDASH-FASE-A A.4)
+// Figma 952-15654 (trigger), 952-16189 (panel), 952-16231 (checkboxes)
+// LIGHTMODE-FIRST: sem dark variants.
+// ============================================================================
+
+@use '../../tokens' as ds;
+
+:host {
+  display: inline-flex;
+  position: relative;
+  font-family: var(--ds-font-family-base, 'Manrope', sans-serif);
+}
+
+// ============================================================================
+// Trigger button (pill neumorphic — Figma 952-15654)
+// bg #EDF1F6 + border-radius 8px + drop shadow + inset top white / bottom dark
+// ============================================================================
+.ds-filter-dropdown__trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  // Figma 952-15654 (DEC-G4.3-A): altura fixa 48px alinha com action-add lg + search field
+  min-height: 48px;
+  padding: 0 14px;
+  background: #EDF1F6;
+  border: 0.5px solid #EDF1F6;
+  border-radius: 8px;
+  color: #5D7FBD;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  box-shadow:
+    0px 1px 1px -0.583px rgba(0, 0, 0, 0.01),
+    0px 2px 1.7px -0.875px rgba(0, 0, 0, 0.01),
+    0px 3px 2px -1.167px rgba(0, 0, 0, 0.02),
+    0px 9px 4px -1.458px rgba(0, 0, 0, 0.02),
+    0px 10px 10px -1.75px rgba(0, 0, 0, 0.1),
+    inset 0px -2px 2px 0px rgba(0, 0, 0, 0.12),
+    inset 0px 2px 1px 0px #FFFFFF;
+  transition:
+    background-color var(--ds-duration-medium, 250ms) var(--ds-ease-in-out-soft, ease),
+    border-color var(--ds-duration-medium, 250ms) var(--ds-ease-in-out-soft, ease);
+
+  &:hover:not(:disabled) {
+    background: #E5EBF2;
+  }
+
+  &.is-open {
+    border-color: #ADC2DD;
+  }
+
+  &:focus-visible {
+    outline: 2px solid #5D7FBD;
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.ds-filter-dropdown__trigger-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  width: 12px;
+  height: 12px;
+  font-size: 12px;
+  color: #5D7FBD;
+}
+
+.ds-filter-dropdown__trigger-label {
+  white-space: nowrap;
+}
+
+.ds-filter-dropdown__trigger-chevron {
+  display: inline-flex;
+  flex-shrink: 0;
+  width: 12px;
+  height: 12px;
+  font-size: 12px;
+  color: #5D7FBD;
+  margin-left: 3px;
+  transition: transform var(--ds-duration-medium, 250ms) var(--ds-ease-in-out-soft, ease);
+
+  &.is-rotated {
+    transform: rotate(180deg);
+  }
+}
+
+// ============================================================================
+// Overlay panel (Figma 952-16189)
+// bg #EDF1F6 + border 1px #ADC2DD + radius 8 + same drop+inset shadows
+// ============================================================================
+.ds-filter-dropdown__panel {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  padding: 11px;
+  background: #EDF1F6;
+  border: 1px solid #ADC2DD;
+  border-radius: 8px;
+  font-family: var(--ds-font-family-base, 'Manrope', sans-serif);
+  box-shadow:
+    0px 1px 1px -0.583px rgba(0, 0, 0, 0.01),
+    0px 2px 1.7px -0.875px rgba(0, 0, 0, 0.01),
+    0px 3px 2px -1.167px rgba(0, 0, 0, 0.02),
+    0px 9px 4px -1.458px rgba(0, 0, 0, 0.02),
+    0px 10px 10px -1.75px rgba(0, 0, 0, 0.1),
+    inset 0px -2px 2px 0px rgba(0, 0, 0, 0.12),
+    inset 0px 2px 1px 0px #FFFFFF;
+}
+
+// ============================================================================
+// Item (checkbox + label) — Figma 952-16231
+// ============================================================================
+.ds-filter-dropdown__item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: #5D7FBD;
+  line-height: 1;
+  text-align: left;
+
+  &:hover:not(.is-disabled) {
+    .ds-filter-dropdown__checkbox {
+      // Sutil highlight ao hover (sem reescrever shadows)
+      filter: brightness(1.04);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid #5D7FBD;
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+
+  &.is-disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+// ============================================================================
+// Checkbox round neumorphic — Figma 952-16226 (sel) / 952-16214 (unsel)
+// ============================================================================
+.ds-filter-dropdown__checkbox {
+  position: relative;
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1px solid #D6E3F3;
+  background: #E3EDF7;
+  // Inset neumorphic (unselected state)
+  box-shadow:
+    inset -4px -4px 9px 0 rgba(255, 255, 255, 0.6),
+    inset 4px 4px 14px 0 #C5D7EE;
+  transition:
+    background-color var(--ds-duration-medium, 250ms) var(--ds-ease-in-out-soft, ease),
+    box-shadow var(--ds-duration-medium, 250ms) var(--ds-ease-in-out-soft, ease),
+    border-color var(--ds-duration-medium, 250ms) var(--ds-ease-in-out-soft, ease);
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// Estado selecionado — gradient azul + outer neumorphic shadow
+.ds-filter-dropdown__item.is-selected .ds-filter-dropdown__checkbox {
+  background: linear-gradient(180deg, #5C8DE2 0%, #27467C 100%);
+  border-color: #FFFFFF;
+  color: #FFFFFF;
+  // Outer neumorphic (selected)
+  box-shadow:
+    2px 2px 4px 0 rgba(114, 142, 171, 0.1),
+    -6px -6px 20px 0 #FFFFFF,
+    4px 4px 20px 0 rgba(111, 140, 176, 0.41);
+}
+
+.ds-filter-dropdown__checkbox-tick {
+  width: 10px;
+  height: 10px;
+  display: block;
+}
+
+.ds-filter-dropdown__label {
+  white-space: nowrap;
+}
+
+.ds-filter-dropdown__count {
+  // Count usa a mesma cor do label (consistente com Figma)
+  color: inherit;
+  font-weight: 600;
+}

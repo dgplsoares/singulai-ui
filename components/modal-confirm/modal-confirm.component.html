@@ -1,0 +1,103 @@
+<!--
+  Modal Confirm — wrapper template-only de <app-modal-dialog>.
+  PREP-3.5: desativa header/close-btn shared e projeta TUDO via templates.
+  Shared continua provendo backdrop, ESC, focus-lock, scroll-lock, animacao.
+-->
+<app-modal-dialog
+  class="ds-modal-confirm"
+  [class]="'ds-modal-confirm--' + variant()"
+  [isOpen]="isOpen()"
+  title=""
+  [config]="modalConfig()"
+  [contentTemplate]="bodyTpl"
+  [footerTemplate]="footerTpl"
+  (closed)="onModalClosed($event)"
+/>
+
+<!--
+  Content template — projeta header custom (icon+title+close em flex row)
+  + body (icon maior + bold question + record name).
+  Renderizado pelo modal-dialog dentro de .modal-body.
+
+  TODOS os icones componentizados via <ds-icon-neumorphic> (per pattern do
+  usuario): icone com [icon]=heroicon hoje; quando os SVG files canonicos
+  do Figma forem exportados (ex: branding/icons/modal/trash-danger.svg),
+  basta trocar [icon] por [iconImageSrc] e a substituicao do arquivo
+  propaga para todos os modais automaticamente — sem mexer em codigo.
+-->
+<ng-template #bodyTpl>
+  <!-- Header (Figma 872:14039) — icon + title + close em UMA linha -->
+  <div class="ds-modal-confirm__header">
+    <div class="ds-modal-confirm__header-left">
+      <ds-icon-neumorphic
+        class="ds-modal-confirm__header-icon"
+        [icon]="iconName()"
+        [variant]="iconVariant()"
+        size="md"
+        [frameless]="true"
+      />
+      <h3 class="ds-modal-confirm__header-title">{{ title() }}</h3>
+    </div>
+
+    <button
+      type="button"
+      class="ds-modal-confirm__header-close"
+      [attr.aria-label]="'Fechar ' + title()"
+      (click)="onCloseClick()"
+    >
+      <!--
+        Reusa close.svg da biblioteca central (PREP-3.7) — mesmo arquivo
+        usado no <ds-ai-assistant-panel> close button. Substituicao do
+        arquivo no filesystem propaga para os 2 lugares automaticamente.
+      -->
+      <ds-icon-neumorphic
+        iconImageSrc="branding/icons/icon-neumorphic/close.svg"
+        size="sm"
+      />
+    </button>
+  </div>
+
+  <!-- Body (Figma 872:14048) — icon maior + bold question + record name -->
+  <div class="ds-modal-confirm__body">
+    <ds-icon-neumorphic
+      class="ds-modal-confirm__body-icon"
+      [icon]="iconName()"
+      [variant]="iconVariant()"
+      size="lg"
+      [frameless]="true"
+    />
+
+    <p class="ds-modal-confirm__body-question">{{ message() }}</p>
+
+    @if (recordName()) {
+      <p class="ds-modal-confirm__body-record">{{ recordName() }}</p>
+    }
+  </div>
+</ng-template>
+
+<!--
+  Footer template — divider duplo + 2 botoes DS.
+  Renderizado pelo modal-dialog dentro de .modal-footer.
+-->
+<ng-template #footerTpl>
+  <!-- Divider duplo: linha #D6DEE9 com border-bottom #FFF (padrao DS) -->
+  <div class="ds-modal-confirm__footer-divider" aria-hidden="true"></div>
+
+  <div class="ds-modal-confirm__footer-buttons">
+    <ds-button
+      variant="solid"
+      variantColor="tertiary"
+      (clicked)="onCancelClick()"
+    >
+      {{ cancelLabel() }}
+    </ds-button>
+
+    <ds-button
+      variant="solid"
+      [variantColor]="confirmButtonColor()"
+      (clicked)="onConfirmClick()"
+    >
+      {{ effectiveConfirmLabel() }}
+    </ds-button>
+  </div>
+</ng-template>

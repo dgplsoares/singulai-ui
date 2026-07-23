@@ -1,0 +1,36 @@
+<button
+  type="button"
+  class="ds-dark-mode-button"
+  [attr.aria-label]="ariaLabel()"
+  (click)="onClick($event)"
+>
+  <span class="ds-dark-mode-button__icon">
+    <img
+      class="ds-dark-mode-button__moon"
+      [src]="moonIconSrc()"
+      width="13"
+      height="14"
+      alt=""
+      aria-hidden="true"
+    />
+    <span class="ds-dark-mode-button__cone-wrap">
+      <span class="ds-dark-mode-button__cone">
+        <img
+          [src]="moonGlowIconSrc()"
+          width="15"
+          height="15"
+          alt=""
+          aria-hidden="true"
+        />
+      </span>
+    </span>
+    <span class="ds-dark-mode-button__star ds-dark-mode-button__star--1">
+      <span class="ds-dark-mode-button__star-vert"></span>
+      <span class="ds-dark-mode-button__star-horiz"></span>
+    </span>
+    <span class="ds-dark-mode-button__star ds-dark-mode-button__star--2">
+      <span class="ds-dark-mode-button__star-vert"></span>
+      <span class="ds-dark-mode-button__star-horiz"></span>
+    </span>
+  </span>
+</button>

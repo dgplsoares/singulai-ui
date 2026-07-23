@@ -1,0 +1,115 @@
+<header
+  class="ds-page-header"
+  [attr.data-variant]="variant()"
+  role="banner"
+>
+  <!-- Zona 1 — Nav title (esquerda) -->
+  <div class="ds-page-header__nav-title">
+    <div class="ds-page-header__history">
+      <button
+        class="ds-page-header__history-btn"
+        type="button"
+        [disabled]="!effectiveCanGoBack()"
+        aria-label="Voltar"
+        (click)="onBack()"
+      >
+        <ng-icon class="ds-neo-silhueta-icon" name="heroChevronLeft" size="14px"></ng-icon>
+      </button>
+      <button
+        class="ds-page-header__history-btn"
+        type="button"
+        [disabled]="!effectiveCanGoForward()"
+        aria-label="Avancar"
+        (click)="onForward()"
+      >
+        <ng-icon class="ds-neo-silhueta-icon" name="heroChevronRight" size="14px"></ng-icon>
+      </button>
+    </div>
+
+    <span class="ds-page-header__divider" aria-hidden="true"></span>
+
+    <!-- Logo brand mobile — visivel apenas em mobile (Figma 1139:11647) -->
+    <img
+      class="ds-page-header__brand-logo"
+      [src]="mobileLogoSrc()"
+      width="48"
+      height="48"
+      [alt]="mobileLogoAlt()"
+      aria-hidden="true"
+    />
+
+    <div class="ds-page-header__title-block">
+      @if (icon()) {
+        <ng-icon
+          class="ds-page-header__title-icon"
+          [name]="icon()!"
+        ></ng-icon>
+      }
+      <h1 class="ds-page-header__title">{{ title() }}</h1>
+    </div>
+  </div>
+
+  <!-- Zona 2 — Breadcrumbs (centro) -->
+  @if (hasBreadcrumbs()) {
+    <nav class="ds-page-header__breadcrumbs" aria-label="Caminho de navegacao">
+      <ol class="ds-page-header__breadcrumb-list">
+        @for (item of breadcrumbs(); track $index; let last = $last) {
+          <li class="ds-page-header__breadcrumb-item">
+            @if (item.route && !last) {
+              <a
+                class="ds-page-header__breadcrumb-link"
+                [routerLink]="item.route"
+                (click)="onBreadcrumbClick($index, item)"
+              >
+                {{ item.label }}
+              </a>
+            } @else {
+              <span
+                class="ds-page-header__breadcrumb-current"
+                [attr.aria-current]="last ? 'page' : null"
+              >
+                {{ item.label }}
+              </span>
+            }
+            @if (!last) {
+              <span class="ds-page-header__breadcrumb-separator" aria-hidden="true">/</span>
+            }
+          </li>
+        }
+      </ol>
+    </nav>
+  }
+
+  <!-- Zona 3 — Actions (direita) -->
+  <div class="ds-page-header__actions">
+    <!-- Acoes do Dashboard Principal apenas (variant=default) -->
+    @if (showDashboardActions()) {
+      <div class="ds-page-header__dashboard-actions">
+        <ds-button
+          variant="action"
+          iconLeft="heroArrowsPointingOut"
+          [active]="reorganizeActive()"
+          (clicked)="onReorganize()"
+        >
+          Reorganizar
+        </ds-button>
+
+        <ds-button
+          variant="action"
+          iconLeft="heroEye"
+          iconRight="heroChevronDown"
+          [active]="customizeActive()"
+          (clicked)="onCustomize()"
+        >
+          Personalizar
+        </ds-button>
+      </div>
+    }
+
+    <!-- Slot para acoes customizadas da tela (botoes especificos) -->
+    <ng-content select="[page-header-actions]"></ng-content>
+
+    <!-- Slot para combo botoes header (darkmode, notif, AI Assistant) -->
+    <ng-content select="[page-header-combo]"></ng-content>
+  </div>
+</header>

@@ -1,0 +1,71 @@
+// ============================================================================
+// Toast Host — Estilos
+// Container fixed top-right que empilha toasts. Animacao de entrada slide+fade
+// da direita (300ms ease-out). Animacao aplicada em cada __item para que cada
+// toast novo deslize sozinho (sem reanimar os anteriores).
+// ============================================================================
+
+@use '../../tokens' as ds;
+
+:host {
+  position: fixed;
+  top: 70px;
+  right: 70px;
+  z-index: 1100; // acima de modals (1000) e dropdowns
+  pointer-events: none; // permite click-through no espaco entre toasts
+}
+
+// Mobile: cola menos das bordas e ocupa largura util
+@media (max-width: 640px) {
+  :host {
+    top: 16px;
+    right: 16px;
+    left: 16px;
+  }
+}
+
+.ds-toast-host {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-end; // toasts alinham a direita quando comprimentos variam
+
+  @media (max-width: 640px) {
+    align-items: stretch;
+  }
+
+  // ==========================================================================
+  // Item wrapper — recebe a animacao de entrada
+  // ==========================================================================
+  &__item {
+    pointer-events: auto; // restaura interatividade no toast individual
+    animation: ds-toast-enter 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+}
+
+// ============================================================================
+// Animacao de entrada — slide da direita + fade
+// (Decisao D do plano REDASH-PREP-2)
+// ============================================================================
+@keyframes ds-toast-enter {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+// Respeita prefers-reduced-motion: desativa slide, mantem so fade rapido
+@media (prefers-reduced-motion: reduce) {
+  .ds-toast-host__item {
+    animation: ds-toast-fade 120ms ease-out both;
+  }
+}
+
+@keyframes ds-toast-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

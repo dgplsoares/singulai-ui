@@ -1,0 +1,35 @@
+<!--
+  Estrutura aninhada (do Figma):
+  - Container externo: bg semi-transparente + border + padding interno (3px @ md).
+    Da efeito de "track moldurada" (chrome neumorphic).
+  - Track: bg cinza claro, height fixa por size, rounded-full, overflow clip.
+  - Fill: cor variant, width = percent, rounded-full, transition suave.
+
+  ARIA: role="progressbar" com aria-valuenow + aria-valuemin + aria-valuemax
+  + aria-valuetext. Screen reader anuncia o estado completo.
+-->
+<div
+  class="ds-progress-bar"
+  [class]="'ds-progress-bar--size-' + size()"
+  [class.ds-progress-bar--apex]="variant() === 'apex'"
+  [class.ds-progress-bar--success]="variant() === 'success'"
+  [class.ds-progress-bar--warning]="variant() === 'warning'"
+  [class.ds-progress-bar--danger]="variant() === 'danger'"
+  [class.ds-progress-bar--info]="variant() === 'info'"
+  [class.ds-progress-bar--purple]="variant() === 'purple'"
+  [class.ds-progress-bar--pink]="variant() === 'pink'"
+  [class.ds-progress-bar--neutral]="variant() === 'neutral'"
+  role="progressbar"
+  [attr.aria-valuenow]="value()"
+  [attr.aria-valuemin]="0"
+  [attr.aria-valuemax]="max()"
+  [attr.aria-valuetext]="accessibleValueText()"
+  [attr.aria-label]="ariaLabel()"
+>
+  <div class="ds-progress-bar__track">
+    <div
+      class="ds-progress-bar__fill"
+      [style.width.%]="percent()"
+    ></div>
+  </div>
+</div>

@@ -1,0 +1,336 @@
+/**
+ * <ds-rich-text-editor> — Estilos.
+ * E.6.B.1 (2026-06-30). Pixel-perfect contra Figma 725:10407.
+ * DEC-E.6.B-H: Lightmode-first (zero :host-context(.dark)).
+ *
+ * ViewEncapsulation.None permite estilizar o conteúdo do Tiptap (rendered
+ * DOM ProseMirror) sem uso de ::ng-deep. Classes com prefixo ds-rte* para
+ * escopo.
+ */
+
+.ds-rich-text-editor {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid #d7e2f2;
+  border-radius: 8px;
+  background: #f8fbff;
+  overflow: hidden;
+  box-shadow:
+    inset -3px -3px 10px 0 #ffffff,
+    inset 5px 5px 15px 0 rgba(208, 221, 234, 0.5);
+
+  &--read-only {
+    background: #ffffff;
+    box-shadow: none;
+    border-color: #dfe3ea;
+  }
+}
+
+// ============================================================================
+// Toolbar
+// ============================================================================
+
+.ds-rte-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 8px;
+  background: rgba(231, 235, 243, 0.5);
+  border-bottom: 1px solid #dfe3ea;
+
+  &__group {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 0 4px;
+
+    &:not(:last-child) {
+      border-right: 1px solid rgba(233, 236, 239, 0.6);
+      padding-right: 8px;
+    }
+
+    &--dropdown {
+      position: relative;
+    }
+  }
+
+  &__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    min-width: 28px;
+    height: 28px;
+    padding: 0 4px;
+    border: none;
+    background: transparent;
+    color: #212529;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.15s ease, color 0.15s ease;
+
+    &:hover:not(:disabled) {
+      background: rgba(0, 0, 0, 0.06);
+    }
+
+    &:active:not(:disabled) {
+      background: rgba(0, 0, 0, 0.12);
+    }
+
+    &--dropdown {
+      padding-left: 8px;
+      padding-right: 4px;
+    }
+
+    &--active {
+      background: #d9e6f5;
+      color: #2c5cb1;
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+
+  &__icon {
+    font-size: 16px;
+    line-height: 1;
+  }
+
+  &__btn--text {
+    min-width: 24px;
+    padding: 0 6px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px;
+    color: #212529;
+  }
+
+  &__text {
+    display: inline-block;
+    font-family: 'Manrope', sans-serif;
+    font-size: 14px;
+    line-height: 1;
+
+    &--bold { font-weight: 700; }
+    &--italic { font-style: italic; }
+    &--underline { text-decoration: underline; }
+    &--strike { text-decoration: line-through; }
+    &--num { font-weight: 600; font-size: 12px; }
+  }
+
+  &__label {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 500;
+    font-size: 12px;
+    color: #212529;
+    white-space: nowrap;
+  }
+
+  &__chevron {
+    font-size: 12px;
+    opacity: 0.6;
+  }
+}
+
+// ============================================================================
+// Dropdown menus (headings / align / color)
+// ============================================================================
+
+.ds-rte-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 20;
+  min-width: 160px;
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  background: #ffffff;
+  border: 1px solid #dbe0e5;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px 0 rgba(111, 140, 176, 0.18);
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 4px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 13px;
+    color: #4b5872;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease;
+
+    &:hover {
+      background: #f1f4f8;
+      color: #3e619e;
+    }
+
+    ng-icon {
+      font-size: 14px;
+    }
+
+    &--h1 { font-weight: 700; font-size: 18px; }
+    &--h2 { font-weight: 700; font-size: 16px; }
+    &--h3 { font-weight: 700; font-size: 14px; }
+    &--reset {
+      justify-content: center;
+      font-weight: 600;
+      color: #7285a4;
+      border-top: 1px solid #f0f2f5;
+      margin-top: 4px;
+      padding-top: 8px;
+    }
+  }
+
+  &--color {
+    min-width: 200px;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 4px;
+
+    // items reset ocupam a linha inteira
+    .ds-rte-menu__item--reset {
+      grid-column: 1 / -1;
+    }
+  }
+
+  &__color-swatch {
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    transition: transform 0.1s ease, box-shadow 0.15s ease;
+
+    &:hover {
+      transform: scale(1.1);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    }
+  }
+}
+
+// ============================================================================
+// Editor content (ProseMirror rendered DOM)
+// ============================================================================
+
+.ds-rte-content-wrap {
+  flex: 1;
+  overflow-y: auto;
+  padding: 15px;
+}
+
+// Estilos do ProseMirror (Tiptap gera <div class="ProseMirror">...)
+.ds-rich-text-editor .ProseMirror {
+  outline: none;
+  min-height: 100%;
+  font-family: 'Manrope', sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #4b5872;
+
+  &:focus {
+    outline: none;
+  }
+
+  // Empty placeholder
+  p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    color: #b0c0d2;
+    float: left;
+    pointer-events: none;
+    height: 0;
+  }
+
+  h1, h2, h3 {
+    font-family: 'Manrope', sans-serif;
+    color: #212529;
+    margin: 0.5em 0 0.3em;
+    line-height: 1.3;
+  }
+
+  h1 { font-size: 22px; font-weight: 700; }
+  h2 { font-size: 18px; font-weight: 700; }
+  h3 { font-size: 15px; font-weight: 700; }
+
+  p { margin: 0.3em 0; }
+
+  ul, ol {
+    padding-left: 24px;
+    margin: 0.4em 0;
+  }
+
+  li p {
+    margin: 0;
+  }
+
+  code {
+    background: rgba(0, 0, 0, 0.06);
+    padding: 2px 4px;
+    border-radius: 3px;
+    font-family: 'Fira Code', 'Consolas', monospace;
+    font-size: 12px;
+  }
+
+  pre {
+    background: #212529;
+    color: #e9ecef;
+    padding: 10px 12px;
+    border-radius: 6px;
+    overflow-x: auto;
+    margin: 0.5em 0;
+
+    code {
+      background: transparent;
+      color: inherit;
+      padding: 0;
+    }
+  }
+
+  blockquote {
+    border-left: 3px solid #d5dee9;
+    padding-left: 12px;
+    margin: 0.5em 0;
+    color: #7285a4;
+    font-style: italic;
+  }
+
+  a {
+    color: #3e619e;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 4px;
+    display: block;
+    margin: 0.5em auto;
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid #dfe3ea;
+    margin: 1em 0;
+  }
+}
+
+// ============================================================================
+// Responsive
+// ============================================================================
+
+@media (max-width: 640px) {
+  .ds-rte-toolbar {
+    &__group:not(:last-child) {
+      border-right: none;
+      padding-right: 0;
+    }
+  }
+
+  .ds-rte-menu--color {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

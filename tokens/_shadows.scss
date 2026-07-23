@@ -1,0 +1,261 @@
+// ============================================================================
+// Design System Singulai — Shadows (Neumorphism mixins)
+// Fonte: .claude/design-system/tokens/shadows.md
+// ============================================================================
+
+@use 'colors' as *;
+
+// ----------------------------------------------------------------------------
+// neo-silhueta-final — Combo botoes header + sidebar nav
+// 5 layers de sombra para efeito neumorphic completo
+// ----------------------------------------------------------------------------
+@mixin shadow-neo-silhueta-final {
+  box-shadow:
+    4px  4px  20px 0 rgba(77, 103, 136, 0.50),
+    -6px -6px 15px 0 rgba(255, 255, 255, 1),
+    inset  4px  4px 14px 0 #C1D5EE,
+    inset -4px -4px  9px 0 rgba(255, 255, 255, 0.88),
+    2px  2px  4px 0 rgba(64, 95, 125, 0.25);
+}
+
+// Hover: inversao horizontal das drop shadows
+@mixin shadow-neo-silhueta-final-hover {
+  box-shadow:
+    -2px  2px  4px 0 rgba(64, 95, 125, 0.25),
+     6px -6px 15px 0 rgba(255, 255, 255, 1),
+    -4px  4px 20px 0 rgba(77, 103, 136, 0.50),
+    inset  4px  4px 14px 0 #C1D5EE,
+    inset -4px -4px  9px 0 rgba(255, 255, 255, 0.88);
+}
+
+// ----------------------------------------------------------------------------
+// effects-neumorfismo — Cards padrao (versao mais suave)
+// ----------------------------------------------------------------------------
+@mixin shadow-effects-neumorfismo {
+  box-shadow:
+    3px  3px 15px 0 rgba(111, 140, 176, 0.41),
+    -5px -5px 14px 0 rgba(255, 255, 255, 1),
+    inset  4px  4px 14px 0 #C1D5EE,
+    inset -4px -4px  9px 0 rgba(255, 255, 255, 0.88),
+    2px  2px  4px 0 rgba(114, 142, 171, 0.10);
+}
+
+// ----------------------------------------------------------------------------
+// shadow-card — Cards genericos (versao soft, sem inner shadows fortes)
+// ----------------------------------------------------------------------------
+@mixin shadow-card {
+  box-shadow:
+    0 25px 15px -1.75px  rgba(0, 0, 0, 0.04),
+    0  9px  7px -1.46px  rgba(0, 0, 0, 0.02),
+    0  5px  3px -1.17px  rgba(0, 0, 0, 0.02),
+    0  2px  1.7px -0.875px rgba(0, 0, 0, 0.01),
+    0  1px  1px -0.583px  rgba(0, 0, 0, 0.01),
+    inset 0  4px  4px 0 #FFFFFF,
+    inset 0 -4px  4px 0 rgba(94, 114, 150, 0.14);
+}
+
+// ----------------------------------------------------------------------------
+// shadow-card-2 — Cards intermediarios
+// ----------------------------------------------------------------------------
+@mixin shadow-card-2 {
+  box-shadow:
+    0 10px 5px -1.75px  rgba(0, 0, 0, 0.04),
+    0  6px 3px -1.46px  rgba(0, 0, 0, 0.02),
+    0  2px 2px -1.17px  rgba(0, 0, 0, 0.02),
+    0  2px 1.7px -0.875px rgba(0, 0, 0, 0.01),
+    0  1px 1px -0.583px  rgba(0, 0, 0, 0.01),
+    inset 0  4px 4px 0 #FFFFFF,
+    inset 2px -4px 4px 0 rgba(202, 202, 202, 0.50);
+}
+
+// ----------------------------------------------------------------------------
+// shadow-card-3 — Card grande (sem inner shadows, para overlays)
+// ----------------------------------------------------------------------------
+@mixin shadow-card-3 {
+  box-shadow:
+    0 32px 28px -1.75px  rgba(0, 0, 0, 0.04),
+    0 17px 15px -1.46px  rgba(0, 0, 0, 0.02),
+    0 10px  7px -1.17px  rgba(0, 0, 0, 0.02),
+    0  5px  5px -0.875px rgba(0, 0, 0, 0.01),
+    0  2.5px 2.5px -0.583px rgba(0, 0, 0, 0.01);
+}
+
+// ----------------------------------------------------------------------------
+// shadow-glass-badge — Badges com efeito vidro
+// ----------------------------------------------------------------------------
+@mixin shadow-glass-badge {
+  box-shadow:
+    0 32px   22.4px  -1.75px rgba(0, 0, 0, 0.05),
+    0 14.55px 10.19px -1.46px rgba(0, 0, 0, 0.03),
+    0  7.32px  5.13px -1.17px rgba(0, 0, 0, 0.03),
+    0  3.86px  2.70px -0.875px rgba(0, 0, 0, 0.02),
+    0  1.93px  1.35px -0.583px rgba(0, 0, 0, 0.02),
+    0  0.75px  0.53px -0.292px rgba(0, 0, 0, 0.04),
+    0  4px    4px 0 rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(10px);
+}
+
+// ----------------------------------------------------------------------------
+// shadow-icon-card — Icon-neumorphic em containers (Figma alvo)
+//
+// REVISAO 04/05/2026: usuario validou que a versao com effects-neumorfismo
+// estava 95% correta para o "Icon Neumorphic" do showcase. Restaurada a
+// composicao de drop shadows + inner highlight branco para produzir o efeito
+// de relevo neumorphic apropriado.
+// ----------------------------------------------------------------------------
+@mixin shadow-icon-card {
+  box-shadow:
+    2px  2px  4px 0 rgba(114, 142, 171, 0.10),
+    -5px -5px 14px 0 #FFFFFF,
+    3px  3px 15px 0 rgba(111, 140, 176, 0.41);
+}
+
+// ----------------------------------------------------------------------------
+// filter-neo-silhueta-icon — neo_silhueta_final via CSS filter chain
+//
+// Reproduz 3 dos 5 layers do effect Figma "neo_silhueta_final" usando
+// CSS filter: drop-shadow() — segue a silhueta do icone (alpha-aware).
+//
+// Layers cobertos (outer drop-shadows):
+//   - Layer 1: drop-shadow #4D6788 alpha 0.5  offset(4,4)   radius 20
+//   - Layer 2: drop-shadow #FFFFFF            offset(-6,-6) radius 15
+//   - Layer 5: drop-shadow #405F7D alpha 0.25 offset(2,2)   radius 4
+//
+// Layers OMITIDOS (inner-shadows — limitacao do CSS):
+//   - Layer 3: inner-shadow #C1D5EE     offset(4,4)   radius 14
+//   - Layer 4: inner-shadow #FFFFFFE0   offset(-4,-4) radius 9
+//
+// CSS filter: drop-shadow() nao suporta inner-shadow em SVG transparente.
+// Para reproduzir os 2 inner-shadows seria necessario <filter> SVG inline
+// com feComposite — mas a restricao deste cenario e usar APENAS CSS.
+//
+// Pre-requisito: o container (button) DEVE ter overflow: visible.
+// ----------------------------------------------------------------------------
+@mixin filter-neo-silhueta-icon {
+  filter:
+    drop-shadow(2px 2px 4px rgba(64, 95, 125, 0.60))
+    drop-shadow(-6px -6px 6px rgb(255, 255, 255))
+    drop-shadow(4px 4px 15px rgba(77, 103, 136, 0.50));
+}
+
+// ----------------------------------------------------------------------------
+// filter-neo-silhueta-icon-hover — combina:
+//   - mesmas medidas (offset/blur/opacity) do default atualizado
+//   - recoloracao do icone (brightness/saturate) do hover anterior, que
+//     converte #7390B9 → ~#3D6CC2 (proximo da primary #3E6FCA)
+//   - tint primary blue (62, 111, 202 = #3E6FCA) nos drop-shadows de
+//     "background" (layer 1, large dark) e "outline" (layer 5, close dark).
+//   - white highlight (layer 2) permanece neutro.
+// ----------------------------------------------------------------------------
+@mixin filter-neo-silhueta-icon-hover {
+  filter:
+    brightness(0.85)
+    saturate(2)
+    drop-shadow(2px 2px 4px rgba(62, 111, 202, 0.75))
+    drop-shadow(-6px -6px 6px rgb(255, 255, 255))
+    drop-shadow(4px 4px 15px rgba(62, 111, 202, 0.65));
+}
+
+// ----------------------------------------------------------------------------
+// shadow-button-solid-outer — Outer shadow 5-layer comum a todas as
+// colorVariants do button variant=solid (DEC-DS-001).
+// ----------------------------------------------------------------------------
+@mixin shadow-button-solid-outer {
+  box-shadow:
+    0 1px 1px 0 rgba(0, 0, 0, 0.02),
+    0 2px 1.7px 0 rgba(0, 0, 0, 0.02),
+    0 4px 3px 0 rgba(0, 0, 0, 0.04),
+    0 6px 3px 0 rgba(0, 0, 0, 0.04),
+    0 10px 7px 0 rgba(0, 0, 0, 0.10);
+}
+
+// ----------------------------------------------------------------------------
+// shadow-button-solid-inner — Mixin parametrizado para inner shadow dupla
+// dos buttons solid. Aceita cores top (clara/saturada) e bottom (escura).
+// Uso: @include shadow-button-solid-inner(rgba(104,148,232,0.8), #2B57AA);
+// ----------------------------------------------------------------------------
+@mixin shadow-button-solid-inner($top, $bottom) {
+  box-shadow:
+    0 1px 1px 0 rgba(0, 0, 0, 0.02),
+    0 2px 1.7px 0 rgba(0, 0, 0, 0.02),
+    0 4px 3px 0 rgba(0, 0, 0, 0.04),
+    0 6px 3px 0 rgba(0, 0, 0, 0.04),
+    0 10px 7px 0 rgba(0, 0, 0, 0.10),
+    inset 0 4px 4px 0 #{$top},
+    inset 0 -4px 4px 0 #{$bottom};
+}
+
+// ----------------------------------------------------------------------------
+// shadow-form-field-inset — Inner shadow neumorphic dos form fields
+// Figma effect: style_neo_2
+//   inset 5px 5px 15px rgba(208, 221, 234, 0.5)
+//   inset -3px -3px 10px white
+// ----------------------------------------------------------------------------
+@mixin shadow-form-field-inset {
+  box-shadow:
+    inset  5px  5px 15px 0 rgba(208, 221, 234, 0.5),
+    inset -3px -3px 10px 0 #FFFFFF;
+}
+
+// ----------------------------------------------------------------------------
+// shadow-toggle-track-inset — Inner shadow neumorphic do toggle track
+// Figma node 487:1731 (ON) / 478:2110 (OFF) — IGUAL nos 2 estados
+//   inset -3px -3px 7px white
+//   inset 3px 3px 10px rgba(187, 198, 215, 0.9)
+// ----------------------------------------------------------------------------
+@mixin shadow-toggle-track-inset {
+  box-shadow:
+    inset -3px -3px  7px 0 #FFFFFF,
+    inset  3px  3px 10px 0 rgba(187, 198, 215, 0.9);
+}
+
+// ----------------------------------------------------------------------------
+// shadow-toggle-thumb — 3-layer outer shadow do thumb (IGUAL on/off)
+// Figma:
+//   2px 2px 4px rgba(113, 142, 172, 0.25)
+//   -6px -6px 20px white
+//   4px 4px 20px rgba(111, 140, 176, 0.41)
+// ----------------------------------------------------------------------------
+@mixin shadow-toggle-thumb {
+  box-shadow:
+    2px  2px  4px 0 rgba(113, 142, 172, 0.25),
+    -6px -6px 20px 0 #FFFFFF,
+    4px  4px 20px 0 rgba(111, 140, 176, 0.41);
+}
+
+// ----------------------------------------------------------------------------
+// text-shadow-toggle-label — text-shadow neumorphic 3-layers do label "on/off"
+// IGUAL nos 2 estados.
+// ----------------------------------------------------------------------------
+@mixin text-shadow-toggle-label {
+  text-shadow:
+    2px  2px 10px rgba(77, 103, 136, 0.25),
+    -1px -4px  4px #FFFFFF,
+    1px  1px  4px rgba(64, 95, 125, 0.15);
+}
+
+// ----------------------------------------------------------------------------
+// shadow-sidebar-active-inset — Inner shadow forte do item active da sidebar
+// Combina com 3 layers de border para efeito "pressionado" no sidebar.
+// ----------------------------------------------------------------------------
+@mixin shadow-sidebar-active-inset {
+  box-shadow:
+    inset -5px -5px 7px -2px #FFFFFF,
+    inset  5px  5px 10px -2px #B3C0CF,
+    0 8px 10px 0 rgba(0, 0, 0, 0.05);
+}
+
+// ----------------------------------------------------------------------------
+// Inner shadows (selo/entalhe)
+// ----------------------------------------------------------------------------
+@mixin inner-shadow-blue {
+  box-shadow: inset 0 1px 2px 0 rgba(11, 29, 63, 0.50);
+}
+
+@mixin inner-shadow-grey {
+  box-shadow: inset 0 1px 1px 0 rgba(90, 101, 113, 0.75);
+}
+
+@mixin icon-inner-shadow {
+  box-shadow: inset 0 1px 2px 0 #5A6571;
+}

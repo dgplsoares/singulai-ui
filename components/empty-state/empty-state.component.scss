@@ -1,0 +1,125 @@
+// ============================================================================
+// EmptyState — Estilos (REDASH-FASE-A A.6)
+// Figma 764-6987 (pattern base — size=sm em card-panel body)
+// ============================================================================
+
+@use '../../tokens' as ds;
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.ds-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  text-align: center;
+  font-family: var(--ds-font-family-base);
+
+  // ==========================================================================
+  // Size — sm (Figma 764-6987) + md (full page) + lg (404 page)
+  // ==========================================================================
+  &[data-size='sm'] {
+    gap: 10px;
+    padding: 7px;
+
+    .ds-empty-state__icon {
+      width: 40px;
+      height: 40px;
+      font-size: 32px;
+    }
+
+    .ds-empty-state__title {
+      font-size: 13px;
+      font-weight: 400;
+      line-height: 1.3;
+    }
+
+    .ds-empty-state__description {
+      font-size: 12px;
+      line-height: 1.4;
+    }
+  }
+
+  &[data-size='md'] {
+    gap: 15px;
+    padding: 24px;
+
+    .ds-empty-state__icon {
+      width: 56px;
+      height: 56px;
+      font-size: 44px;
+    }
+
+    .ds-empty-state__title {
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 1.3;
+    }
+
+    .ds-empty-state__description {
+      font-size: 13px;
+      line-height: 1.5;
+    }
+  }
+
+  &[data-size='lg'] {
+    gap: 20px;
+    padding: 40px;
+
+    .ds-empty-state__icon {
+      width: 80px;
+      height: 80px;
+      font-size: 64px;
+    }
+
+    .ds-empty-state__title {
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1.3;
+    }
+
+    .ds-empty-state__description {
+      font-size: 14px;
+      line-height: 1.5;
+    }
+  }
+
+  // ==========================================================================
+  // Elementos
+  // ==========================================================================
+  // Icone — cor unificada (#5C6F8E) para todas as variants (decisao usuario
+  // 2026-05-12). Variants permanecem semanticas (ARIA/aria-live) mas
+  // visualmente o icone usa a mesma cor neutra em todos os contextos.
+  &__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #5C6F8E;
+
+    // Quando renderizado como <img> — escala respeitando o slot do parent
+    &[src] {
+      object-fit: contain;
+    }
+  }
+
+  &__title {
+    color: #4B5872;
+    margin: 0;
+    max-width: 100%;
+  }
+
+  &__description {
+    color: #7A8AA3;
+    margin: 0;
+    max-width: 100%;
+  }
+
+  &__cta {
+    margin-top: 4px;
+  }
+}

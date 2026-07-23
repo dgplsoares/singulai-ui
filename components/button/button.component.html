@@ -1,0 +1,55 @@
+<button
+  class="ds-button"
+  [class.ds-button--sm]="size() === 'sm'"
+  [class.ds-button--md]="size() === 'md'"
+  [class.ds-button--lg]="size() === 'lg'"
+  [class.ds-button--active]="active()"
+  [class.ds-button--loading]="loading()"
+  [attr.data-variant]="variant()"
+  [attr.data-variant-color]="variantColor()"
+  [attr.type]="type()"
+  [attr.disabled]="isDisabled() ? '' : null"
+  [attr.aria-disabled]="isDisabled()"
+  [attr.aria-busy]="loading()"
+  [attr.aria-pressed]="
+    variant() === 'nav-tab' || variant() === 'pagination' || variant() === 'toggle-status'
+      ? active()
+      : null
+  "
+  [attr.aria-label]="ariaLabel()"
+  (click)="onClick($event)"
+>
+  <!-- Loading spinner — substitui conteudo -->
+  @if (loading()) {
+    <span class="ds-button__spinner" aria-hidden="true"></span>
+  } @else {
+    @if (iconImageSrc()) {
+      <img
+        class="ds-button__icon ds-button__icon--left ds-button__icon--image"
+        [src]="iconImageSrc()!"
+        [style.width]="iconImageSize()"
+        [style.height]="iconImageSize()"
+        alt=""
+        aria-hidden="true"
+      />
+    } @else if (iconLeft()) {
+      <ng-icon
+        class="ds-button__icon ds-button__icon--left"
+        [name]="iconLeft()!"
+        [size]="iconSize()"
+      ></ng-icon>
+    }
+
+    <span class="ds-button__label">
+      <ng-content></ng-content>
+    </span>
+
+    @if (iconRight()) {
+      <ng-icon
+        class="ds-button__icon ds-button__icon--right"
+        [name]="iconRight()!"
+        [size]="iconSize()"
+      ></ng-icon>
+    }
+  }
+</button>

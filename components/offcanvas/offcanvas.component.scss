@@ -1,0 +1,11 @@
+// ============================================================================
+// Offcanvas — Wrapper transparente (REDASH-FASE-A A.1)
+//
+// O ds-offcanvas e thin-wrap sem chrome proprio. Toda a estilizacao
+// (positioning, backdrop, panel chrome, animacoes) vive no <app-offcanvas>.
+// O wrapper apenas garante que o host nao introduza layout extra.
+// ============================================================================
+
+:host {
+  display: contents;
+}

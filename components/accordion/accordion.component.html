@@ -1,0 +1,188 @@
+<!--
+  <ds-accordion> — pixel-perfect contra Figma 590:3272 (cradBody).
+  v1: sempre expanded (animação collapse vira sub-fase futura).
+
+  E.4 (2026-06-22): drag-and-drop de Módulos via Angular CDK ativado
+  quando dndEnabled=true. cdkDropList wrap o @for, cada módulo é cdkDrag
+  com cdkDragHandle no grip esquerdo.
+-->
+<div
+  cdkDropList
+  class="ds-accordion-list"
+  [class.ds-accordion-list--dnd]="dndEnabled()"
+  (cdkDropListDropped)="onModuleDrop($event)"
+>
+@for (module of modules(); track module.id) {
+  <div
+    cdkDrag
+    [cdkDragDisabled]="!dndEnabled()"
+    class="ds-accordion-module"
+    [class.ds-accordion-module--dnd]="dndEnabled() || module.enableDnD"
+    [class.ds-accordion-module--collapsed]="!isExpanded(module.id)"
+  >
+
+    <!-- E.4: drag-handle (grip) — visível somente em dndEnabled, posicionado
+         absolute no canto esquerdo. Figma 1066:14429. -->
+    @if (dndEnabled()) {
+      <span class="ds-accordion-module-drag-handle" cdkDragHandle aria-label="Arrastar para reordenar">
+        <ng-icon name="heroBars3" />
+      </span>
+    }
+
+    <!-- HEADER do módulo (icon + title + chevron toggle + 2 actions)
+         Header-left clicavel = toggle expanded/collapsed (debito post-smoke 2026-06-17) -->
+    <div class="ds-accordion-module-header">
+      <button
+        type="button"
+        class="ds-accordion-module-header-left"
+        [attr.aria-expanded]="isExpanded(module.id)"
+        [attr.aria-controls]="'accordion-body-' + module.id"
+        (click)="onToggleModule(module.id)"
+      >
+        <ng-icon name="heroSquares2x2" class="ds-accordion-module-icon" />
+        <h3 class="ds-accordion-module-title">{{ module.title }}</h3>
+        <ng-icon name="heroChevronDown" class="ds-accordion-module-chevron" />
+      </button>
+      @if (forceMode() !== 'all-collapsed') {
+        <!--
+          E.1 iter3 (2026-06-21): botões Editar/Deletar Módulo escondidos no
+          modo Reorganizar (forceMode=all-collapsed). Nesse modo as únicas
+          ações esperadas são drag-and-drop (E.4) e Salvar/Cancelar (header).
+        -->
+        <div class="ds-accordion-module-actions">
+          <button
+            type="button"
+            class="ds-accordion-btn ds-accordion-btn--edit"
+            (click)="onModuleEdit(module.id)"
+          >
+            <ng-icon name="heroPencil" class="ds-accordion-btn-icon" />
+            <span>Editar Módulo</span>
+          </button>
+          <button
+            type="button"
+            class="ds-accordion-btn ds-accordion-btn--delete"
+            (click)="onModuleDelete(module.id)"
+          >
+            <ng-icon name="heroTrash" class="ds-accordion-btn-icon" />
+            <span>Deletar Módulo</span>
+          </button>
+        </div>
+      }
+    </div>
+
+    <!--
+      Body collapsable com animacao grid-template-rows 1fr↔0fr (DS tokens
+      --ds-duration-medium + --ds-ease-in-out-soft). Mesmo padrao do
+      form-section (C.4-polish) — content-aware, sem max-height magico.
+    -->
+    <div class="ds-accordion-module-body-wrapper" [id]="'accordion-body-' + module.id">
+      <div class="ds-accordion-module-body-clip">
+        <div class="ds-accordion-module-body">
+
+    <!-- DESCRIPTION + divider -->
+    @if (module.description) {
+      <div class="ds-accordion-module-desc-wrap">
+        <p class="ds-accordion-module-desc">{{ module.description }}</p>
+        <div class="ds-accordion-divider"></div>
+      </div>
+    }
+
+    <!--
+      SUBSECTION "Aulas do módulo" + ações do header.
+      E.9 (2026-06-22): @if alterna entre estado padrão (Reorganizar+Adicionar)
+      e estado reorganizando (Cancelar+Salvar+Adicionar). Botões via
+      <ds-segmented-button size=sm>; "+ Adicionar Aula" mantém estilo primary.
+    -->
+    <div class="ds-accordion-subsection">
+      <div class="ds-accordion-subsection-title-wrap">
+        <ng-icon name="heroPlayCircle" class="ds-accordion-subsection-icon" />
+        <h4 class="ds-accordion-subsection-title">Aulas do módulo</h4>
+      </div>
+      <div class="ds-accordion-subsection-actions">
+        @if (isLessonsDndActive(module.id)) {
+          <ds-segmented-button
+            label="Cancelar reorganização"
+            iconLeft="heroXMark"
+            size="sm"
+            (clicked)="onLessonsReorderCancel(module.id)"
+          />
+          <ds-segmented-button
+            label="Salvar"
+            iconLeft="heroCheck"
+            size="sm"
+            (clicked)="onLessonsReorderSave(module.id)"
+          />
+        } @else if (module.items.length > 1) {
+          <ds-segmented-button
+            label="Reorganizar aulas"
+            iconLeft="heroArrowsUpDown"
+            size="sm"
+            (clicked)="onLessonsReorderRequest(module.id)"
+          />
+        }
+        <button
+          type="button"
+          class="ds-accordion-btn ds-accordion-btn--primary ds-accordion-btn--add-header"
+          (click)="onAddItem(module.id)"
+        >
+          <ng-icon name="heroPlus" class="ds-accordion-btn-icon" />
+          <span>{{ addItemLabel() }}</span>
+        </button>
+      </div>
+    </div>
+
+    <!--
+      LIST CONTAINER (border #DFE3EA + radius 10).
+      REFAC-2 (D.1.3.4): rows agora renderizadas via <ds-accordion-item>
+      standalone (promovido) em vez de inline. Visual pixel-perfect identico.
+
+      E.9: wrap em <div cdkDropList> per-module; cada item é cdkDrag com
+      cdkDragDisabled fora do modo dnd. Drag-handle interno via cdkDragHandle.
+    -->
+    <div
+      cdkDropList
+      class="ds-accordion-items"
+      [class.ds-accordion-items--dnd]="isLessonsDndActive(module.id)"
+      (cdkDropListDropped)="onLessonDrop(module.id, $event)"
+    >
+      @for (item of itemsForRender(module); track item.id) {
+        <div
+          cdkDrag
+          [cdkDragDisabled]="!isLessonsDndActive(module.id)"
+          class="ds-accordion-item-wrap"
+          [class.ds-accordion-item-wrap--dnd]="isLessonsDndActive(module.id)"
+        >
+          @if (isLessonsDndActive(module.id)) {
+            <span class="ds-accordion-item-drag-handle" cdkDragHandle aria-label="Arrastar aula para reordenar">
+              <ng-icon name="heroBars3" />
+            </span>
+          }
+          <ds-accordion-item
+            [item]="item"
+            (itemView)="onItemView(module.id, $event)"
+            (itemEdit)="onItemEdit(module.id, $event)"
+            (itemDelete)="onItemDelete(module.id, $event)"
+          />
+        </div>
+      }
+    </div>
+
+    <!-- FOOTER center: + Adicionar Aula -->
+    <div class="ds-accordion-footer">
+      <button
+        type="button"
+        class="ds-accordion-btn ds-accordion-btn--primary ds-accordion-btn--add-footer"
+        (click)="onAddItem(module.id)"
+      >
+        <ng-icon name="heroPlus" class="ds-accordion-btn-icon" />
+        <span>{{ addItemLabel() }}</span>
+      </button>
+    </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+}
+</div>

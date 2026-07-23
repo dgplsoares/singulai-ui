@@ -1,0 +1,14 @@
+// ============================================================================
+// Design System Singulai — Tokens Index
+// Importar este arquivo via @use em qualquer componente do DS:
+//   @use 'design-system/tokens' as ds;
+//
+// Uso: ds.$apex-blue-500, @include ds.shadow-neo-silhueta-final, etc.
+// ============================================================================
+
+@forward 'colors';
+@forward 'shadows';
+@forward 'typography';
+@forward 'spacing';
+@forward 'radii';
+@forward 'animations';

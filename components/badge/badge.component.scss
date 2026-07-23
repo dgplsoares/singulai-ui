@@ -1,0 +1,62 @@
+// ============================================================================
+// Badge — Estilos (REDASH-FASE-A A.5)
+//
+// Padronizacao DEC-DSA-L: 8 variants alinhadas com <ds-progress-bar>.
+// Cores extraidas das mini-tables IMPL-6/11/13 + Figma 627-3162 + statsbar.
+// ============================================================================
+
+@use '../../tokens' as ds;
+
+:host {
+  display: inline-flex;
+  vertical-align: middle;
+}
+
+.ds-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--ds-font-family-base);
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+
+  // ==========================================================================
+  // Size — sm (default mini-tables) + md
+  // ==========================================================================
+  &[data-size='sm'] {
+    padding: 4px 8px 5px;
+    font-size: 10px;
+    line-height: 10px;
+  }
+
+  &[data-size='md'] {
+    padding: 5px 10px 6px;
+    font-size: 11px;
+    line-height: 11px;
+  }
+
+  // ==========================================================================
+  // Shape — pill (mini-tables) + rounded (Figma 627-3162)
+  // ==========================================================================
+  &[data-shape='pill'] {
+    border-radius: 50px;
+  }
+
+  &[data-shape='rounded'] {
+    border-radius: 8px;
+  }
+
+  // ==========================================================================
+  // Variants (8) — cores consolidadas (DEC-DSA-L)
+  // bg / color extraidas das mini-tables IMPL-6/11/13 + Figma 627-3162
+  // ==========================================================================
+  &[data-variant='apex']    { background: #E6EFFF; color: #3C72D0; }
+  &[data-variant='success'] { background: #DDEDDF; color: #3BA36F; }
+  &[data-variant='warning'] { background: #FFEEDA; color: #7E511E; }
+  &[data-variant='danger']  { background: #FBE5E5; color: #BC3232; }
+  &[data-variant='info']    { background: #DDF1F2; color: #46969C; }
+  &[data-variant='purple']  { background: #E8DCF9; color: #7641BF; }
+  &[data-variant='pink']    { background: #FCE4EC; color: #C2185B; }
+  &[data-variant='neutral'] { background: #E5EBF2; color: #5C6F8E; }
+}

@@ -1,0 +1,186 @@
+<div
+  class="ds-nav-footer"
+  [class.ds-nav-footer--expanded]="isExpanded()"
+  [attr.data-active-panel]="activePanel()"
+>
+  <div class="ds-nav-footer__outer">
+    <div class="ds-nav-footer__inner">
+
+      <!--
+        Painel-area sempre presente no DOM (necessario para animacao suave).
+        A visibilidade eh controlada por isOpen (anima max-height + opacity).
+        O @switch usa displayedPanel (lag atras do activePanel durante o close)
+        para preservar o conteudo no DOM enquanto o max-height transiciona ate 0.
+      -->
+      <div
+        class="ds-nav-footer__panel-area"
+        [class.ds-nav-footer__panel-area--visible]="isOpen()"
+        [attr.aria-hidden]="!isOpen()"
+      >
+        <div class="ds-nav-footer__panel">
+          @switch (displayedPanel()) {
+            @case ('navegue') {
+              <ng-content select="[nav-footer-panel-navegue]"></ng-content>
+            }
+            @case ('ai') {
+              <ng-content select="[nav-footer-panel-ai]"></ng-content>
+            }
+            @case ('alertas') {
+              <ng-content select="[nav-footer-panel-alertas]"></ng-content>
+            }
+            @case ('conta') {
+              <ng-content select="[nav-footer-panel-conta]"></ng-content>
+            }
+          }
+        </div>
+        <div class="ds-nav-footer__divider" aria-hidden="true"></div>
+      </div>
+
+      <!--
+        Row dos 5 botoes — sempre visivel (mesmo com painel aberto, para
+        troca rapida entre paineis). Botao Dashboard tem visual estampado
+        (triple-border ring) quando dashboardActive=true. Os outros 4 botoes
+        seguem padrao icon + label, com active state simples.
+      -->
+      <div class="ds-nav-footer__buttons">
+
+        <!-- 1. Dashboard (Home) — normal: icon+label vertical igual outros 4. -->
+        <!-- Active: estampado 38x35 (mixin nav-footer-btn-stamped esconde label). -->
+        <button
+          type="button"
+          class="ds-nav-footer__btn ds-nav-footer__btn--dashboard"
+          [class.ds-nav-footer__btn--dashboard-active]="dashboardActive()"
+          aria-label="Home"
+          [attr.aria-current]="dashboardActive() ? 'page' : null"
+          (click)="onDashboardClick()"
+        >
+          <span
+            class="ds-nav-footer__icon-wrap ds-nav-footer__icon-wrap--shadow"
+            dsActiveSpin
+            [enabled]="dashboardActive()"
+            [trigger]="dashboardActive()"
+          >
+            <img
+              class="ds-nav-footer__icon"
+              [src]="homeIconSrc()"
+              width="16"
+              height="16"
+              alt=""
+              aria-hidden="true"
+            />
+          </span>
+          <span class="ds-nav-footer__label">Home</span>
+        </button>
+
+        <!-- 2. Navegue -->
+        <button
+          type="button"
+          class="ds-nav-footer__btn ds-nav-footer__btn--navegue"
+          [class.ds-nav-footer__btn--active]="isPanelActive('navegue') || navegueActive()"
+          aria-label="Navegue"
+          [attr.aria-expanded]="isPanelActive('navegue')"
+          (click)="onPanelClick('navegue')"
+        >
+          <span
+            class="ds-nav-footer__icon-wrap ds-nav-footer__icon-wrap--shadow"
+            dsActiveSpin
+            [enabled]="isPanelActive('navegue')"
+            [trigger]="isPanelActive('navegue')"
+          >
+            <img
+              class="ds-nav-footer__icon"
+              [src]="navegueIconSrc()"
+              width="18"
+              height="18"
+              alt=""
+              aria-hidden="true"
+            />
+          </span>
+          <span class="ds-nav-footer__label">Navegue</span>
+        </button>
+
+        <!-- 3. Agente IA -->
+        <button
+          type="button"
+          class="ds-nav-footer__btn ds-nav-footer__btn--ai"
+          [class.ds-nav-footer__btn--active]="isPanelActive('ai')"
+          aria-label="Agente IA"
+          [attr.aria-expanded]="isPanelActive('ai')"
+          (click)="onPanelClick('ai')"
+        >
+          <span
+            class="ds-nav-footer__icon-wrap ds-nav-footer__icon-wrap--shadow"
+            dsActiveSpin
+            [enabled]="isPanelActive('ai')"
+            [trigger]="isPanelActive('ai')"
+          >
+            <img
+              class="ds-nav-footer__icon"
+              [src]="aiIconSrc()"
+              width="20"
+              height="20"
+              alt=""
+              aria-hidden="true"
+            />
+          </span>
+          <span class="ds-nav-footer__label">Agente IA</span>
+        </button>
+
+        <!-- 4. Alertas -->
+        <button
+          type="button"
+          class="ds-nav-footer__btn ds-nav-footer__btn--alertas"
+          [class.ds-nav-footer__btn--active]="isPanelActive('alertas')"
+          aria-label="Alertas"
+          [attr.aria-expanded]="isPanelActive('alertas')"
+          (click)="onPanelClick('alertas')"
+        >
+          <span
+            class="ds-nav-footer__icon-wrap ds-nav-footer__icon-wrap--shadow"
+            dsActiveSpin
+            [enabled]="isPanelActive('alertas')"
+            [trigger]="isPanelActive('alertas')"
+          >
+            <img
+              class="ds-nav-footer__icon"
+              [src]="alertasIconSrc()"
+              width="14"
+              height="18"
+              alt=""
+              aria-hidden="true"
+            />
+          </span>
+          <span class="ds-nav-footer__label">Alertas</span>
+        </button>
+
+        <!-- 5. Conta -->
+        <button
+          type="button"
+          class="ds-nav-footer__btn ds-nav-footer__btn--conta"
+          [class.ds-nav-footer__btn--active]="isPanelActive('conta')"
+          aria-label="Conta"
+          [attr.aria-expanded]="isPanelActive('conta')"
+          (click)="onPanelClick('conta')"
+        >
+          <span
+            class="ds-nav-footer__icon-wrap ds-nav-footer__icon-wrap--shadow"
+            dsActiveSpin
+            [enabled]="isPanelActive('conta')"
+            [trigger]="isPanelActive('conta')"
+          >
+            <img
+              class="ds-nav-footer__icon"
+              [src]="contaIconSrc()"
+              width="13"
+              height="17"
+              alt=""
+              aria-hidden="true"
+            />
+          </span>
+          <span class="ds-nav-footer__label">Conta</span>
+        </button>
+
+      </div>
+    </div>
+  </div>
+</div>

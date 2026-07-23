@@ -1,0 +1,46 @@
+<!--
+  <ds-type-picker> — pixel-perfect contra Figma 657:4912.
+  Cards visuais em row para selecao de tipo (kind).
+-->
+<div
+  class="ds-type-picker"
+  role="radiogroup"
+  [attr.aria-label]="ariaLabel()"
+>
+  @for (option of options(); track option.kind) {
+    <button
+      type="button"
+      class="ds-type-picker-card"
+      [class.ds-type-picker-card--selected]="isSelected(option)"
+      [class.ds-type-picker-card--disabled]="isDisabled(option)"
+      [disabled]="isDisabled(option)"
+      [attr.aria-checked]="isSelected(option)"
+      [attr.aria-disabled]="isDisabled(option)"
+      role="radio"
+      (click)="onSelect(option)"
+    >
+      <span class="ds-type-picker-card-inner">
+        <span class="ds-type-picker-card-content">
+          <span class="ds-type-picker-card-icon-wrap">
+            @if (option.iconSrc) {
+              <img
+                [src]="option.iconSrc"
+                [alt]="option.label"
+                class="ds-type-picker-card-icon-img"
+                [style.width.px]="option.iconWidth ?? 24"
+                [style.height.px]="option.iconHeight ?? option.iconWidth ?? 24"
+              />
+            } @else if (option.icon) {
+              <ng-icon
+                [name]="option.icon"
+                class="ds-type-picker-card-icon"
+                [style.font-size.px]="option.iconWidth ?? 24"
+              />
+            }
+          </span>
+          <span class="ds-type-picker-card-label">{{ option.label }}</span>
+        </span>
+      </span>
+    </button>
+  }
+</div>

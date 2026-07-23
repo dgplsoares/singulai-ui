@@ -1,0 +1,18 @@
+<!--
+  Wrapper transparente do <app-offcanvas>. Todos os inputs/outputs forwarded
+  1:1. ng-content do wrapper e projetado para o slot interno via host.
+-->
+<app-offcanvas
+  [isOpen]="isOpen()"
+  [config]="config()"
+  [title]="title()"
+  [subtitle]="subtitle()"
+  [data]="data()"
+  [contentTemplate]="contentTemplate()"
+  [footerTemplate]="footerTemplate()"
+  (opened)="opened.emit($event)"
+  (closed)="closed.emit($event)"
+  (isOpenChange)="isOpenChange.emit($event)"
+>
+  <ng-content></ng-content>
+</app-offcanvas>

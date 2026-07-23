@@ -1,0 +1,69 @@
+<!-- Trigger projetado (button kebab, etc) — wrap em span para servir como origem do overlay -->
+<span
+  class="ds-dropdown-menu__trigger-wrap"
+  cdkOverlayOrigin
+  #originRef="cdkOverlayOrigin"
+  (click)="toggle()"
+>
+  <ng-content></ng-content>
+</span>
+
+<!-- Overlay com lista de items -->
+<ng-template
+  cdkConnectedOverlay
+  [cdkConnectedOverlayOrigin]="originRef"
+  [cdkConnectedOverlayOpen]="isOpen()"
+  [cdkConnectedOverlayPositions]="positions()"
+  [cdkConnectedOverlayHasBackdrop]="true"
+  cdkConnectedOverlayBackdropClass="cdk-overlay-transparent-backdrop"
+  (backdropClick)="close()"
+  (detach)="close()"
+  (overlayKeydown)="$event.key === 'Escape' && close()"
+>
+  <ul
+    class="ds-dropdown-menu"
+    role="menu"
+    [attr.aria-label]="ariaLabel()"
+    [style.min-width]="minWidth()"
+  >
+    @for (item of items(); track item.key + '-' + $index) {
+      @if (item.divider) {
+        <li class="ds-dropdown-menu__divider" role="separator" aria-hidden="true"></li>
+      } @else if (item.header) {
+        <li class="ds-dropdown-menu__header" role="presentation">
+          {{ item.label }}
+        </li>
+      } @else {
+        <li role="none">
+          <button
+            type="button"
+            class="ds-dropdown-menu__item"
+            [class.ds-dropdown-menu__item--danger]="item.variant === 'danger'"
+            [class.ds-dropdown-menu__item--disabled]="item.disabled"
+            [disabled]="item.disabled"
+            role="menuitem"
+            (click)="onItemClick(item)"
+          >
+            @if (item.iconImageSrc) {
+              <img
+                class="ds-dropdown-menu__item-icon"
+                [src]="item.iconImageSrc"
+                width="16"
+                height="16"
+                alt=""
+                aria-hidden="true"
+              />
+            } @else if (item.icon) {
+              <ng-icon
+                class="ds-dropdown-menu__item-icon"
+                [name]="item.icon"
+                size="16px"
+              ></ng-icon>
+            }
+            <span class="ds-dropdown-menu__item-label">{{ item.label }}</span>
+          </button>
+        </li>
+      }
+    }
+  </ul>
+</ng-template>

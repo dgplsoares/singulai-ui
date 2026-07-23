@@ -1,0 +1,289 @@
+// ============================================================================
+// PageHeader — Estilos
+// Sticky com border-bottom dupla (entalhe neumorphic).
+// ============================================================================
+
+@use '../../tokens' as ds;
+
+:host {
+  display: block;
+  width: 100%;
+  background: transparent;
+}
+
+.ds-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  // Min-gap entre as 3 zonas (nav-title, breadcrumbs, actions). Atua como
+  // separador visual quando os grupos se aproximam (justify-content space-between
+  // tipicamente domina, mas o gap aqui forma o piso minimo).
+  gap: 30px;
+  padding: var(--ds-space-md) var(--ds-space-2xl);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: transparent;
+
+  // Border-bottom dupla (entalhe neumorphic)
+  // Linha externa mais escura (sombra) + interna branca (luz)
+  border-bottom: 1px solid var(--ds-border-soft);
+  box-shadow: 0 1px 0 0 var(--ds-border-light);
+
+  // ==========================================================================
+  // Zona 1 — Nav title (esquerda)
+  // ==========================================================================
+  &__nav-title {
+    display: flex;
+    align-items: center;
+    gap: var(--ds-space-xl);
+    flex-shrink: 0;
+  }
+
+  &__history {
+    display: flex;
+    align-items: center;
+    gap: var(--ds-space-xs);
+  }
+
+  &__history-btn {
+    width: 24px;
+    height: 24px;
+    border: none;
+    background: transparent;
+    color: var(--ds-text-secondary);
+    cursor: pointer;
+    border-radius: var(--ds-radius-xs);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+      background var(--ds-duration-fast) var(--ds-ease-default),
+      color var(--ds-duration-fast) var(--ds-ease-default);
+
+    &:hover:not(:disabled) {
+      background: var(--ds-surface-glass);
+      color: var(--ds-apex-blue-300);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--ds-apex-blue-500);
+      outline-offset: 2px;
+    }
+
+    &:disabled {
+      opacity: 1;
+      cursor: not-allowed;
+    }
+  }
+
+  &__divider {
+    width: 1px;
+    height: 14px;
+    background: #d0d0da;
+    border-right: 1px solid rgba(255, 255, 255, 0.5);
+    align-self: center;
+  }
+
+  &__title-block {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  // Icone do titulo — flat outline, mesma cor do texto (Figma 1088:13177)
+  // !important necessario para vencer o estilo inline `--ng-icon__size: 1em`
+  // que ng-icon aplica automaticamente quando size="" nao eh fornecido.
+  &__title-icon {
+    --ng-icon__size: 0.85em !important;
+    color: #818BA9;
+    font-size: 20px;
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  &__title {
+    @include ds.text-page-title;
+    color: #818BA9;
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 14px;
+  }
+
+  // Logo Singulai — visivel APENAS em mobile (default hidden no desktop).
+  // Usa logo-singulai-icon.png que ja contem o efeito neumorphic embutido.
+  // Reusa o mesmo asset usado pelo <ds-sidebar-left-nav> (49x50 collapsed).
+  // Width/height fixos (em vez de auto) para controle determinado em
+  // dispositivos moveis variados.
+  &__brand-logo {
+    display: none;
+    width: 48px;
+    height: 48px;
+    object-fit: contain;
+    pointer-events: none;
+    flex-shrink: 0;
+  }
+
+  // ==========================================================================
+  // Zona 2 — Breadcrumbs (centro)
+  // ==========================================================================
+  &__breadcrumbs {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    margin-right: var(--ds-space-2xl);
+    overflow: hidden;
+  }
+
+  &__breadcrumb-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--ds-space-xs);
+    color: #5F6A83;
+    font-family: var(--ds-font-family-base);
+    font-size: 11px;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+    line-height: normal;
+  }
+
+  &__breadcrumb-item {
+    display: flex;
+    align-items: center;
+    gap: var(--ds-space-xs);
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  &__breadcrumb-link {
+    color: #5F6A83;
+    text-decoration: none;
+    transition: color var(--ds-duration-fast) var(--ds-ease-default);
+
+    &:hover {
+      color: var(--ds-apex-blue-300);
+      text-decoration: underline;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--ds-apex-blue-500);
+      outline-offset: 2px;
+      border-radius: var(--ds-radius-xs);
+    }
+  }
+
+  &__breadcrumb-current {
+    color: var(--ds-text-secondary);
+    font-weight: 500;
+  }
+
+  &__breadcrumb-separator {
+    color: var(--ds-text-tab-inactive);
+  }
+
+  // ==========================================================================
+  // Zona 3 — Actions (direita)
+  //
+  // Contem 3 grupos siblings com gap 30px entre eles:
+  //   1. .ds-page-header__dashboard-actions (Reorganizar + Personalizar)
+  //   2. slot [page-header-actions] (acoes customizadas da tela)
+  //   3. slot [page-header-combo]   (combo darkmode/notif/AI)
+  // ==========================================================================
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    flex-shrink: 0;
+  }
+
+  // Container dos botoes do dashboard (Reorganizar + Personalizar)
+  // Gap interno 10px entre os 2 botoes.
+  &__dashboard-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  // ==========================================================================
+  // Variants
+  // ==========================================================================
+  &[data-variant='default'] {
+    // Dashboard principal — exibe Reorganizar/Personalizar (controlado no template)
+  }
+
+  &[data-variant='screen-create'] {
+    // Sem mudanca visual — wizard tem page-nav abaixo (gerenciado por page-layout)
+  }
+
+  // ==========================================================================
+  // Responsivo MOBILE — variant Figma 1139:11647
+  // Layout: [history < >] [icon Title] ............... [logo Singulai]
+  // - Title-block proximo dos botoes de history (esquerda)
+  // - Logo Singulai vai pro canto direito via margin-left:auto + order:2
+  // - Divider escondido
+  // - Dashboard-actions (Reorganizar/Personalizar) escondidos
+  // - Actions zone inteira escondida (combo dark/notif/AI movido para nav-footer)
+  // - Breadcrumbs escondidos (ja eram, mantido)
+  // - Icon do title menor (13px conforme Figma)
+  // - Padding 5px 15px 5px 10px
+  // Breakpoint 991px alinhado com resto do DS-2.1 mobile.
+  // ==========================================================================
+  @media (max-width: 991px) {
+    padding: 5px 15px 5px 10px;
+
+    &__nav-title {
+      flex: 1;
+      gap: 12px;
+    }
+
+    &__divider {
+      display: none;
+    }
+
+    // Title-block fica APOS history (ordem natural no flow) — order 1.
+    &__title-block {
+      order: 1;
+      gap: 5px;
+    }
+
+    // Logo vai pro CANTO DIREITO (order 2 + margin-left auto empurra).
+    &__brand-logo {
+      display: block;
+      order: 2;
+      margin-left: auto;
+    }
+
+    // Icon mobile — --ng-icon__size: 1.4em (com font-size 13px → ~18px).
+    // !important necessario para vencer o style inline `--ng-icon__size: 1em`
+    // que ng-icon aplica automaticamente. align-items: center garante o
+    // alinhamento vertical com o texto do title.
+    &__title-icon {
+      font-size: 13px;
+      --ng-icon__size: 1.4em !important;
+      display: inline-flex;
+      align-items: center;
+      line-height: 1;
+    }
+
+    &__breadcrumbs {
+      display: none;
+    }
+
+    &__dashboard-actions {
+      display: none;
+    }
+
+    // Actions zone inteira escondida em mobile — combo dark/notif/AI eh
+    // substituido pela nav-footer (5 botoes). Custom screen-actions tambem
+    // ocultas; futuramente podem ser exibidas via variant especifico.
+    &__actions {
+      display: none;
+    }
+  }
+}

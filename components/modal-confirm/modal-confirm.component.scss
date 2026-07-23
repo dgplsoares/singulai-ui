@@ -1,0 +1,231 @@
+// ============================================================================
+// Modal Confirm — Estilos
+// PREP-3.5: All-templated approach (DEC-PREP3.5-B). O <app-modal-dialog>
+// renderiza apenas o backdrop + container + scroll-lock; toda a UI
+// (header + body + footer) e projetada via [contentTemplate] +
+// [footerTemplate]. SCSS aqui controla 100% do visual canonico
+// (Figma 872:14037).
+//
+// Cor accent dirigida pela variant (CSS var). Default = danger #935050.
+// ============================================================================
+
+@use '../../tokens' as ds;
+
+:host {
+  display: contents;
+}
+
+// ============================================================================
+// Header (Figma 872:14039)
+// flex row: [icon + title]   [close]
+// padding 15px (4 lados, DEC-PREP3.5-A — override do user vs Figma px-15 py-10)
+// gap entre icon e title: 10px
+// border-bottom #E1E1E5
+// ============================================================================
+.ds-modal-confirm {
+  &__header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px;
+    border-bottom: 1px solid #E1E1E5;
+    width: 100%;
+    flex-shrink: 0;
+  }
+
+  &__header-left {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
+  // Wrapper class aplicada no <ds-icon-neumorphic frameless [variant]>.
+  // O proprio icon-neumorphic gerencia display + cor (via [data-variant]).
+  // Aqui so reforcamos o limite de altura (Figma 872:14041 — icone trash
+  // 14x16; user pediu max 25px).
+  &__header-icon {
+    max-height: 25px;
+  }
+
+  &__header-title {
+    margin: 0;
+    font-family: 'Manrope', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 13px;
+    color: var(--ds-modal-confirm-accent, #0B1E40);
+    white-space: nowrap;
+  }
+
+  // Close button — wrapper para tornar <ds-icon-neumorphic> clicavel
+  &__header-close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    flex-shrink: 0;
+    border-radius: var(--ds-radius-sm, 4px);
+    transition: filter 150ms ease;
+
+    &:hover {
+      filter: brightness(0.96);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--ds-apex-blue-500, #3C72D0);
+      outline-offset: 2px;
+    }
+  }
+
+  // ==========================================================================
+  // Body (Figma 872:14048)
+  // padding outer 15px 30px + inner gap 5px (titulo+sub) + outer gap 10px
+  // ==========================================================================
+  &__body {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 15px 30px;
+    width: 100%;
+    flex: 1 0 0;
+  }
+
+  // Wrapper class no <ds-icon-neumorphic frameless [variant] size="lg">.
+  // icon-neumorphic gerencia display + cor; aqui apenas espacamento.
+  &__body-icon {
+    margin-bottom: 5px;
+  }
+
+  &__body-question {
+    margin: 0;
+    font-family: 'Manrope', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.3;
+    color: #000000;
+    text-align: center;
+  }
+
+  &__body-record {
+    margin: 0;
+    font-family: 'Manrope', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.3;
+    color: #5C6F8E;
+    text-align: center;
+  }
+
+  // ==========================================================================
+  // Footer (Figma 872:14056)
+  // SEM background. Divider duplo (linha #D6DEE9 + border-bottom #FFF) na
+  // primeira linha. Botoes DS na segunda linha. Padding-bottom 15px.
+  // ==========================================================================
+  &__footer-divider {
+    width: 100%;
+    height: 1px;
+    background: #D6DEE9;
+    border-bottom: 1px solid #FFFFFF;
+    margin-bottom: 15px;
+  }
+
+  &__footer-buttons {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    padding: 0 15px 15px;
+  }
+
+  // ==========================================================================
+  // Variants — paleta canonica Figma (divergente dos tokens DS globais)
+  //
+  // CSS vars sobrescritas no escopo do modal:
+  //   --ds-modal-confirm-accent: usada em title + dividers
+  //   --ds-status-{variant}: sobrescreve o token DS apenas DENTRO do modal,
+  //     fazendo com que <ds-icon-neumorphic [variant]> filho herde a cor
+  //     canonica via cascata de CSS variables (atravessa ViewEncapsulation).
+  //
+  // Tokens DS globais permanecem inalterados (#D04A3F danger, #A8841C warning).
+  // Apenas o scope do modal usa a paleta canonica do Figma 805:4558/872:14037.
+  // ==========================================================================
+  &--danger {
+    --ds-modal-confirm-accent: #935050;
+    --ds-status-danger: #935050;
+  }
+
+  &--warning {
+    --ds-modal-confirm-accent: #BE833F;
+    --ds-status-warning: #BE833F;
+  }
+
+  &--info {
+    --ds-modal-confirm-accent: #3C72D0;
+    --ds-status-info: #3C72D0;
+  }
+
+  &--success {
+    --ds-modal-confirm-accent: #38A173;
+    --ds-status-success: #38A173;
+  }
+}
+
+// ============================================================================
+// Overrides do <app-modal-dialog> shared (DEC-PREP3-E)
+// Bg canonico do container + zerar paddings/header/footer default + FORCA
+// LIGHT MODE (PREP-3.5/F).
+//
+// O shared tem `@apply bg-white dark:bg-gray-800` no .modal-dialog e
+// `@apply bg-gray-50 dark:bg-gray-800/50` no .modal-footer — precisamos
+// !important para vencer quando <html class="dark"> esta ativo
+// (DEC-PREP3.5-D: reversivel quando dark mode entrar no fim do projeto).
+// ============================================================================
+:host ::ng-deep .ds-modal-confirm {
+
+  // Container — bg canonico Figma + radius (FORCA contra dark:bg-gray-800)
+  .modal-dialog {
+    background: #F6F9FB !important;
+    border-radius: 15px !important;
+    overflow: hidden;
+  }
+
+  // Header default do shared NAO renderiza (passamos title="") — mas defesa
+  // em profundidade caso shared renderize por outra razao
+  .modal-header {
+    display: none !important;
+  }
+
+  // Body do shared abracara nosso contentTemplate inteiro (header + body
+  // custom). Removemos padding default para nosso template controlar.
+  .modal-body {
+    padding: 0 !important;
+    display: flex;
+    flex-direction: column;
+    background: transparent !important;
+  }
+
+  // Footer do shared abracara nosso footerTemplate. Sem bg (anula
+  // dark:bg-gray-800/50), sem padding, sem border-top.
+  .modal-footer {
+    background: transparent !important;
+    border-top: none !important;
+    padding: 0 !important;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  // Defesa em profundidade: se shared renderizar close-btn por bug, neutraliza
+  .modal-close-btn {
+    display: none !important;
+  }
+}

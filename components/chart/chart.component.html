@@ -1,0 +1,14 @@
+<!--
+  Container neumorphic canon (Figma 1042:28615 card-body):
+  border #DFE3EA + radius 10 + bg semi-transparente + inner border white.
+  Mesmo pattern do <ds-datatable> wrapper.
+
+  Logica delegada 100% ao <app-chart-widget> shared (DEC-PREP4-A).
+  Defaults DS injetados via processedConfig() (DEC-PREP4-B/C/E).
+-->
+<div class="ds-chart">
+  <app-chart-widget
+    [config]="processedConfig()"
+    [data]="data()"
+  />
+</div>

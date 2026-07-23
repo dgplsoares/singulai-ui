@@ -1,0 +1,144 @@
+// ============================================================================
+// SegmentedTabs — Estilos
+// Visual neumorphic baseado em Figma 1149:14721 / 1160:16984 (segmented control)
+// + showcase__period-tabs (3 tabs Dia/Semana/Mes).
+//
+// Outer frame: gradient + neumorphic shadow + border 1px white + radius 10
+// Tabs inativos: bg #F6F8FB + inset shadow + cor #8599AC
+// Tab ativo:    bg transparente + radius 8 (full) + cor #466FA9
+// Border-radius das pontas: --first (esquerda 8px) + --last (direita 8px)
+// ============================================================================
+
+@use '../../tokens' as ds;
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.ds-segmented-tabs {
+  display: block;
+  width: 100%;
+
+  &__frame {
+    display: flex;
+    align-items: stretch;
+    height: 41px;
+    width: 100%;
+    border: 1px solid #FFFFFF;
+    border-radius: 10px;
+    background: linear-gradient(
+      0deg,
+      #FFFFFF 0%,
+      #F6F9FB 30.769%,
+      #F6F9FB 68.75%,
+      #EFF2F9 96.635%
+    );
+    box-shadow:
+      2px 2px 7px 0 rgba(114, 142, 171, 0.05),
+      -5px -5px 14px 0 #FFFFFF,
+      3px 3px 15px 0 rgba(111, 140, 176, 0.25);
+    overflow: hidden;
+  }
+
+  &__tab {
+    appearance: none;
+    border: 1px solid #D5DEE9;
+    background: #F6F8FB;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 0 12px;
+    height: 100%;
+    flex: 1;
+    flex-shrink: 0;
+    font-family: 'Manrope', sans-serif;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 12px;
+    color: #8599AC;
+    box-shadow:
+      inset 0 -2px 3px 0 rgba(94, 114, 150, 0.1),
+      inset 0 3px 3px 0 #FFFFFF;
+    transition:
+      color var(--ds-duration-fast) var(--ds-ease-default),
+      background var(--ds-duration-fast) var(--ds-ease-default),
+      box-shadow var(--ds-duration-fast) var(--ds-ease-default);
+
+    // Border-radius dinamico: somente nas pontas externas do frame
+    border-radius: 0;
+    &--first {
+      border-radius: 8px 0 0 8px;
+    }
+    &--last {
+      border-radius: 0 8px 8px 0;
+    }
+    &--first.ds-segmented-tabs__tab--last {
+      // Caso degenerado: unico item → todos os cantos arredondados
+      border-radius: 8px;
+    }
+
+    // Active state — transparente + sem inset shadow + cor primary.
+    // NAO sobrescreve border-radius — regras posicionais (--first/--last)
+    // dominam: first ativo mantem radius esquerda apenas, last ativo mantem
+    // radius direita apenas, middle ativo permanece sem radius.
+    &--active {
+      background: transparent;
+      box-shadow: none;
+      color: #466FA9;
+    }
+
+    // Items closable: justifica entre label e close button (em vez de center)
+    &--has-close {
+      justify-content: space-between;
+      flex: 2; // closable items recebem mais espaco (ex: chat name truncavel)
+    }
+
+    &:hover:not(&--active) {
+      color: #466FA9;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--ds-apex-blue-500);
+      outline-offset: -2px;
+    }
+  }
+
+  &__icon {
+    flex-shrink: 0;
+    color: inherit;
+  }
+
+  &__label {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0;
+  }
+
+  // Close button (X) ao final dos items closable. Span com role="button"
+  // por nao podermos aninhar <button> dentro de <button> (HTML invalido).
+  // Padrao usado pelo MUI Chip + outros DS.
+  &__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: inherit;
+    opacity: 0.7;
+    cursor: pointer;
+    transition: opacity var(--ds-duration-fast) var(--ds-ease-default);
+
+    &:hover {
+      opacity: 1;
+    }
+
+    &:focus-visible {
+      outline: 1px solid var(--ds-apex-blue-500);
+      outline-offset: 1px;
+      border-radius: 2px;
+    }
+  }
+}

@@ -1,0 +1,86 @@
+// ============================================================================
+// Design System Singulai — Global Utilities
+// Classes utilitarias reutilizaveis em qualquer componente do DS.
+// ============================================================================
+
+@use '../tokens/shadows' as shadows;
+
+// Aplica o effect neo_silhueta_final do Figma em qualquer icone (img/svg/ng-icon).
+// Sao 3 outer drop-shadows que seguem a silhueta do icone (alpha-aware).
+// Pre-requisito: container precisa ter overflow: visible para a sombra extender.
+.ds-neo-silhueta-icon {
+  @include shadows.filter-neo-silhueta-icon;
+}
+
+// Truncate text com ellipsis em 1 linha
+.ds-text-truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+// Multi-line truncate
+.ds-text-truncate-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ds-text-truncate-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+// Screen reader only (acessibilidade)
+.ds-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+// Focus visible padrao do DS
+.ds-focus-visible {
+  &:focus-visible {
+    outline: 2px solid var(--ds-apex-blue-500);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}
+
+// Skip link (acessibilidade — pular para conteudo principal)
+.ds-skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--ds-apex-blue-500);
+  color: #fff;
+  padding: 8px 16px;
+  z-index: 100;
+  text-decoration: none;
+  border-radius: 0 0 var(--ds-radius-sm) 0;
+
+  &:focus {
+    top: 0;
+  }
+}
+
+// Cursor pointer helper
+.ds-cursor-pointer {
+  cursor: pointer;
+}
+
+// Disabled state padrao
+.ds-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}

@@ -1,0 +1,128 @@
+// ============================================================================
+// DarkModeButton — Estado DEFAULT com effect neo_silhueta_final
+// Node Figma DEFAULT (sem effect): 1094:15268
+// Node Figma COM effect:           1097:15296
+// Composite de 8 elementos (lua + cone rotacionado + 2 estrelinhas em cruz)
+//
+// O filter no `__icon` aplica a sombra na silhueta UNIFICADA dos 8 elementos
+// (Figma trata o group inteiro como um silhueta para o effect).
+// ============================================================================
+
+@use '../../tokens/shadows' as shadows;
+
+$ds-dm-star-color: #7390B9;
+
+:host {
+  display: inline-flex;
+}
+
+.ds-dark-mode-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  height: 32px;
+  padding: 0 10px;
+  margin: 0;
+  cursor: pointer;
+  font-family: inherit;
+  overflow: visible;
+
+  &:focus-visible {
+    outline: 2px solid var(--ds-apex-blue-500);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  // Container do icone — bounding box do composite (cone container = 18.564 x 18.26)
+  // O filter aplicado aqui afeta a silhueta unificada dos 8 elementos filhos
+  &__icon {
+    position: relative;
+    display: block;
+    width: 18.564px;
+    height: 18.26px;
+    @include shadows.filter-neo-silhueta-icon;
+    transition: filter var(--ds-duration-medium) var(--ds-ease-in-out-soft);
+  }
+
+  // Hover (node Figma 1098:15324) — recolor para primary #3E6FCA + sombras realcadas
+  // O filter chain (brightness/saturate) recolore lua, cone E as 2 estrelinhas
+  // (todas as cores #7390B9 viram ~#3D6CC2, proximo da primary #3E6FCA)
+  &:hover:not([disabled]) .ds-dark-mode-button__icon {
+    @include shadows.filter-neo-silhueta-icon-hover;
+  }
+
+  // Lua principal — moon-vector217.svg em (2.73, 2)
+  &__moon {
+    position: absolute;
+    left: 2.73px;
+    top: 2px;
+    width: 12.765px;
+    height: 13.63px;
+    display: block;
+  }
+
+  // Wrapper do cone de luz — flex centering para aplicar rotate em filho
+  &__cone-wrap {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 18.564px;
+    height: 18.26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__cone {
+    flex: none;
+    transform: rotate(15deg);
+    width: 15.248px;
+    height: 14.819px;
+    display: block;
+
+    img {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  // Estrelinhas — cada uma e um "+" formado por 2 retangulos perpendiculares
+  &__star {
+    position: absolute;
+    width: 3.59px;
+    height: 3.59px;
+  }
+
+  &__star--1 {
+    left: 11.01px;
+    top: 1.2px;
+  }
+
+  &__star--2 {
+    left: 13.41px;
+    top: 5.98px;
+  }
+
+  &__star-vert {
+    position: absolute;
+    left: 1.2px;
+    top: 0;
+    width: 1.197px;
+    height: 3.59px;
+    background: $ds-dm-star-color;
+    display: block;
+  }
+
+  &__star-horiz {
+    position: absolute;
+    left: 0;
+    top: 1.2px;
+    width: 3.59px;
+    height: 1.197px;
+    background: $ds-dm-star-color;
+    display: block;
+  }
+}

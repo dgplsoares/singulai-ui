@@ -1,0 +1,22 @@
+<button
+  type="button"
+  class="ds-ai-assistant-button"
+  [class.ds-ai-assistant-button--active]="active()"
+  [attr.aria-label]="ariaLabel()"
+  [attr.aria-pressed]="active()"
+  dsActiveSpin
+  [enabled]="active()"
+  [trigger]="active()"
+  [delayClickUntilEnd]="true"
+  [pendingClasses]="['ds-ai-assistant-button--active']"
+  (delayedClick)="onClick($event)"
+>
+  <img
+    class="ds-ai-assistant-button__icon"
+    [src]="sparklesIconSrc()"
+    width="20"
+    height="20"
+    alt=""
+    aria-hidden="true"
+  />
+</button>

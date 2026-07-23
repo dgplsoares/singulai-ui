@@ -1,0 +1,62 @@
+// ============================================================================
+// Design System Singulai — Colors
+// Fonte: .claude/design-system/tokens/colors.md
+// ============================================================================
+
+// Apex blue (primary)
+$apex-blue-100: #EFF7FF;
+$apex-blue-300: #3E6FCA;
+$apex-blue-500: #2558B3;
+$apex-blue-600: #466FA9;
+$apex-blue-700: #0B1D3F;
+$apex-blue-900: #2D2D34;
+
+// Surfaces (neumorphism backgrounds)
+$surface-base: #EFF3F8;
+$surface-card: #E8EDF2; // BG canonical do shell (ds-sidebar + main-layout + showcase) — atualizado em G.4.1
+$surface-card-alt: #E5EBF3;
+$surface-progress-bg: #DFE3EA;
+$surface-glass: rgba(255, 255, 255, 0.5);
+$surface-glass-25: rgba(255, 255, 255, 0.25);
+
+// Borders
+$border-light: #FFFFFF;
+$border-soft: #DBE0E5;
+$border-soft-alt: #DFE3EA;
+$border-input: #D5DEE9;
+$border-progress: #E4E7F3;
+
+// Text
+$text-title: #7A94AC;
+$text-label: #617BA9;
+$text-value: #000000;
+$text-secondary: #7390B9;
+$text-button-tab: #466FA9;
+$text-tab-inactive: #8599AC;
+$text-apex-900: #2B2B2B;
+
+// Shadow source colors (rgba alpha applied in mixins)
+$shadow-color-deep: #4D6788;
+$shadow-color-medium: #6F8CB0;
+$shadow-color-soft: #728EAB;
+$shadow-color-deeper: #405F7D;
+$shadow-inner-blue: #C1D5EE;
+$shadow-inner-blue-deep: rgba(11, 29, 63, 0.5);
+$shadow-inner-grey: #5A6571;
+$shadow-white: #FFFFFF;
+$shadow-white-soft: rgba(255, 255, 255, 0.88);
+
+// Status colors (preliminar — confirmar nodes especificos em DS-2.2)
+$status-success: #3BA36F;
+$status-success-bg: #E5EFE7;
+$status-warning: #A8841C;
+$status-warning-bg: #FDF8E8;
+$status-danger: #D04A3F;
+$status-danger-bg: #FCF1F0;
+$status-info: #466FA9;
+$status-info-bg: #E8F1FF;
+
+// Level/badge specifics
+$level-iniciante: #46969C;
+$level-iniciante-bg: #F4FAFA;
+$level-iniciante-border: #BDD2D3;

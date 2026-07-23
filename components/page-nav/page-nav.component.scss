@@ -1,0 +1,220 @@
+@use '../../tokens' as ds;
+
+// ============================================================================
+// ds-page-nav — Pixel-perfect contra Figma 590:1121 + 784:14261.
+//
+// LIGHTMODE-FIRST: zero :host-context(.dark) — convencao 2026-05-12.
+//
+// Specs canonicas (Figma 590:1121 outer / 784:14261 items + tipografia):
+//
+// - OUTER (590:1121): padding 20
+// - Tab bar (590:1122): bg #EFF3F8 + border 1px #FFF + radius 12 + h 60
+//     px 12 py 8
+//     3-layer outer shadow:
+//       2 2 6 rgba(114,142,171,0.05)
+//       -6 -6 20 #FFFFFF
+//       4 4 25 rgba(111,140,176,0.35)
+//
+// - Items inactive (784:14261): Manrope Bold 13/11 color #3E6FCA
+//   (Figma blue_1 — NAO o #8599AC anterior do 590:1121).
+//   Gap 6, padding 15 horizontal, sem container.
+//
+// - Item ACTIVE: replica visual canonico do <ds-sidebar__menu-item--active>
+//   no estado --expanded (DEC-C1-iter2 Diogo 2026-06-16):
+//     bg #EFF3F8, border 2px #FFFFFF, radius 9
+//     color #3A65B3, font Manrope Bold 13/11
+//     height 40px, padding 0 10px, margin 2px 0
+//     box-shadow:
+//       0 0 0 1.375px #3577EB          (ring interno saturado azul)
+//       0 0 0 5px rgba(255,255,255,0.35)(ring externo translucido)
+//       0 8px 10px rgba(0,0,0,0.05)    (drop)
+//       inset -5 -5 7 -2 #FFFFFF       (inset neumorphic light)
+//       inset  5  5 10 -2 #B3C0CF      (inset neumorphic dark)
+//     filter: drop-shadow(2 2 4 rgba(64,95,125,0.25))
+//             drop-shadow(-8 -8 6 #FFF)
+//             drop-shadow(4 4 15 rgba(77,103,136,0.15))
+//   + spin one-shot via @include ds.ds-active-spin-ring (triggered pela
+//     diretiva [dsActiveSpin] no host quando activeStepId muda).
+// ============================================================================
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+// ============================================================================
+// OUTER + TAB BAR
+// ============================================================================
+
+.ds-page-nav {
+  // padding ajustado por Diogo 2026-06-17 (D.1.1 polish): page-nav ocupa
+  // toda a largura horizontal do main; espacamento vertical reduzido.
+  padding: 10px 0;
+}
+
+.ds-page-nav-tabbar {
+  display: flex;
+  align-items: center;
+  height: 60px;
+  padding: 8px 12px;
+  background: #EFF3F8;
+  border: 1px solid #FFFFFF;
+  border-radius: 12px;
+  box-shadow:
+    2px 2px 6px 0 rgba(114, 142, 171, 0.05),
+    -6px -6px 20px 0 #FFFFFF,
+    4px 4px 25px 0 rgba(111, 140, 176, 0.35);
+  overflow: visible; // permite ring externo do active button extrapolar
+}
+
+.ds-page-nav-items {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 30px;
+  flex: 1;
+  min-width: 0;
+}
+
+// ============================================================================
+// ITEM BASE (inactive default per Figma 784:14261)
+// ============================================================================
+
+.ds-page-nav-item {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 15px;
+  border: none;
+  background: transparent;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 11px;
+  color: #3E6FCA; // Figma blue_1 — inactive
+  cursor: pointer;
+  transition: color 0.18s ease, filter 0.18s ease;
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  &:hover:not(:disabled):not(.ds-page-nav-item--active) {
+    color: #2E5BB5;
+    filter: brightness(1.05);
+  }
+}
+
+.ds-page-nav-item-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ds-page-nav-item-icon-img {
+  display: block;
+  height: 18px;
+  width: auto;
+  max-width: 24px;
+  object-fit: contain;
+}
+
+.ds-page-nav-item-icon {
+  font-size: 16px;
+  color: inherit;
+  display: inline-flex;
+}
+
+.ds-page-nav-item-label {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 11px;
+  white-space: nowrap;
+}
+
+// ============================================================================
+// ACTIVE STEP — replica do <ds-sidebar__menu-item--active> expanded
+// ============================================================================
+
+.ds-page-nav-item--active {
+  background: #EFF3F8;
+  border: 2px solid #FFFFFF;
+  border-radius: 9px;
+  color: #3A65B3;
+  height: 40px;
+  padding: 0 11px; // Figma 785:14867 px 11 (vs 10 do sidebar)
+  gap: 7px;        // Figma 785:14867
+  margin: 2px 0;
+  box-shadow:
+    0 0 0 1.375px #3577EB,
+    0 0 0 5px rgba(255, 255, 255, 0.35),
+    0 8px 10px 0 rgba(0, 0, 0, 0.05),
+    inset -5px -5px 7px -2px #FFFFFF,
+    inset  5px  5px 10px -2px #B3C0CF;
+  // NOTA: filter: drop-shadow(-8 -8 6 #FFF) do sidebar foi REMOVIDO aqui.
+  // No sidebar funciona porque o container e bg #FFF — o brilho branco
+  // top-left some no fundo branco. Aqui na tab-bar bg #EFF3F8, o brilho
+  // empurrava o ring #3577EB para parecer mais FINO em cima e mais
+  // GROSSO embaixo (linha azul assimetrica). O inset shadow neumorphic
+  // ja cobre o efeito visual de depth sem precisar do drop-shadow.
+
+  // Garantir label/icon na cor canonica active
+  .ds-page-nav-item-label,
+  .ds-page-nav-item-icon {
+    color: #3A65B3;
+  }
+
+  &:hover {
+    color: #3A65B3;
+    filter: brightness(1.02);
+  }
+
+  // Spin one-shot via mixin centralizado — disparado pela classe
+  // .ds-spinning adicionada/removida pela diretiva [dsActiveSpin] no host.
+  @include ds.ds-active-spin-ring(
+    $border-radius: 9px,
+    $inset: -3px
+  );
+}
+
+// ============================================================================
+// COMPLETED (futuro: check verde) — placeholder
+// ============================================================================
+
+.ds-page-nav-item--completed {
+  .ds-page-nav-item-icon {
+    color: #16A34A;
+  }
+}
+
+// ============================================================================
+// RESPONSIVE — em mobile colapsa labels (so icons)
+// ============================================================================
+
+@media (max-width: 768px) {
+  .ds-page-nav {
+    padding: 12px;
+  }
+
+  .ds-page-nav-items {
+    gap: 12px;
+    overflow-x: auto;
+  }
+
+  .ds-page-nav-item {
+    padding: 0 8px;
+  }
+
+  .ds-page-nav-item-label {
+    display: none;
+  }
+
+  // Active no mobile: apenas icon (sem label) — consistente com inactive.
+  .ds-page-nav-item--active {
+    padding: 0 10px;
+  }
+}

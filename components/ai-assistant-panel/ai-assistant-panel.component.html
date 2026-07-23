@@ -1,0 +1,348 @@
+<!--
+  AI Assistant Panel — estrutura skeleton (F-AI-1).
+  Sub-blocos detalhados serao implementados nas sub-fases F-AI-2..6.
+-->
+<div class="ds-ai-assistant-panel__outer">
+  <div class="ds-ai-assistant-panel__inner">
+
+    <!-- HEADER — brand + 4 botoes acoes -->
+    <div class="ds-ai-assistant-panel__header">
+
+      <!-- Esquerda: brand + label "Agente IA" (sempre visivel mobile + desktop) -->
+      <div class="ds-ai-assistant-panel__brand">
+        <ng-icon
+          class="ds-ai-assistant-panel__brand-icon"
+          name="heroSparkles"
+          size="20px"
+        ></ng-icon>
+        <span class="ds-ai-assistant-panel__title">Agente IA</span>
+      </div>
+
+      <!-- Direita: 4 botoes (settings, creditos pill, maximize, close) -->
+      <div class="ds-ai-assistant-panel__actions">
+
+        <!-- Settings dropdown trigger — Figma 1163:17909 -->
+        <div class="ds-ai-assistant-panel__action-wrap">
+          <button
+            type="button"
+            class="ds-ai-assistant-panel__action-btn"
+            aria-label="Configuracoes do Prompt"
+            [attr.aria-expanded]="settingsDropdownOpen()"
+            (click)="onSettingsClick($event)"
+          >
+            <ds-icon-neumorphic
+              [iconImageSrc]="settingsIconSrc()"
+              size="sm"
+            ></ds-icon-neumorphic>
+          </button>
+
+          <!-- G1 (DEC-CHAT1-API-6): Settings dropdown com 4 data-switchers -->
+          @if (settingsDropdownOpen()) {
+            <div
+              class="ds-ai-assistant-panel__dropdown ds-ai-assistant-panel__dropdown--settings"
+              role="menu"
+              (click)="$event.stopPropagation()"
+            >
+              <!-- Criatividade — 3-state segmented -->
+              <div class="ds-ai-assistant-panel__cfg-row">
+                <span class="ds-ai-assistant-panel__cfg-label">Criatividade</span>
+                <div class="ds-ai-assistant-panel__cfg-segments">
+                  <button
+                    type="button"
+                    class="ds-ai-assistant-panel__cfg-seg"
+                    [class.is-active]="aiPromptConfig().criatividade === 'low'"
+                    (click)="onCriatividadeChange('low')"
+                    aria-label="Criatividade baixa"
+                  >Baixa</button>
+                  <button
+                    type="button"
+                    class="ds-ai-assistant-panel__cfg-seg"
+                    [class.is-active]="aiPromptConfig().criatividade === 'medium'"
+                    (click)="onCriatividadeChange('medium')"
+                    aria-label="Criatividade media"
+                  >Média</button>
+                  <button
+                    type="button"
+                    class="ds-ai-assistant-panel__cfg-seg"
+                    [class.is-active]="aiPromptConfig().criatividade === 'high'"
+                    (click)="onCriatividadeChange('high')"
+                    aria-label="Criatividade alta"
+                  >Alta</button>
+                </div>
+              </div>
+
+              <!-- Tom de voz — select dropdown nativo (simples) -->
+              <div class="ds-ai-assistant-panel__cfg-row">
+                <span class="ds-ai-assistant-panel__cfg-label">Tom de voz</span>
+                <select
+                  class="ds-ai-assistant-panel__cfg-select"
+                  [value]="aiPromptConfig().tomVoz"
+                  (change)="onTomVozChange($any($event.target).value)"
+                  aria-label="Tom de voz"
+                >
+                  <option value="formal">Formal</option>
+                  <option value="casual">Casual</option>
+                  <option value="tecnico">Técnico</option>
+                </select>
+              </div>
+
+              <!-- Search external — toggle -->
+              <button
+                type="button"
+                class="ds-ai-assistant-panel__cfg-toggle-row"
+                role="menuitemcheckbox"
+                [attr.aria-checked]="aiPromptConfig().searchExternal"
+                (click)="onToggleSearchExternal()"
+              >
+                <span class="ds-ai-assistant-panel__cfg-label">Buscar fontes externas</span>
+                <span
+                  class="ds-ai-assistant-panel__cfg-toggle"
+                  [class.is-on]="aiPromptConfig().searchExternal"
+                  aria-hidden="true"
+                ></span>
+              </button>
+
+              <!-- Extended thinking — toggle -->
+              <button
+                type="button"
+                class="ds-ai-assistant-panel__cfg-toggle-row"
+                role="menuitemcheckbox"
+                [attr.aria-checked]="aiPromptConfig().extendedThinking"
+                (click)="onToggleExtendedThinking()"
+              >
+                <span class="ds-ai-assistant-panel__cfg-label">Reasoning estendido</span>
+                <span
+                  class="ds-ai-assistant-panel__cfg-toggle"
+                  [class.is-on]="aiPromptConfig().extendedThinking"
+                  aria-hidden="true"
+                ></span>
+              </button>
+            </div>
+          }
+        </div>
+
+        <!-- Creditos dropdown trigger -->
+        <div class="ds-ai-assistant-panel__credits-wrap">
+          <button
+            type="button"
+            class="ds-ai-assistant-panel__credits"
+            aria-label="Creditos IA"
+            [attr.aria-expanded]="creditsDropdownOpen()"
+            (click)="onCreditsClick($event)"
+          >
+            <span class="ds-ai-assistant-panel__credits-label">Créditos IA</span>
+            <span class="ds-ai-assistant-panel__credits-value">({{ credits() }})</span>
+            <ng-icon
+              class="ds-ai-assistant-panel__credits-chevron"
+              [class.ds-ai-assistant-panel__credits-chevron--open]="creditsDropdownOpen()"
+              name="heroChevronDown"
+              size="8px"
+            ></ng-icon>
+          </button>
+
+          <!-- Dropdown menu — mesmo estilo do showcase__dropdown -->
+          @if (creditsDropdownOpen()) {
+            <div class="ds-ai-assistant-panel__dropdown" role="menu">
+              <button
+                type="button"
+                class="ds-ai-assistant-panel__dropdown-item"
+                role="menuitem"
+                (click)="onCreditsAction('history')"
+              >
+                <ng-icon
+                  class="ds-ai-assistant-panel__dropdown-icon"
+                  name="heroClock"
+                  size="16px"
+                ></ng-icon>
+                Histórico de uso
+              </button>
+              <button
+                type="button"
+                class="ds-ai-assistant-panel__dropdown-item"
+                role="menuitem"
+                (click)="onCreditsAction('add')"
+              >
+                <ng-icon
+                  class="ds-ai-assistant-panel__dropdown-icon"
+                  name="heroPlusCircle"
+                  size="16px"
+                ></ng-icon>
+                Adicionar créditos
+              </button>
+              <button
+                type="button"
+                class="ds-ai-assistant-panel__dropdown-item"
+                role="menuitem"
+                (click)="onCreditsAction('plan')"
+              >
+                <ng-icon
+                  class="ds-ai-assistant-panel__dropdown-icon"
+                  name="heroCurrencyDollar"
+                  size="16px"
+                ></ng-icon>
+                Gerenciar plano
+              </button>
+            </div>
+          }
+        </div>
+
+        <!-- Maximize / Minimize — Figma 1163:17908 (max) / 1164:17926 (min)
+             CHAT-1.3 (DEC-CHAT1-API-2): omitido quando showMaximize=false
+             (mobile: Figma 1149-14553 nao tem maximize). -->
+        @if (showMaximize()) {
+          <button
+            type="button"
+            class="ds-ai-assistant-panel__action-btn"
+            [attr.aria-label]="maximized() ? 'Minimizar chat' : 'Maximizar chat'"
+            [attr.aria-pressed]="maximized()"
+            (click)="onMaximize()"
+          >
+            <ds-icon-neumorphic
+              [iconImageSrc]="maximized() ? minimizeIconSrc() : maximizeIconSrc()"
+              size="sm"
+            ></ds-icon-neumorphic>
+          </button>
+        }
+
+        <!-- Close — Figma 1163:17907 -->
+        <button
+          type="button"
+          class="ds-ai-assistant-panel__action-btn"
+          aria-label="Fechar chat"
+          (click)="onClose()"
+        >
+          <ds-icon-neumorphic
+            [iconImageSrc]="closeIconSrc()"
+            size="sm"
+          ></ds-icon-neumorphic>
+        </button>
+
+      </div>
+    </div>
+
+    <!-- TABS — usa <ds-segmented-tabs> (componente reutilizavel do DS)
+         CHAT-1.5: omitido quando showTabs=false (typical com useBodySlot=true
+         onde o body projetado ja tem suas proprias tabs). -->
+    @if (showTabs()) {
+      <div class="ds-ai-assistant-panel__tabs">
+        <ds-segmented-tabs
+          [items]="tabItems()"
+          [activeKey]="activeTab()"
+          (tabChange)="onTabClick($event)"
+          (itemClose)="onTabItemClose($event)"
+        ></ds-segmented-tabs>
+      </div>
+    }
+
+    <!-- CHAT-1.3 (DEC-CHAT1-API-1): quando useBodySlot=true, caller projeta
+         <app-ai-chat-timeline> via [ai-panel-body]. Caso contrario, usa o
+         renderer hardcoded (timeline + actionPrompts + form) abaixo. -->
+    @if (useBodySlot()) {
+      <div class="ds-ai-assistant-panel__body-slot">
+        <ng-content select="[ai-panel-body]"></ng-content>
+      </div>
+    } @else {
+    <!-- TIMELINE — chat body com mensagens AI (esquerda) + user (direita) -->
+    <div class="ds-ai-assistant-panel__timeline">
+      <div class="ds-ai-assistant-panel__messages">
+
+        @for (msg of messages(); track msg.id) {
+          @if (msg.role === 'ai') {
+            <div class="ds-ai-assistant-panel__line ds-ai-assistant-panel__line--ai">
+              <div class="ds-ai-assistant-panel__bubble-text">
+                @for (paragraph of msg.paragraphs; track $index) {
+                  <p class="ds-ai-assistant-panel__paragraph">
+                    @for (seg of toSegments(paragraph); track $index) {
+                      <span [class.ds-ai-assistant-panel__seg--bold]="seg.bold">{{ seg.text }}</span>
+                    }
+                  </p>
+                }
+              </div>
+              <div class="ds-ai-assistant-panel__meta">
+                @if (msg.agentLabel) {
+                  <span class="ds-ai-assistant-panel__agent-label">{{ msg.agentLabel }}</span>
+                }
+                <button
+                  type="button"
+                  class="ds-ai-assistant-panel__meta-action"
+                  aria-label="Copiar"
+                >
+                  <ng-icon name="heroDocumentDuplicate" size="13px"></ng-icon>
+                </button>
+                <button
+                  type="button"
+                  class="ds-ai-assistant-panel__meta-action"
+                  aria-label="Util"
+                >
+                  <ng-icon name="heroHandThumbUp" size="13px"></ng-icon>
+                </button>
+                <button
+                  type="button"
+                  class="ds-ai-assistant-panel__meta-action"
+                  aria-label="Nao util"
+                >
+                  <ng-icon name="heroHandThumbDown" size="13px"></ng-icon>
+                </button>
+              </div>
+            </div>
+          } @else {
+            <div class="ds-ai-assistant-panel__line ds-ai-assistant-panel__line--user">
+              <div class="ds-ai-assistant-panel__bubble-user">
+                @for (paragraph of msg.paragraphs; track $index) {
+                  <p class="ds-ai-assistant-panel__paragraph">
+                    @for (seg of toSegments(paragraph); track $index) {
+                      <span>{{ seg.text }}</span>
+                    }
+                  </p>
+                }
+              </div>
+            </div>
+          }
+        }
+
+      </div>
+    </div>
+
+    <!-- ACTION PROMPTS — sugestoes clicaveis (3 itens no Figma) -->
+    @if (actionPrompts().length > 0) {
+      <div class="ds-ai-assistant-panel__prompts">
+        @for (prompt of actionPrompts(); track $index) {
+          <button
+            type="button"
+            class="ds-ai-assistant-panel__prompt"
+            (click)="onPromptClick(prompt)"
+          >
+            <span class="ds-ai-assistant-panel__prompt-arrow" aria-hidden="true">↳</span>
+            <span class="ds-ai-assistant-panel__prompt-text">{{ prompt }}</span>
+          </button>
+        }
+      </div>
+    }
+
+    <!-- FORM PROMPT — textarea + send button neumorphic -->
+    <div class="ds-ai-assistant-panel__form">
+      <div class="ds-ai-assistant-panel__prompt-card">
+        <textarea
+          class="ds-ai-assistant-panel__textarea"
+          [value]="promptValue()"
+          (input)="onPromptInput($any($event.target).value)"
+          (keydown.enter)="$event.preventDefault(); onSubmit()"
+          placeholder="Digite sua mensagem..."
+          rows="3"
+          aria-label="Mensagem para o Agente IA"
+        ></textarea>
+        <button
+          type="button"
+          class="ds-ai-assistant-panel__send"
+          [disabled]="!promptValue().trim()"
+          aria-label="Enviar mensagem"
+          (click)="onSubmit()"
+        >
+          <ng-icon name="heroArrowUp" size="16px"></ng-icon>
+        </button>
+      </div>
+    </div>
+
+    }
+  </div>
+</div>

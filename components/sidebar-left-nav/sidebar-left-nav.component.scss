@@ -1,0 +1,920 @@
+// ============================================================================
+// SidebarLeftNav — Estilos
+// Sidebar com 5 estados (collapsed, expanded, item-active, default, hover).
+// ============================================================================
+
+@use '../../tokens' as ds;
+
+:host {
+  display: block;
+  height: 100%;
+}
+
+.ds-sidebar {
+  display: flex;
+  flex-direction: column;
+  // DEC-POLISH-6 (2026-06-17): height: 100% (cap superior) em vez de
+  // min-height: 100%. Antes, quando expanded + algum item-wrap--active
+  // expanded, o conteudo crescia ALEM do viewport e empurrava o grid do
+  // main-layout, quebrando o padding-bottom global.
+  height: 100%;
+  min-height: 0;
+  background: var(--ds-surface-card);
+  border: none;
+  // overflow visible para rings de active button nao serem clipados; o
+  // scroll vertical e interno em .ds-sidebar__nav (DEC-POLISH-6).
+  overflow: visible;
+  // Padding horizontal padrao para AMBOS os estados (collapsed + expanded)
+  padding-left: 20px;
+  padding-right: 20px;
+  transition: width var(--ds-duration-medium) var(--ds-ease-default);
+
+  // Collapsed: 88px total (48px content area + 20px padding cada lado)
+  &--collapsed {
+    width: 88px;
+    overflow: visible;
+  }
+
+  &--expanded {
+    width: 240px;
+  }
+
+  // ==========================================================================
+  // Header — empilhado verticalmente: toggle, logo, search
+  // Default (collapsed): center (alinha os 3 botoes 40x40 horizontalmente
+  // dentro da sidebar de 44px). Expanded: flex-start (alinha pela esquerda
+  // junto com o logo full e o campo de search).
+  // ==========================================================================
+  &__header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--ds-space-xl);
+    padding: var(--ds-space-md) 0 var(--ds-space-2xl);
+    flex-shrink: 0;
+    // Divider entalhado neumorphic (mesmo estilo do .ds-page-header)
+    border-bottom: 1px solid var(--ds-border-soft);
+    box-shadow: 0 1px 0 0 var(--ds-border-light);
+  }
+
+  &--expanded &__header {
+    align-items: flex-start;
+  }
+
+  &__toggle,
+  &__search {
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--ds-border-light);
+    background: var(--ds-surface-card);
+    border-radius: var(--ds-radius-lg);
+    color: var(--ds-text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition:
+      background var(--ds-duration-fast) var(--ds-ease-default),
+      transform var(--ds-duration-fast) var(--ds-ease-default);
+    @include ds.shadow-icon-card;
+
+    &:hover {
+      color: var(--ds-apex-blue-300);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--ds-apex-blue-500);
+      outline-offset: 2px;
+    }
+  }
+
+  // Internals do search (visiveis em estados especificos)
+  &__search-left {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  &__search-icon {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  &__search-label,
+  &__search-shortcut,
+  &__search-shortcut-key,
+  &__search-shortcut-letter {
+    display: none;
+  }
+
+  // Logo wrapper — altura fixa de 50px nos 2 estados; imagem alinhada
+  // a esquerda. O width: 100% deixa a img full em expanded ocupar a
+  // largura disponivel (alinhada a esquerda dentro do wrapper).
+  &__logo {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    text-decoration: none;
+    width: 100%;
+    height: 50px;
+    flex-shrink: 0;
+
+    &:focus-visible {
+      outline: 2px solid var(--ds-apex-blue-500);
+      outline-offset: 2px;
+      border-radius: var(--ds-radius-xs);
+    }
+  }
+
+  &__logo-img {
+    display: block;
+    object-fit: contain;
+    pointer-events: none;
+
+    &--icon {
+      width: 49px;
+      height: 50px;
+    }
+
+    &--full {
+      width: auto;
+      max-width: 140px;
+      max-height: 50px;
+      height: auto;
+    }
+  }
+
+  // Em collapsed, header mantem layout vertical (ja default agora)
+  // (sem overrides necessarios — header ja e vertical)
+
+  // ==========================================================================
+  // Nav
+  // ==========================================================================
+  &__nav {
+    flex: 1;
+    // DEC-POLISH-6 (2026-06-17): scroll Y interno na nav, com min-height:0
+    // para permitir shrink dentro do flex container. Header (toggle/logo/
+    // search) fica fixo no topo (flex-shrink:0 ja garante).
+    //
+    // overflow-x: clip preserva a visibilidade dos rings active button no
+    // eixo horizontal (sem clipping lateral) sem virar auto. Em browsers
+    // antigos cai para visible naturalmente.
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: clip;
+    padding: 20px var(--ds-space-sm) var(--ds-space-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--ds-space-2xs);
+
+    // Scrollbar discreta (mantem identidade neumorphic)
+    scrollbar-width: thin;
+    scrollbar-color: var(--ds-border-soft) transparent;
+
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: var(--ds-border-soft);
+      border-radius: 2px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+  }
+
+  &__menu-item-wrap {
+    display: flex;
+    flex-direction: column;
+    position: relative; // ancora para .ds-sidebar__floating-dropdown (collapsed)
+
+    // Quando o item interno e --active, adiciona respiro abaixo
+    &:has(.ds-sidebar__menu-item--active) {
+      margin-bottom: 15px;
+    }
+
+    // ========================================================================
+    // SBNAV2-2026-05-25 (DEC-SBNAV2-A): ring neumorphic envolve root + submenu.
+    // Aplicado quando isRootActive(item) && isSubmenuOpen(item.key) — i.e.,
+    // nav expanded com submenu aberto (Figma 1049:9323). Para collapsed-floating
+    // o ring vai no .ds-sidebar__floating-dropdown (mesmo recipe).
+    // ========================================================================
+    &--active {
+      border: 2px solid #FFFFFF;
+      border-radius: 9px;
+      background: #EFF3F8;
+      padding: 12px;
+      gap: 5px;
+      margin: 2px 0; // mantem o slot consistente (similar ao active button antigo)
+      box-shadow:
+        0 0 0 1.375px #3577EB,
+        0 0 0 5px rgba(255, 255, 255, 0.35),
+        0 8px 10px 0 rgba(0, 0, 0, 0.05),
+        inset -5px -5px 7px -2px #FFFFFF,
+        inset  5px  5px 10px -2px #B3C0CF;
+      // Spin one-shot herda no wrap quando active (DEC-SBNAV2-J).
+      @include ds.ds-active-spin-ring(
+        $border-radius: 9px,
+        $inset: -3px
+      );
+
+      // Cancela o respiro extra (margin-bottom 15px do :has) — wrap-active ja
+      // tem padding interno proprio.
+      &:has(.ds-sidebar__menu-item--active) {
+        margin-bottom: 2px;
+      }
+    }
+  }
+
+  // ==========================================================================
+  // Menu item — INACTIVE base (Figma 1103:15786 collapsed / 1103:15779 expanded)
+  // Sem container; icone com effect neo_silhueta_final + label SemiBold 13px.
+  // ==========================================================================
+  &__menu-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 8px;
+    min-height: 44px;
+    border: none;
+    background: transparent;
+    color: #617BA9;
+    text-decoration: none;
+    font-family: var(--ds-font-family-base);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+      color var(--ds-duration-fast) var(--ds-ease-default),
+      background-color var(--ds-duration-fast) var(--ds-ease-default);
+    width: 100%;
+    text-align: left;
+    // position: relative para o pseudo ::before do mixin
+    // ds-active-spin-ring ancorar corretamente no estado active.
+    position: relative;
+
+    &:hover {
+      color: var(--ds-apex-blue-300);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--ds-apex-blue-500);
+      outline-offset: 2px;
+      border-radius: 9px;
+    }
+
+    // ========================================================================
+    // ACTIVE state (Figma 1103:15768 collapsed / 1103:15759 expanded)
+    // Triple-border via box-shadow ring stacking + bg + inset neumorphic.
+    //   - innermost border: 2px white
+    //   - middle ring (box-shadow 0 0 0 2.75px): #3577EB (primary blue saturado)
+    //   - outer ring  (box-shadow 0 0 0 7.75px): #DFE7F3 (cinza-azulado claro)
+    //   - bg: #EFF3F8
+    //   - outer shadow: 0 8px 10px rgba(0,0,0,0.05)
+    //   - inset neumorphic: shadow-sidebar-active-inset
+    //   - label: #3A65B3 Bold 13px
+    // Margin do item compensa o ring externo (7.75px) para nao colidir.
+    // ========================================================================
+    &--active {
+      background: #EFF3F8;
+      border: 2px solid #FFFFFF;
+      border-radius: 9px;
+      color: #3A65B3;
+      font-weight: 700;
+      // Cancela min-height da base inactive (44px); estados especificos abaixo
+      // definem altura + margem vertical que somam 44px, mantendo o slot
+      // identico ao inactive em ambos os estados (sem jump na troca).
+      min-height: 0;
+      box-shadow:
+        0 0 0 1.375px #3577EB,
+        0 0 0 5px rgba(255, 255, 255, 0.35),
+        0 8px 10px 0 rgba(0, 0, 0, 0.05),
+        inset -5px -5px 7px -2px #FFFFFF,
+        inset  5px  5px 10px -2px #B3C0CF;
+      filter:
+        drop-shadow(2px 2px 4px rgba(64, 95, 125, 0.25))
+        drop-shadow(-8px -8px 6px rgb(255, 255, 255))
+        drop-shadow(4px 4px 15px rgba(77, 103, 136, 0.15));
+
+      &:hover {
+        color: #3A65B3;
+      }
+
+      // Spin one-shot via mixin centralizado (REDASH-PREP-5.1).
+      // Triggers cobertos pela diretiva [dsActiveSpin] no template:
+      // page load, click, sidebar expand, sidebar collapse.
+      // Defaults do mixin: $iterations: 1, $duration: 350ms
+      @include ds.ds-active-spin-ring(
+        $border-radius: 9px,
+        $inset: -3px
+      );
+    }
+  }
+
+  // ==========================================================================
+  // SBNAV2-2026-05-25 (DEC-SBNAV2-A): button raiz DENTRO do wrap-active vira
+  // card secundario (Figma 1049:9328): bg #F6F6F6, border 1px #DADADA,
+  // box-shadow inset top+bottom + drop-shadows escalonados.
+  // Cancela TODO o ring/filter neumorphic do .menu-item--active herdado.
+  // ==========================================================================
+  &__menu-item-wrap--active &__menu-item--active,
+  &__menu-item-wrap--active &__menu-item {
+    background: #F6F6F6;
+    border: 1px solid #DADADA;
+    border-radius: 8px;
+    color: #3A65B3;
+    font-weight: 700;
+    min-height: 0;
+    height: auto;
+    padding: 10px 12px 11px 12px;
+    margin: 0;
+    width: 100%;
+    box-shadow:
+      inset 0 -4px 4px 0 rgba(94, 114, 150, 0.14),
+      inset 0  4px 4px 0 #FFFFFF,
+      0 1px 1px -0.583px rgba(0, 0, 0, 0.01),
+      0 2px 1.7px -0.875px rgba(0, 0, 0, 0.01),
+      0 5px 3px -1.167px rgba(0, 0, 0, 0.02),
+      0 9px 7px -1.458px rgba(0, 0, 0, 0.02),
+      0 25px 15px -1.75px rgba(0, 0, 0, 0.04);
+    filter: none;
+
+    // O spin ring foi para o wrap (DEC-SBNAV2-J) — anula o pseudo do mixin
+    // herdado pelo .menu-item--active.
+    &::before {
+      content: none;
+    }
+  }
+
+  // ==========================================================================
+  // Icone do menu item
+  // - inactive default: neo_silhueta_final (3 outer drop-shadows)
+  // - inactive hover:   neo_silhueta_final-hover (recolor primary + sombras realcadas)
+  // - active:           filter limpo (container ja gera a depth)
+  // ==========================================================================
+  &__menu-icon-wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+    color: #7390B9;
+    overflow: visible;
+    @include ds.filter-neo-silhueta-icon;
+    transition: filter var(--ds-duration-medium) var(--ds-ease-in-out-soft);
+  }
+
+  &__menu-icon-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
+  // Variantes default vs active — sidebar mostra a versao correta do icone
+  // conforme o estado do menu-item (controlado pela classe --active no parent).
+  //
+  // SBNAV-2026-05-25 follow-up: quando iconSrcActive nao existe (SVG do
+  // estado active ainda nao foi gerado), mantem o --default visivel mesmo
+  // no estado --active. O filter-neo-silhueta-icon-hover aplicado no
+  // .ds-sidebar__menu-item--active .ds-sidebar__menu-icon-wrap (linha 309)
+  // garante o visual active sobre o icone default.
+  &__menu-icon-img--active {
+    display: none;
+  }
+
+  // Esconde --default APENAS quando --active esta presente como sibling
+  // (i.e., iconSrcActive foi fornecido). Sem :has() no parent menu-item
+  // active, o seletor :has() avalia presenca dentro do mesmo icon-wrap.
+  &__menu-item--active &__menu-icon-wrap:has(&__menu-icon-img--active) &__menu-icon-img--default {
+    display: none;
+  }
+
+  &__menu-item--active &__menu-icon-img--active {
+    display: block;
+    width: auto;
+    height: 18px;
+  }
+
+  // Hover do menu item (estado inactive) — recolor + sombras realcadas
+  &__menu-item:hover:not(.ds-sidebar__menu-item--active) &__menu-icon-wrap {
+    @include ds.filter-neo-silhueta-icon-hover;
+  }
+
+  // SBNAV-2026-05-25 B3 (DEC-SBNAV-D): icone active herda o mesmo filter
+  // do estado :hover (mixin filter-neo-silhueta-icon-hover) — pedido Diogo.
+  // Antes: filter:none (icone "limpo" no active).
+  &__menu-item--active &__menu-icon-wrap {
+    @include ds.filter-neo-silhueta-icon-hover;
+    color: #3A65B3;
+  }
+
+  &__menu-label {
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__menu-chevron {
+    color: var(--ds-text-tab-inactive);
+    transition: transform var(--ds-duration-base) var(--ds-ease-default);
+
+    &--open {
+      transform: rotate(180deg);
+    }
+  }
+
+  // ==========================================================================
+  // Collapsed — items mostram so o icone, centralizado
+  // Inactive: sem container (icone solto com filter)
+  // Active: 40x40 centralizado com triple-border + bg
+  // ==========================================================================
+  &--collapsed &__menu-item {
+    justify-content: center;
+    align-items: center;
+    padding: var(--ds-space-md) 0;
+    gap: 0;
+
+    // Active: 35x35 + 4.5px margem vertical = slot total 44px (igual inactive).
+    // Margem horizontal auto centraliza no content area da sidebar collapsed.
+    &--active {
+      width: 35px;
+      height: 35px;
+      padding: 0;
+      margin: 4.5px auto;
+    }
+  }
+
+  // Expanded active: 40px altura + 2px margem vertical = slot total 44px
+  // (igual inactive). Sem jump quando alterna entre collapsed e expanded.
+  &--expanded &__menu-item--active {
+    height: 40px;
+    padding: 0 10px;
+    margin: 2px 0;
+  }
+
+  // ==========================================================================
+  // Submenu (so visivel quando expanded)
+  // ==========================================================================
+  // ==========================================================================
+  // SBNAV2-2026-05-25 (DEC-SBNAV2-C): submenu items como card-pill (Figma 1049:9338)
+  // Outer: 1px border #DFE3EA (inactive) / #A9CAF8 (active), radius 5px
+  // Inner: bg rgba(255,255,255,0.25), 1px white border, radius 5px, padding 8x10
+  // Text: 12px SemiBold #5C6F8E inactive / #3E6FCA active, line-height 14px
+  // ==========================================================================
+  &__submenu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    width: 100%;
+  }
+
+  &__submenu-item {
+    display: block;
+    width: 100%;
+    border: 1px solid #DFE3EA;
+    border-radius: 5px;
+    background: transparent;
+    text-decoration: none;
+    font-family: var(--ds-font-family-base);
+    transition:
+      border-color var(--ds-duration-fast) var(--ds-ease-default),
+      background var(--ds-duration-fast) var(--ds-ease-default);
+
+    // Inner pseudo: simula a "inner card" (white border + 25% bg)
+    &::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border: 1px solid #FFFFFF;
+      border-radius: 5px;
+      background: rgba(255, 255, 255, 0.25);
+      pointer-events: none;
+    }
+
+    position: relative;
+    overflow: hidden;
+
+    // Label: padding interno + cor inactive
+    padding: 8px 10px;
+    color: #5C6F8E;
+    font-weight: 600;
+    font-size: 12px;
+    line-height: 14px;
+
+    &:hover {
+      border-color: #C9D7E8;
+      &::before { background: rgba(255, 255, 255, 0.45); }
+    }
+
+    &:focus-visible {
+      outline: 2px solid #3577EB;
+      outline-offset: 2px;
+    }
+
+    &--active {
+      border-color: #A9CAF8;
+      color: #3E6FCA;
+    }
+  }
+
+  // ==========================================================================
+  // SBNAV2-2026-05-25 (DEC-SBNAV2-E): floating dropdown collapsed.
+  // Posicionamento: absolute, left 100% do .menu-item-wrap, top 0 alinhado
+  // ao icone clicado. Mesma estetica do .menu-item-wrap--active (ring + bg).
+  // Animation: fade + scale 150ms (sem reflow — overlay puro).
+  // ==========================================================================
+  &__floating-dropdown {
+    position: absolute;
+    left: calc(100% + 12px); // separacao do nav collapsed
+    top: 0;
+    z-index: 1000;
+    min-width: 200px;
+    border: 2px solid #FFFFFF;
+    border-radius: 9px;
+    background: #EFF3F8;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    box-shadow:
+      0 0 0 1.375px #3577EB,
+      0 0 0 5px rgba(255, 255, 255, 0.35),
+      0 8px 10px 0 rgba(0, 0, 0, 0.05),
+      inset -5px -5px 7px -2px #FFFFFF,
+      inset  5px  5px 10px -2px #B3C0CF;
+    animation: ds-sidebar-floating-dropdown-enter 150ms ease-out;
+    transform-origin: left top;
+    filter: drop-shadow(0 2.5px 1.25px rgba(0, 0, 0, 0.01)) drop-shadow(0 5px 2.5px rgba(0, 0, 0, 0.01)) drop-shadow(0 10px 3.5px rgba(0, 0, 0, 0.02)) drop-shadow(0 17px 7.5px rgba(0, 0, 0, 0.02)) drop-shadow(0 32px 14px rgba(0, 0, 0, 0.04));
+
+    // Botao raiz dentro do dropdown — replica do card secundario (sem cursor pointer
+    // forte — clique fecha o dropdown).
+    .ds-sidebar__floating-dropdown__header {
+      background: #F6F6F6;
+      border: 1px solid #DADADA;
+      border-radius: 8px;
+      padding: 10px 12px 11px 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #3A65B3;
+      font-family: var(--ds-font-family-base);
+      font-weight: 700;
+      font-size: 13px;
+      line-height: 1;
+      cursor: pointer;
+      border: 1px solid #DADADA;
+      box-shadow:
+        inset 0 -4px 4px 0 rgba(94, 114, 150, 0.14),
+        inset 0  4px 4px 0 #FFFFFF,
+        0 1px 1px -0.583px rgba(0, 0, 0, 0.01),
+        0 2px 1.7px -0.875px rgba(0, 0, 0, 0.01),
+        0 5px 3px -1.167px rgba(0, 0, 0, 0.02),
+        0 9px 7px -1.458px rgba(0, 0, 0, 0.02),
+        0 25px 15px -1.75px rgba(0, 0, 0, 0.04);
+    }
+
+    .ds-sidebar__floating-dropdown__icon-wrap {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+      overflow: visible;
+      @include ds.filter-neo-silhueta-icon-hover;
+      color: #3A65B3;
+    }
+
+    .ds-sidebar__floating-dropdown__icon-img {
+      display: block;
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    // Lista de submenu items reusa .ds-sidebar__submenu styles (card-pill)
+  }
+
+  @keyframes ds-sidebar-floating-dropdown-enter {
+    from {
+      opacity: 0;
+      transform: scale(0.96) translateX(-4px);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1) translateX(0);
+    }
+  }
+
+  // ==========================================================================
+  // Footer — botao redondo neumorphic (Figma 1102:15526)
+  // Mesmo estilo visual do __toggle/__search collapsed mas com radius 100%
+  // ==========================================================================
+  &__footer {
+    padding: var(--ds-space-md);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--ds-space-md);
+  }
+
+  &__user-button {
+    width: 40px;
+    height: 40px;
+    padding: 12px;
+    background: var(--ds-surface-card);
+    border: 1px solid var(--ds-border-light);
+    border-radius: 50%;
+    color: var(--ds-text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition:
+      background var(--ds-duration-fast) var(--ds-ease-default),
+      transform var(--ds-duration-fast) var(--ds-ease-default);
+    @include ds.shadow-icon-card;
+
+    &:hover {
+      color: var(--ds-apex-blue-300);
+    }
+
+    &:active {
+      transform: scale(0.95);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--ds-apex-blue-500);
+      outline-offset: 2px;
+    }
+  }
+
+  &__user-icon {
+    display: block;
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    pointer-events: none;
+  }
+
+  &__user-name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: var(--ds-font-family-base);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ds-text-title);
+  }
+
+  &--collapsed &__footer {
+    justify-content: center;
+  }
+
+  // ==========================================================================
+  // Search EXPANDED — preserva estetica do collapsed (bg/border/radius/shadow/
+  // altura 40px), apenas estende largura e adiciona label "Pesquisar..." +
+  // atalho ⌘F. Nao muda bg/sombra para manter consistencia com toggle.
+  // ==========================================================================
+  &--expanded &__search {
+    width: 100%;
+    padding: 0 12px;
+    justify-content: space-between;
+    gap: 4px;
+  }
+
+  &--expanded &__search-label {
+    display: inline-flex;
+    color: #9EAAC0;
+    font-family: var(--ds-font-family-base);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.25px;
+    line-height: normal;
+  }
+
+  &--expanded &__search-shortcut {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    flex-shrink: 0;
+  }
+
+  &--expanded &__search-shortcut-key,
+  &--expanded &__search-shortcut-letter {
+    display: inline-flex;
+    align-items: center;
+    color: #7E8798;
+    font-family: var(--ds-font-family-base);
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.25px;
+    line-height: normal;
+  }
+
+  // ==========================================================================
+  // SBSEARCH-2026-05-25 — search inline ativo + dropdown autocomplete.
+  // Wrapper container fornece position:relative para dropdown absoluto.
+  // ==========================================================================
+  &__search-container {
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  // Estado ativo: input substitui o botao no MESMO container visual.
+  // Reusa chrome (border, bg, shadow) do .ds-sidebar__search base.
+  &__search--active {
+    width: 100%;
+    padding: 0 12px;
+    justify-content: space-between;
+    gap: 4px;
+    border-color: var(--ds-apex-blue-500, #3A65B3);
+    box-shadow: 0 0 0 3px rgba(58, 101, 179, 0.12);
+
+    .ds-sidebar__search-left {
+      flex: 1;
+      min-width: 0;
+    }
+  }
+
+  &__search-input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    outline: none;
+    box-shadow: none;
+    background: transparent;
+    color: var(--ds-text-strong, #1F2937);
+    font-family: var(--ds-font-family-base);
+    font-size: 13px;
+    font-weight: 500;
+    letter-spacing: 0.25px;
+    line-height: normal;
+    padding: 0;
+
+    &::placeholder {
+      color: #9EAAC0;
+      font-weight: 600;
+    }
+
+    // Remove outline/borda em TODOS os estados — pedido Diogo 2026-05-25.
+    // O wrapper .ds-sidebar__search--active ja indica focus visualmente
+    // (border-color accent). Browser default ring/outline fica suprimido.
+    &:focus,
+    &:focus-visible,
+    &:focus-within,
+    &:active,
+    &:hover {
+      outline: none !important;
+      box-shadow: none !important;
+      border: none !important;
+    }
+  }
+
+  &__search-clear {
+    flex-shrink: 0;
+    width: 22px;
+    height: 22px;
+    border: none;
+    background: transparent;
+    border-radius: 50%;
+    color: var(--ds-text-secondary);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background var(--ds-duration-fast) var(--ds-ease-default);
+
+    &:hover {
+      background: var(--ds-surface-hover, rgba(0, 0, 0, 0.05));
+      color: var(--ds-apex-blue-300);
+    }
+
+    // Icone chevron-down rotacionado vira "X"-ish; sem icone X disponivel,
+    // visual alternativo: usa simbolo "×" via ::before
+    & > * { display: none; }
+    &::before {
+      content: '×';
+      font-size: 20px;
+      line-height: 1;
+      font-weight: 400;
+    }
+  }
+
+  // Dropdown de resultados — abaixo do input, no flow do container
+  &__search-results {
+    list-style: none;
+    margin: 6px 0 0 0;
+    padding: 4px;
+    background: #FFFFFF;
+    border: 1px solid var(--ds-border-light);
+    border-radius: var(--ds-radius-md, 8px);
+    box-shadow:
+      0 4px 6px -1px rgba(0, 0, 0, 0.08),
+      0 2px 4px -1px rgba(0, 0, 0, 0.04);
+    max-height: 320px;
+    overflow-y: auto;
+  }
+
+  &__search-result {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 8px 10px;
+    border: none;
+    background: transparent;
+    border-radius: var(--ds-radius-sm, 6px);
+    text-align: left;
+    cursor: pointer;
+    color: var(--ds-text-strong, #1F2937);
+    transition: background var(--ds-duration-fast) var(--ds-ease-default);
+
+    &:hover,
+    &--highlighted {
+      background: rgba(58, 101, 179, 0.08);
+    }
+
+    &--disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  }
+
+  &__search-result-icon {
+    flex-shrink: 0;
+    color: var(--ds-text-secondary, #6B7280);
+    display: inline-flex;
+    align-items: center;
+  }
+
+  &__search-result-text {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__search-result-label {
+    font-family: var(--ds-font-family-base);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ds-text-strong, #1F2937);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__search-result-parent {
+    font-family: var(--ds-font-family-base);
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--ds-text-secondary, #6B7280);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__search-soon-badge {
+    flex-shrink: 0;
+    font-family: var(--ds-font-family-base);
+    font-size: 10px;
+    font-weight: 600;
+    color: #94825B;
+    background: #F5ECD8;
+    border-radius: 6px;
+    padding: 2px 6px;
+    line-height: normal;
+  }
+
+  &__search-empty {
+    margin: 6px 0 0 0;
+    padding: 12px 14px;
+    background: #FFFFFF;
+    border: 1px solid var(--ds-border-light);
+    border-radius: var(--ds-radius-md, 8px);
+    box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+    color: var(--ds-text-secondary, #6B7280);
+    font-family: var(--ds-font-family-base);
+    font-size: 13px;
+    font-weight: 500;
+  }
+}

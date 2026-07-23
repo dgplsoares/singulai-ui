@@ -1,0 +1,108 @@
+// ============================================================================
+// Toast — Estilos
+// Visual: card neumorphic-light com border-left accent colorido + icone +
+// mensagem + botao X. 4 variants (success/info/warning/error) com cores
+// alinhadas as outras paletas do DS (statsbar-card, progress-bar).
+// ============================================================================
+
+@use '../../tokens' as ds;
+
+:host {
+  display: block;
+}
+
+.ds-toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--ds-surface-card, #FFFFFF);
+  border: 1px solid var(--ds-border-light, #E4E7F3);
+  border-left: 4px solid var(--ds-toast-accent, #94A3B8);
+  border-radius: var(--ds-radius-lg, 10px);
+  box-shadow:
+    0 4px 12px rgba(64, 95, 125, 0.08),
+    0 1px 3px rgba(64, 95, 125, 0.04);
+  width: 360px;
+  max-width: calc(100vw - 32px);
+  font-family: 'Manrope', sans-serif;
+  pointer-events: auto;
+
+  // ==========================================================================
+  // Icone (esquerda) — cor variant
+  // ==========================================================================
+  &__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--ds-toast-accent, #94A3B8);
+    margin-top: 1px; // alinha com primeira linha do texto
+  }
+
+  // ==========================================================================
+  // Mensagem (centro) — cor texto principal
+  // ==========================================================================
+  &__message {
+    flex: 1 1 0;
+    min-width: 0;
+    margin: 0;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.4;
+    color: var(--ds-text-title, #0B1E40);
+    word-break: break-word;
+  }
+
+  // ==========================================================================
+  // Botao X (direita) — dismiss manual
+  // ==========================================================================
+  &__close {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: none;
+    background: transparent;
+    color: var(--ds-text-secondary, #617BA9);
+    cursor: pointer;
+    border-radius: var(--ds-radius-sm, 4px);
+    transition:
+      background-color 150ms ease,
+      color 150ms ease;
+    margin-top: -1px;
+
+    &:hover {
+      background: rgba(97, 123, 169, 0.08);
+      color: var(--ds-text-title, #0B1E40);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--ds-apex-blue-500, #3C72D0);
+      outline-offset: 2px;
+    }
+  }
+
+  // ==========================================================================
+  // Variants — cor accent (border-left + icone)
+  // Tons alinhados com progress-bar variants (mesma paleta)
+  // ==========================================================================
+  &--success {
+    --ds-toast-accent: #38A173;
+  }
+
+  &--info {
+    --ds-toast-accent: #3C72D0;
+  }
+
+  &--warning {
+    --ds-toast-accent: #BE833F;
+  }
+
+  &--error {
+    --ds-toast-accent: #BC3232;
+  }
+}

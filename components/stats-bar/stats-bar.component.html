@@ -1,0 +1,12 @@
+<!--
+  Container chrome do Figma 787-5195/842-10268. Pattern verbatim do
+  showcase__statsbar. Caller coloca N <ds-statsbar-card> como filhos.
+-->
+<div
+  class="ds-stats-bar"
+  [attr.data-columns]="columns()"
+  [attr.aria-label]="ariaLabel()"
+  role="group"
+>
+  <ng-content></ng-content>
+</div>

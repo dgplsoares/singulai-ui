@@ -1,0 +1,36 @@
+<!--
+  ds-page-nav (Figma 590:1121 + 784:14261) — outer padding 20 + tab bar wrap.
+  Items renderizados in-order; active recebe visual canonico do sidebar
+  expanded (DEC-C1-iter2 — replica .ds-sidebar__menu-item--active).
+-->
+<div class="ds-page-nav">
+  <div class="ds-page-nav-tabbar">
+    <div class="ds-page-nav-items">
+
+      @for (step of steps(); track step.id) {
+        <button
+          type="button"
+          class="ds-page-nav-item"
+          [class.ds-page-nav-item--active]="isActive(step)"
+          [class.ds-page-nav-item--completed]="step.completed && !isActive(step)"
+          [disabled]="step.disabled"
+          [attr.aria-current]="isActive(step) ? 'step' : null"
+          dsActiveSpin
+          [enabled]="isActive(step)"
+          [trigger]="activeStepId()"
+          (click)="onStepClick(step)"
+        >
+          <span class="ds-page-nav-item-icon-wrap">
+            @if (step.iconSrc) {
+              <img [src]="step.iconSrc" [alt]="step.label" class="ds-page-nav-item-icon-img" />
+            } @else if (step.icon) {
+              <ng-icon [name]="step.icon" class="ds-page-nav-item-icon" />
+            }
+          </span>
+          <span class="ds-page-nav-item-label">{{ step.label }}</span>
+        </button>
+      }
+
+    </div>
+  </div>
+</div>

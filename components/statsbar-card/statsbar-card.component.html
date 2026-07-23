@@ -1,0 +1,48 @@
+<div
+  class="ds-statsbar-card"
+  [attr.data-variant]="variant()"
+>
+  <div class="ds-statsbar-card__inner">
+    <span class="ds-statsbar-card__icon-bg" aria-hidden="true">
+      @if (iconImageSrc()) {
+        <img
+          class="ds-statsbar-card__icon"
+          [src]="iconImageSrc()!"
+          [width]="iconWidth()"
+          [height]="iconHeight()"
+          alt=""
+        />
+      }
+    </span>
+
+    <div class="ds-statsbar-card__content">
+      <p class="ds-statsbar-card__title">{{ title() }}</p>
+      <div class="ds-statsbar-card__row">
+        <span class="ds-statsbar-card__value">{{ value() }}</span>
+
+        @if (delta()) {
+          <span
+            class="ds-statsbar-card__delta"
+            [attr.data-polarity]="deltaPolarity()"
+            [attr.data-direction]="deltaDirection()"
+          >
+            <svg
+              class="ds-statsbar-card__delta-arrow"
+              width="9"
+              height="9"
+              viewBox="0 0 9 9"
+              aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M8.77833 3.96541L5.03142 0.213849C4.96015 0.14554 4.87611 0.0919942 4.78413 0.0562835C4.60168 -0.0187612 4.39704 -0.0187612 4.2146 0.0562835C4.12261 0.0919942 4.03857 0.14554 3.9673 0.213849L0.220387 3.96541C0.150516 4.03537 0.0950911 4.11842 0.057277 4.20982C0.0194629 4.30123 0 4.39919 0 4.49813C0 4.69794 0.0792757 4.88956 0.220387 5.03085C0.361499 5.17214 0.552887 5.25151 0.752449 5.25151C0.952011 5.25151 1.1434 5.17214 1.28451 5.03085L3.74998 2.55482V8.24969C3.74998 8.44868 3.82893 8.63953 3.96947 8.78024C4.11 8.92095 4.30061 9 4.49936 9C4.69811 9 4.88872 8.92095 5.02925 8.78024C5.16979 8.63953 5.24874 8.44868 5.24874 8.24969V2.55482L7.71421 5.03085C7.78388 5.10118 7.86676 5.157 7.95808 5.19509C8.0494 5.23318 8.14735 5.25279 8.24627 5.25279C8.3452 5.25279 8.44315 5.23318 8.53447 5.19509C8.62579 5.157 8.70867 5.10118 8.77833 5.03085C8.84857 4.9611 8.90432 4.87811 8.94237 4.78668C8.98041 4.69525 9 4.59718 9 4.49813C9 4.39908 8.98041 4.30101 8.94237 4.20958C8.90432 4.11814 8.84857 4.03516 8.77833 3.96541Z"
+                fill="currentColor"
+              />
+            </svg>
+            <span class="ds-statsbar-card__delta-text">{{ delta() }}</span>
+          </span>
+        }
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,338 @@
+// ============================================================================
+// PageLayout — Estilos
+// Skeleton raiz das telas autenticadas. APENAS page-main faz scroll.
+// ============================================================================
+
+@use '../../tokens' as ds;
+
+:host {
+  display: block;
+  width: 100%;
+  // 100dvh (Dynamic Viewport Height) — adapta quando a barra de URL do
+  // browser mobile colapsa/expande. Substitui 100vh, que considerava
+  // sempre a viewport com a barra expandida e fazia o Chrome Android
+  // gerar scroll fantasma na body para conseguir colapsar a barra.
+  //
+  // Override via CSS var quando o page-layout vive dentro de um shell
+  // que tem chrome proprio acima (ex: showcase publica com barra OSS).
+  // Default mantem 100dvh (caso de uso primario: page-layout = pagina inteira).
+  height: var(--ds-page-layout-height, 100dvh);
+  // Fallback para browsers antigos sem suporte a dvh (~3% global)
+  height: var(--ds-page-layout-height, 100vh);
+  height: var(--ds-page-layout-height, 100dvh);
+  overflow: hidden;
+  overscroll-behavior: none;
+
+  // Defaults (podem ser overrided via @HostBinding inputs)
+  --ds-layout-sidebar-width: 280px;
+  --ds-layout-ai-width: 400px;
+}
+
+.ds-page-layout {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  height: 100%;
+  overflow: hidden;
+  background: var(--ds-surface-card);
+  padding: 20px 20px 20px 0;
+  position: relative;
+
+  // ==========================================================================
+  // Sidebar
+  // ==========================================================================
+  &__sidebar {
+    grid-column: 1;
+    height: 100%;
+    overflow-y: auto;
+    overflow-x: visible;
+    border: none;
+    background: transparent;
+    z-index: 10;
+
+    // Sidebar largura controlada pelo proprio componente sidebar-left-nav
+    // (que fara o toggle expanded/collapsed e gerenciara largura).
+    // page-layout apenas garante grid + altura.
+  }
+
+  // ==========================================================================
+  // Main Area (card 2 camadas — Figma 1088:14413 outer + 1088:14400 inner)
+  //
+  //   - Camada 1 (__main-area, outer): bg #FFF, border 1px #D4D9EC, radius 15,
+  //     padding 2px. Wrapper visual que envolve TUDO: header, nav, main, footer.
+  //   - Camada 2 (__main-area-inner): bg #F4F7FA, border 1px #E3E6F2, radius 13.
+  //     Grid container interno com header (row 1), nav (row 2), main scroll
+  //     (row 3) e footer (row 4).
+  // ==========================================================================
+  &__main-area {
+    grid-column: 2;
+    height: 100%;
+    background: #FFFFFF;
+    border: 1px solid #D4D9EC;
+    border-radius: 15px;
+    padding: 2px;
+    display: flex;
+    overflow: hidden;
+    transition: margin-right var(--ds-duration-medium) var(--ds-ease-default);
+  }
+
+  &__main-area-inner {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    background: #F4F7FA;
+    border: 1px solid #E3E6F2;
+    border-radius: 13px;
+    overflow: hidden;
+    display: grid;
+    grid-template-rows: auto auto 1fr auto;
+  }
+
+  // Quando AI Assistant aberto, main-area reduz pela direita
+  &--ai-open &__main-area {
+    margin-right: var(--ds-layout-ai-width);
+  }
+
+  // ==========================================================================
+  // Header (sticky)
+  // ==========================================================================
+  &__header {
+    grid-row: 1;
+    background: transparent;
+    z-index: 5;
+
+    // Sticky e gerenciado pelo proprio page-header (que se posiciona top:0 dentro do main scroll)
+    // Aqui apenas garante que ele fica no topo do grid
+  }
+
+  // ==========================================================================
+  // Nav (page-nav opcional — wizard tabs ou tabs internas)
+  // ==========================================================================
+  &__nav {
+    grid-row: 2;
+    background: transparent;
+    z-index: 4;
+  }
+
+  // ==========================================================================
+  // Main (UNICO scroll vertical) — vive dentro de __main-area-inner
+  // bg transparente: herda do __main-area-inner (#F4F7FA)
+  // ==========================================================================
+  &__main {
+    grid-row: 3;
+    background: transparent;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: var(--ds-space-2xl);
+    scroll-behavior: smooth;
+    min-height: 0;
+    // contain: scroll interno nao chaina para o ancestral (que e travado
+    // via overflow:hidden no host + body). Sem isso, o overscroll na ponta
+    // do main poderia tentar rolar elementos pais em alguns browsers.
+    overscroll-behavior: contain;
+    // Inercia nativa em iOS Safari ao scrollar este container
+    -webkit-overflow-scrolling: touch;
+
+    // Focus invisivel quando navegado via skip link
+    &:focus-visible {
+      outline: none;
+    }
+  }
+
+  // Em variant=wizard, main NAO tem padding (cards internos cuidam)
+  &[data-variant='wizard'] &__main {
+    padding: 0;
+  }
+
+  // ==========================================================================
+  // Footer (sticky) — bg transparente, herda do __main-area-inner
+  // ==========================================================================
+  &__footer {
+    grid-row: 4;
+    background: transparent;
+    border-top: 1px solid var(--ds-border-soft);
+    z-index: 3;
+  }
+
+  // ==========================================================================
+  // AI Assistant overlay (lateral direita) — desktop
+  // Inset 20px (top/right) + 40px no calculo de altura para respeitar o
+  // espacamento da page-layout. Width tambem -15px do valor de --ds-layout-ai-width
+  // (compensa o gap visual entre overlay e main-area).
+  // ==========================================================================
+  &__ai-assistant {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    height: calc(100% - 40px);
+    width: calc(var(--ds-layout-ai-width) - 10px);
+    background: transparent;
+    border-left: 1px solid var(--ds-border-soft);
+    transform: translateX(calc(100% + 20px));
+    transition:
+      transform var(--ds-duration-medium) var(--ds-ease-default),
+      width var(--ds-duration-medium) var(--ds-ease-default);
+    z-index: 20;
+    overflow: hidden;
+
+    &--open {
+      transform: translateX(0);
+    }
+  }
+
+  // Quando maximizado (full-screen overlay), width respeita o margin de 20px
+  // em ambos lados → -40px do --ds-layout-ai-width (que vira 100vw maximizado).
+  &--ai-maximized &__ai-assistant {
+    width: calc(var(--ds-layout-ai-width) - 40px);
+  }
+}
+
+// ==========================================================================
+// Skip link (acessibilidade — visivel apenas com focus por teclado)
+// Posicionado fora do .ds-page-layout para nao ser cortado por overflow:hidden
+// ==========================================================================
+.ds-skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--ds-apex-blue-500);
+  color: #fff;
+  padding: 8px 16px;
+  z-index: 1000;
+  text-decoration: none;
+  border-radius: 0 0 var(--ds-radius-sm) 0;
+  font-family: var(--ds-font-family-base);
+  font-weight: 600;
+  font-size: 14px;
+  transition: top var(--ds-duration-fast) var(--ds-ease-default);
+
+  &:focus {
+    top: 0;
+  }
+}
+
+// ==========================================================================
+// Responsivo MOBILE — DS-2.1 Fase 2 (DEC-DS-MOB-001 a 013)
+//
+// Breakpoint unico < 992px (mobile + tablet juntos).
+// Arquitetura: flex column (header / main-area / nav-footer) com gap 15px.
+// Sidebar desktop oculta (substituida por painel Navegue dentro do nav-footer).
+// AI Assistant vira full-screen mobile quando aberto.
+// Card main 2 camadas preservado integral (radius 15/13, cores).
+// ==========================================================================
+
+// Default mobile (sem painel aberto)
+.ds-page-layout {
+  // (estilos desktop acima — esta seccao adiciona overrides mobile via media)
+}
+
+@media (max-width: 991px) {
+  :host {
+    --ds-layout-ai-width: 100vw;
+  }
+
+  // Scroll lock no host quando algum painel esta aberto
+  :host(.ds-page-layout--scroll-locked) {
+    overflow: hidden;
+  }
+
+  .ds-page-layout {
+    // Layout root vira flex column (header em cima, main no meio, nav-footer embaixo)
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 12px;
+    grid-template-columns: none;
+    overflow: hidden;
+    height: 100%;
+
+    // Sidebar desktop oculta no mobile (itens viram painel Navegue do nav-footer)
+    &__sidebar {
+      display: none;
+    }
+
+    // Main-area: card 2 camadas PRESERVADO. Flex 1 ocupa o espaco entre
+    // header e nav-footer. Quando painel aberto, encolhe (CSS abaixo).
+    &__main-area {
+      grid-column: auto;
+      flex: 1;
+      min-height: 0;
+      // Estilo card 2 camadas (bg #FFF, border #D4D9EC, radius 15, padding 2)
+      // ja vem do default — preservado
+      transition:
+        flex var(--ds-duration-medium) var(--ds-ease-default),
+        filter var(--ds-duration-medium) var(--ds-ease-default),
+        opacity var(--ds-duration-medium) var(--ds-ease-default);
+    }
+
+    // Quando AI aberto desktop, parent some o margin-right (que o desktop usa).
+    // Em mobile: nada — AI vira full-screen via overlay separado.
+    &--ai-open &__main-area {
+      margin-right: 0;
+    }
+
+    // Nav-footer slot: visivel apenas em mobile (no desktop o slot existe
+    // mas fica display:none, ja que nao ha conteudo projetado normalmente).
+    &__nav-footer {
+      flex-shrink: 0;
+    }
+
+    // ----- Quando algum painel mobile esta aberto (--panel-open) -----
+    // Main-area fica em estado disabled: blur + opacity 65% + scroll bloqueado
+    // (DEC-DS-MOB-009). Sem mudanca de flex — main mantem seu tamanho natural,
+    // o nav-footer cresce empurrando-o (sem encolhe-lo explicitamente).
+    //
+    // O wrapper __main-area mantem pointer-events para receber clicks (que
+    // disparam closePanels via handler no template), mas o conteudo interno
+    // __main-area-inner fica com pointer-events:none — usuario nao interage
+    // com cards atras do overlay, so com o backdrop dimissable.
+    &--panel-open &__main-area {
+      filter: blur(8px);
+      opacity: 0.65;
+      cursor: pointer; // hint visual de que clicar fecha
+    }
+
+    &--panel-open &__main-area-inner {
+      pointer-events: none;
+    }
+
+    // Bloqueia scroll explicito do __main quando algum painel esta aberto
+    &--panel-open &__main {
+      overflow: hidden;
+    }
+
+    // ----- AI Assistant em modo full-screen mobile (DEC-DS-MOB-013) -----
+    &__ai-assistant {
+      // Reset estilos desktop (right overlay)
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      transform: translateY(100%);
+      transition: transform var(--ds-duration-medium) var(--ds-ease-default);
+      border-left: none;
+      z-index: 50;
+    }
+
+    &--ai-open &__ai-assistant {
+      transform: translateY(0);
+    }
+
+    // Override do desktop &--ai-maximized: no mobile, AI maximizado eh
+    // full-screen (width 100vw via --ds-layout-ai-width). A regra desktop
+    // calc(--ai-width - 40px) tem especificidade maior — precisamos de outra
+    // regra com mesma especificidade no mobile pra reverter o calculo.
+    &--ai-maximized &__ai-assistant {
+      width: var(--ds-layout-ai-width);
+    }
+  }
+}
+
+// Desktop default: nav-footer slot oculto (sidebar fica como navegacao)
+@media (min-width: 992px) {
+  .ds-page-layout__nav-footer {
+    display: none;
+  }
+}

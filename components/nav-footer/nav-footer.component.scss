@@ -1,0 +1,325 @@
+// ============================================================================
+// NavFooter — Estilos
+// Bottom Navigation mobile (Figma 1149:14017 / 1139:12196).
+//
+// Card 2 camadas (mesmo padrao do <ds-page-layout>__main-area):
+//   Outer: bg #FFF, border 1px rgba(204,209,234,0.75), radius 15, padding 2,
+//          outer shadow dhadow_card_3 (5-layer)
+//   Inner: bg gradient rgba(239,243,248,0.65) over white, border rgba(221,224,239,0.75),
+//          radius 13, padding 15px 10px
+//
+// 5 botoes:
+//   Dashboard (triple-border ring quando active — DEC-DS-MOB-008)
+//   Navegue / Agente IA / Alertas / Conta (icon flat + CSS shadow neumorphic + label)
+//
+// Quando painel aberto (--expanded), o card cresce em altura para acomodar
+// o conteudo do painel acima da row de 5 botoes.
+// ============================================================================
+
+@use '../../tokens' as ds;
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.ds-nav-footer {
+  width: 100%;
+
+  // ----- Outer layer (card 2 camadas — outer) -----
+  // Transition em max-height para suavizar a troca de cap 70vh ↔ 85vh
+  // quando data-active-panel muda entre 'ai' e outros valores. Sem essa
+  // transition, o cap muda instantaneamente, causando clip visivel ("spasm")
+  // em viewports menores onde o conteudo do AI panel excede 70vh.
+  &__outer {
+    background: #FFFFFF;
+    border: 1px solid rgba(204, 209, 234, 0.75);
+    border-radius: 15px;
+    padding: 2px;
+    // dhadow_card_3 (5-layer com offsets crescentes)
+    box-shadow:
+      0 2.5px 2.5px 0 rgba(0, 0, 0, 0.01),
+      0 5px 5px 0 rgba(0, 0, 0, 0.01),
+      0 10px 7px 0 rgba(0, 0, 0, 0.02),
+      0 17px 15px 0 rgba(0, 0, 0, 0.02),
+      0 32px 28px 0 rgba(0, 0, 0, 0.04);
+    transition:
+      padding var(--ds-duration-medium) var(--ds-ease-default),
+      max-height var(--ds-duration-medium) var(--ds-ease-default);
+  }
+
+  // ----- Inner layer (card 2 camadas — inner) -----
+  // Padding zerado em top/left/right — panel-area assume o padding interno.
+  // Bottom padding (10px) garante respiro entre divider e botoes.
+  &__inner {
+    background:
+      linear-gradient(90deg, rgba(239, 243, 248, 0.65), rgba(239, 243, 248, 0.65)),
+      #FFFFFF;
+    border: 1px solid rgba(221, 224, 239, 0.75);
+    border-radius: 13px;
+    padding: 0 0 10px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  // ----- Painel-area (wrapper que anima expand/collapse) -----
+  // Sempre presente no DOM, animacao via max-height + opacity quando --visible.
+  // Padding e border-radius aplicados na BASE para nao "snapar" durante a
+  // transicao (max-height: 0 + box-sizing: border-box garante 0 visivel quando
+  // colapsado).
+  &__panel-area {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    margin: 0;
+    background: rgba(255, 255, 255, 0.5);
+    padding: 5px 0 0; // sem padding horizontal — sub-componentes (header etc) aplicam o seu
+    border-radius: 12px 12px 0 0; // cantos superiores arredondados
+    box-sizing: border-box;
+    transition:
+      max-height 300ms cubic-bezier(0.4, 0, 0.2, 1),
+      opacity 250ms cubic-bezier(0.4, 0, 0.2, 1),
+      margin 300ms cubic-bezier(0.4, 0, 0.2, 1);
+
+    &--visible {
+      max-height: calc(70vh - 80px); // espaco para botoes embaixo
+      opacity: 1;
+    }
+  }
+
+  // ----- Painel content (conteudo projetado, scroll interno) -----
+  &__panel {
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  // Divider full-width — agora panel-area nao tem padding horizontal,
+  // entao divider naturalmente ocupa toda a largura sem precisar de margin
+  // negativo. Sem padding acima: panel-area tem padding-bottom 0 entao
+  // divider fica colado no conteudo.
+  &__divider {
+    height: 1px;
+    background: #D6DEE9;
+    margin: 0;
+  }
+
+  // ----- Row dos 5 botoes -----
+  // Padding horizontal proprio (antes vinha do __inner que agora tem 0).
+  &__buttons {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+    width: 100%;
+    padding: 0 15px;
+  }
+
+  // ==========================================================================
+  // Botao base — dimensoes FIXAS independentes do estado (default vs active).
+  // O estampado active eh aplicado no `__icon-wrap` (nao no botao), mantendo
+  // o flow do layout estavel quando o usuario aciona qualquer botao.
+  //
+  // Largura calculada para acomodar:
+  //   - default content (icon 20x20 + label vertical, max ~58px largura "Agente IA")
+  //   - active stamped icon-wrap 38x35 + ring 7.75px = 53.5px visual
+  //   - 5 botoes x 60px + 4 gaps x 4px = 316px (fits panel-area inner ~315 mobile)
+  // ==========================================================================
+  &__btn {
+    appearance: none;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    width: 60px;
+    height: 56px;
+    padding: 0;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    flex-shrink: 0;
+    color: #7390B9;
+    font-family: var(--ds-font-family-base);
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1;
+    transition: color var(--ds-duration-fast) var(--ds-ease-default);
+
+    &:hover:not([disabled]):not(.ds-nav-footer__btn--dashboard) {
+      color: var(--ds-apex-blue-300);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--ds-apex-blue-500);
+      outline-offset: 2px;
+      border-radius: 8px;
+    }
+
+    // Active state (painel aberto OU navegue active)
+    &--active {
+      color: var(--ds-apex-blue-500);
+    }
+  }
+
+  &__label {
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
+  }
+
+  // ==========================================================================
+  // Icon wrapper — base 20x20 com CSS shadow neumorphic (filter-neo-silhueta-icon)
+  // O shadow eh aplicado no wrapper para preservar silhueta do icone.
+  // ==========================================================================
+  &__icon-wrap {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    overflow: visible;
+
+    // Shadow aplicado nos icones marcados com modifier --shadow
+    &--shadow {
+      @include ds.filter-neo-silhueta-icon;
+    }
+  }
+
+  &__icon {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    pointer-events: none;
+  }
+
+  // ==========================================================================
+  // Botao Dashboard (Home) — visualmente IGUAL aos outros 4 no estado normal
+  // (vertical icon + label), conforme Figma 1149:15372. Quando active, recebe
+  // o estampado via &__btn--dashboard-active (mixin nav-footer-btn-stamped).
+  // ==========================================================================
+  &__btn--dashboard {
+    .ds-nav-footer__icon {
+      width: 16px;
+      height: 16px;
+    }
+  }
+
+  // ==========================================================================
+  // Stamped active state — usado em TODOS os 5 botoes quando ativos.
+  // Cores conforme Figma 1149:14003 (Dashboard) / 1141:13674 (Navegue) /
+  // 1149:14662 (AI) / 1149:15427 (Alertas) / 1149:15993 (Conta) — os 5 sao
+  // visualmente identicos no estado active, variando apenas tamanho do icone.
+  //
+  // O estampado eh aplicado no `__icon-wrap` (nao no botao), preservando as
+  // dimensoes do botao em ambos estados — sem layout shift.
+  //
+  // Triple-border ring implementado via box-shadow stacking no icon-wrap:
+  //   - Inner border: 2px solid #FFFFFF (border real do elemento)
+  //   - Middle ring: 2.75px solid #7C98CA (offset 0..2.75px no box-shadow)
+  //   - Outer ring: 5px solid #DFE7F3 (offset 2.75..7.75px no box-shadow)
+  //   - Drop shadow + inset shadows neumorphic
+  // ==========================================================================
+  @mixin nav-footer-btn-stamped {
+    // Esconde label — o estampado ja da o destaque visual
+    .ds-nav-footer__label {
+      display: none;
+    }
+
+    // Estampado aplicado AQUI (no wrapper do icone) — preserva dimensao do btn
+    .ds-nav-footer__icon-wrap {
+      width: 38px;
+      height: 35px;
+      border-radius: 9px;
+      border: 2px solid #FFFFFF;
+      background: #EFF3F8;
+      box-shadow:
+        // ring middle (#7C98CA, 2.75px) + outer (#DFE7F3, +5px = 7.75px total)
+        0 0 0 2.75px #7C98CA,
+        0 0 0 7.75px #DFE7F3,
+        // drop shadow externo
+        0 8px 10px 0 rgba(0, 0, 0, 0.05),
+        // inset shadows neumorphic
+        inset -5px -5px 7px -2px #FFFFFF,
+        inset  5px  5px 10px -2px #B3C0CF;
+
+      // Remove o filter-neo-silhueta-icon do estado normal — ring assume destaque
+      &--shadow {
+        filter: none;
+      }
+    }
+  }
+
+  // Aplicado em todos os botoes quando active (Navegue/AI/Alertas/Conta)
+  // E no Dashboard via &--dashboard-active (mantido para compat semantica).
+  &__btn--active,
+  &__btn--dashboard-active {
+    @include nav-footer-btn-stamped;
+  }
+
+  // Spin one-shot via mixin centralizado (REDASH-PREP-5.1+) — aplicado
+  // no icon-wrap do BOTAO ATIVO (qualquer dos 5: dashboard / navegue /
+  // ai / alertas / conta). O ring orbita o estampado 38x35.
+  // Triggers cobertos pela diretiva [dsActiveSpin]: page load + mudanca
+  // de menu/painel ativo (sidebar mode no caso do dashboard).
+  &__btn--dashboard-active &__icon-wrap,
+  &__btn--active &__icon-wrap {
+    position: relative;
+    // Defaults do mixin: $iterations: 1, $duration: 500ms
+    @include ds.ds-active-spin-ring(
+      $border-radius: 9px,
+      $inset: -3px
+    );
+  }
+
+  // Tamanhos de icone do Figma para o estado stamped (per-botao).
+  &__btn--navegue.ds-nav-footer__btn--active .ds-nav-footer__icon {
+    width: 18px;
+    height: 18px;
+  }
+  &__btn--ai.ds-nav-footer__btn--active .ds-nav-footer__icon {
+    width: 20px;
+    height: 20px;
+  }
+  &__btn--alertas.ds-nav-footer__btn--active .ds-nav-footer__icon {
+    width: 12px;
+    height: 16px;
+  }
+  &__btn--conta.ds-nav-footer__btn--active .ds-nav-footer__icon {
+    width: 11px;
+    height: 15px;
+  }
+
+  // ==========================================================================
+  // Estado expanded — pequenos ajustes finos.
+  // A animacao principal acontece em __panel-area (max-height + opacity).
+  // O outer/inner crescem naturalmente seguindo o conteudo (sem transitions
+  // explicitas porque elas seguem o panel-area).
+  // ==========================================================================
+  &--expanded {
+    .ds-nav-footer__outer {
+      max-height: 70vh; // teto absoluto (Navegue/Alertas/Conta)
+    }
+  }
+
+  // AI panel exception — conteudo sticky (header+tabs+prompts+form) soma
+  // ~389px sem possibilidade de comprimir, contra os 387px do panel-area
+  // calc(70vh - 80) em viewport 667. Aumentamos o teto para 85vh quando
+  // activePanel === 'ai' para garantir que o conteudo nao seja cortado por
+  // overflow:hidden do panel-area. main-area encolhe via flex:1 (ja e) e
+  // fica blurred — sem perda funcional.
+  &--expanded[data-active-panel='ai'] {
+    .ds-nav-footer__outer {
+      max-height: 85vh;
+    }
+    .ds-nav-footer__panel-area--visible {
+      max-height: calc(85vh - 80px);
+    }
+  }
+}

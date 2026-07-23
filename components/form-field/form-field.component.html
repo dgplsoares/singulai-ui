@@ -1,0 +1,158 @@
+<div
+  class="ds-form-field"
+  [class.ds-form-field--sm]="size() === 'sm'"
+  [class.ds-form-field--md]="size() === 'md'"
+  [class.ds-form-field--lg]="size() === 'lg'"
+  [class.ds-form-field--error]="hasError()"
+  [class.ds-form-field--disabled]="isDisabled()"
+  [class.ds-form-field--toggle]="variant() === 'toggle'"
+  [attr.data-variant]="variant()"
+>
+  @if (label()) {
+    <label
+      class="ds-form-field__label"
+      [attr.for]="fieldId"
+    >
+      {{ label() }}
+      @if (required()) {
+        <span class="ds-form-field__required" aria-hidden="true">*</span>
+      }
+    </label>
+  }
+
+  <div class="ds-form-field__control">
+    @switch (variant()) {
+      @case ('text') {
+        <input
+          class="ds-form-field__input"
+          [id]="fieldId"
+          [type]="type()"
+          [placeholder]="placeholder()"
+          [attr.maxlength]="maxLength()"
+          [attr.aria-required]="required()"
+          [attr.aria-invalid]="hasError()"
+          [attr.aria-describedby]="ariaDescribedBy()"
+          [disabled]="isDisabled()"
+          [value]="value()"
+          (input)="onInput($event)"
+          (blur)="onBlur($event)"
+        />
+      }
+
+      @case ('textarea') {
+        <textarea
+          class="ds-form-field__input ds-form-field__input--textarea"
+          [id]="fieldId"
+          [rows]="rows()"
+          [placeholder]="placeholder()"
+          [attr.maxlength]="maxLength()"
+          [attr.aria-required]="required()"
+          [attr.aria-invalid]="hasError()"
+          [attr.aria-describedby]="ariaDescribedBy()"
+          [disabled]="isDisabled()"
+          [value]="value()"
+          (input)="onInput($event)"
+          (blur)="onBlur($event)"
+        ></textarea>
+      }
+
+      @case ('select') {
+        <select
+          class="ds-form-field__input ds-form-field__input--select"
+          [id]="fieldId"
+          [attr.aria-required]="required()"
+          [attr.aria-invalid]="hasError()"
+          [attr.aria-describedby]="ariaDescribedBy()"
+          [disabled]="isDisabled()"
+          [value]="value()"
+          (change)="onInput($event)"
+          (blur)="onBlur($event)"
+        >
+          @if (placeholder()) {
+            <option value="" disabled hidden>{{ placeholder() }}</option>
+          }
+          @for (opt of options() ?? []; track opt.value) {
+            <option
+              [value]="opt.value"
+              [disabled]="opt.disabled"
+            >
+              {{ opt.label }}
+            </option>
+          }
+        </select>
+        <span class="ds-form-field__chevron" aria-hidden="true">
+          <img [src]="chevronDownIconSrc()" alt="" width="8" height="5" />
+        </span>
+      }
+
+      @case ('search') {
+        <span class="ds-form-field__icon-left" aria-hidden="true">
+          <img [src]="searchIconSrc()" alt="" width="15" height="15" />
+        </span>
+        <input
+          class="ds-form-field__input ds-form-field__input--search"
+          [id]="fieldId"
+          type="search"
+          [placeholder]="placeholder() || 'Buscar...'"
+          [attr.aria-label]="label() || 'Buscar'"
+          [attr.aria-describedby]="ariaDescribedBy()"
+          [disabled]="isDisabled()"
+          [value]="value()"
+          (input)="onInput($event)"
+          (blur)="onBlur($event)"
+        />
+        @if (value()) {
+          <button
+            class="ds-form-field__clear"
+            type="button"
+            aria-label="Limpar busca"
+            (click)="clearSearch()"
+          >
+            <ng-icon name="heroXMark" size="12px"></ng-icon>
+          </button>
+        }
+      }
+
+      @case ('toggle') {
+        <label class="ds-form-field__toggle-wrap" [attr.for]="fieldId">
+          <input
+            class="ds-form-field__toggle-input"
+            [id]="fieldId"
+            type="checkbox"
+            role="switch"
+            [attr.aria-checked]="!!value()"
+            [attr.aria-describedby]="ariaDescribedBy()"
+            [disabled]="isDisabled()"
+            [checked]="!!value()"
+            (change)="onInput($event)"
+            (blur)="onBlur($event)"
+          />
+          <span class="ds-form-field__toggle-track">
+            <span class="ds-form-field__toggle-thumb" aria-hidden="true"></span>
+            <span class="ds-form-field__toggle-label" aria-hidden="true"></span>
+          </span>
+        </label>
+      }
+    }
+
+    @if (loading()) {
+      <span class="ds-form-field__loading" aria-hidden="true"></span>
+    }
+  </div>
+
+  @if (variant() === 'textarea' && maxLength() != null) {
+    <p class="ds-form-field__counter" aria-live="polite">
+      {{ valueLength() }}/{{ maxLength() }}
+    </p>
+  }
+
+  @if (hint() && !hasError()) {
+    <p class="ds-form-field__hint" [id]="hintId">{{ hint() }}</p>
+  }
+
+  @if (hasError()) {
+    <p class="ds-form-field__error" [id]="errorId" role="alert">
+      {{ errorMessage() }}
+    </p>
+  }
+</div>

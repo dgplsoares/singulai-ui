@@ -1,0 +1,91 @@
+// ============================================================================
+// ThumbnailAvatar — Estilos (REDASH-FASE-A A.7)
+// Figma 875-21663 (base size=md 40px, rounded-[10px], gradient top-down)
+// ============================================================================
+
+@use '../../tokens' as ds;
+
+:host {
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.ds-thumbnail-avatar {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+  font-family: var(--ds-font-family-base);
+  // Gradient azul Singulai — linear top-down
+  background: linear-gradient(180deg, #5C8DE2 0%, #27467C 100%);
+  color: #FFFFFF;
+  user-select: none;
+
+  // ==========================================================================
+  // Sizes
+  // ==========================================================================
+  &[data-size='xs'] {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+
+    .ds-thumbnail-avatar__initials {
+      font-size: 10px;
+      line-height: 1;
+    }
+  }
+
+  &[data-size='sm'] {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+
+    .ds-thumbnail-avatar__initials {
+      font-size: 12px;
+      line-height: 1;
+    }
+  }
+
+  &[data-size='md'] {
+    // Default — Figma 875-21663
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+
+    .ds-thumbnail-avatar__initials {
+      font-size: 16px;
+      line-height: 15px; // Figma exato
+    }
+  }
+
+  &[data-size='lg'] {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+
+    .ds-thumbnail-avatar__initials {
+      font-size: 22px;
+      line-height: 1;
+    }
+  }
+
+  // ==========================================================================
+  // Elementos
+  // ==========================================================================
+  &__img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+  }
+
+  &__initials {
+    font-weight: 600; // Manrope SemiBold
+    text-align: center;
+    color: inherit;
+  }
+}

@@ -1,0 +1,90 @@
+// ============================================================================
+// NotificationsButton — Estados:
+//   DEFAULT (Figma 1094:15280): SVG limpo + neo_silhueta_final via filter
+//   HOVER   (Figma 1098:15335): recolor primary + sombras realcadas
+//   ACTIVE  (PREP-5/DEC-PREP5-C): mesma estrutura do <ds-ai-assistant-button>
+//           --active. Inclui animacao one-shot ao ativar.
+// ============================================================================
+
+@use '../../tokens' as ds;
+@use '../../tokens/shadows' as shadows;
+
+:host {
+  display: inline-flex;
+}
+
+.ds-notifications-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  height: 32px;
+  padding: 0 10px;
+  margin: 0;
+  cursor: pointer;
+  font-family: inherit;
+  // overflow visible para a sombra do filter extender alem do bounding box
+  // (e tambem para o pseudo-element ::before do active spin nao ser cortado)
+  overflow: visible;
+  position: relative;
+  transition:
+    background var(--ds-duration-medium) var(--ds-ease-in-out-soft),
+    border-color var(--ds-duration-medium) var(--ds-ease-in-out-soft),
+    box-shadow var(--ds-duration-medium) var(--ds-ease-in-out-soft);
+
+  &:focus-visible {
+    outline: 2px solid var(--ds-apex-blue-500);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+
+  // Bell SVG — tamanho exato do viewBox (Figma 1094:15280)
+  &__icon {
+    display: block;
+    width: 13.7502px;
+    height: 17.75px;
+    @include shadows.filter-neo-silhueta-icon;
+    transition: filter var(--ds-duration-medium) var(--ds-ease-in-out-soft);
+  }
+
+  // Hover (node Figma 1098:15335) — recolor para primary #3E6FCA + sombras realcadas
+  // Nao aplica no estado active (panel aberto preserva bell colorido fixo).
+  &:hover:not([disabled]):not(.ds-notifications-button--active) .ds-notifications-button__icon {
+    @include shadows.filter-neo-silhueta-icon-hover;
+  }
+
+  // ==========================================================================
+  // ACTIVE — PREP-5 / DEC-PREP5-C (replica visual do <ds-ai-assistant-button>--active)
+  // bg #EFF3F8 + border 2px white + ring azul #3577EB + neumorphic shadow.
+  // Pseudo-element ::before com conic-gradient + spin one-shot ao ativar.
+  // ==========================================================================
+  &--active {
+    background: #EFF3F8;
+    border: 2px solid #FFFFFF;
+    border-radius: 7px;
+    padding: 0 8px;
+    box-shadow:
+      0 0 0 1.375px #3577EB,
+      0 0 0 5px rgba(255, 255, 255, 0.35),
+      0 8px 10px 0 rgba(0, 0, 0, 0.05),
+      inset -5px -5px 7px -2px #FFFFFF,
+      inset  5px  5px 10px -2px #B3C0CF;
+    filter:
+      drop-shadow(2px 2px 4px rgba(64, 95, 125, 0.25))
+      drop-shadow(-8px -8px 6px rgb(255, 255, 255))
+      drop-shadow(4px 4px 15px rgba(77, 103, 136, 0.15));
+
+    .ds-notifications-button__icon {
+      @include shadows.filter-neo-silhueta-icon-hover;
+    }
+
+    // Spin one-shot via mixin centralizado (REDASH-PREP-5.1).
+    // Identico ao <ds-ai-assistant-button>--active.
+    // Defaults do mixin: $iterations: 1, $duration: 500ms
+    @include ds.ds-active-spin-ring(
+      $border-radius: 7px,
+      $inset: -3px
+    );
+  }
+}

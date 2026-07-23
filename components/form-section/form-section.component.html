@@ -1,0 +1,22 @@
+<!--
+  Wrapper transparente do <app-form-section> shared (canonical pos-refator
+  pixel-perfect — Figma 590:1220/1242/1243). DS expõe API limpa via Inputs;
+  visual + logica de collapse ficam no shared.
+-->
+<app-form-section
+  [title]="title()"
+  [icon]="icon()"
+  [subtitle]="subtitle()"
+  [collapsible]="collapsible()"
+  [collapsed]="collapsed()"
+  [containerClass]="containerClass()"
+>
+  <!--
+    DEC-FIG-D-MON-4: slot 'header-actions' propagado (componentes no canto
+    direito do header — ex: toggle DS para cards Promo/Cupom/Garantia).
+  -->
+  <ng-container ngProjectAs="[slot=header-actions]">
+    <ng-content select="[slot=header-actions]"></ng-content>
+  </ng-container>
+  <ng-content></ng-content>
+</app-form-section>

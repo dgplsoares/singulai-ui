@@ -1,0 +1,130 @@
+// ============================================================================
+// ProgressBar — Estilos
+// Visual baseado no Figma do dashboard Singulai (Uso do Plano + Funil de
+// Vendas). Container outline aninhado + track + fill rounded-full.
+// ============================================================================
+
+@use '../../tokens' as ds;
+
+:host {
+  display: block;
+  width: 100%;
+}
+
+.ds-progress-bar {
+  // Container externo (chrome neumorphic).
+  // bg semi-transparente sobre superficie do card pai cria contraste sutil.
+  //
+  // Substituimos o `border: 1px solid` pelo `box-shadow: inset 0 0 0 1px`:
+  // o border externo desenhava 2 linhas paralelas visiveis (top+bottom)
+  // contra o card claro do showcase. Inset shadow desenha "para dentro" do
+  // elemento e na pratica fica menos contrastante na renderizacao CSS,
+  // alinhando melhor com a renderizacao do Figma (que e vetorial).
+  display: block;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.5);
+  box-shadow: inset 0 0 0 1px #E4E7F3;
+  border-radius: 999px;
+  overflow: hidden;
+  // Padding interno por size (definido nos modifiers --size-*).
+
+  // ==========================================================================
+  // Sizes — controla padding interno + altura da track via filhos
+  // ==========================================================================
+  &--size-sm {
+    padding: 2px;
+
+    .ds-progress-bar__track {
+      height: 6px;
+    }
+  }
+
+  &--size-md {
+    padding: 3px;
+
+    .ds-progress-bar__track {
+      height: 10px;
+    }
+  }
+
+  &--size-lg {
+    padding: 4px;
+
+    .ds-progress-bar__track {
+      height: 14px;
+    }
+  }
+
+  // ==========================================================================
+  // Track — bg cinza claro do Figma, com border-radius proprio para que
+  // o "fundo" cinza tambem assuma a forma de pill (visivel quando o fill
+  // nao preenche toda a largura).
+  // ==========================================================================
+  &__track {
+    display: block;
+    width: 100%;
+    background: #DFE3EA;
+    border-radius: 999px;
+  }
+
+  // ==========================================================================
+  // Fill — cor solida (sem gradient). border-radius proprio cria o efeito
+  // de "pill" do Figma quando o valor e pequeno.
+  //
+  // Decisao: abandonado o gradient vertical (top brilhante -> bottom mais
+  // escuro) que originalmente espelhava o Figma. Em barras com pouca altura
+  // (10px @ md), gradient em CSS gerava "band effect" — listras horizontais
+  // perceptiveis em widths longos, independente do numero de stops e do
+  // contraste. Cor solida elimina o problema de vez e fica limpa em todos
+  // os tamanhos e variants.
+  //
+  // Se quisermos depth/relevo no futuro, adicionar via box-shadow inset
+  // (mais previsivel que gradient em CSS).
+  // ==========================================================================
+  &__fill {
+    display: block;
+    height: 100%;
+    border-radius: 999px;
+    background: var(--ds-progress-fill, var(--ds-apex-blue-500, #3C72D0));
+    transition: width var(--ds-duration-medium, 300ms)
+      var(--ds-ease-out, cubic-bezier(0.16, 1, 0.3, 1));
+  }
+
+  // ==========================================================================
+  // Variants de cor — define --ds-progress-fill, herdado pelo __fill que
+  // gera o gradient automaticamente via color-mix(). Cada variant pode
+  // sobrescrever --ds-progress-fill-bottom para gradient totalmente custom.
+  // Tons principais coordenados com Figma do Funil de Vendas (1042:28755).
+  // ==========================================================================
+  &--apex {
+    --ds-progress-fill: var(--ds-apex-blue-500, #3C72D0);
+  }
+
+  &--success {
+    --ds-progress-fill: #38A173;
+  }
+
+  &--warning {
+    --ds-progress-fill: #BE833F;
+  }
+
+  &--danger {
+    --ds-progress-fill: #BC3232;
+  }
+
+  &--info {
+    --ds-progress-fill: #6196A9;
+  }
+
+  &--purple {
+    --ds-progress-fill: #7641BF;
+  }
+
+  &--pink {
+    --ds-progress-fill: #C746DB;
+  }
+
+  &--neutral {
+    --ds-progress-fill: #94A3B8;
+  }
+}

@@ -1,0 +1,25 @@
+<!--
+  <ds-segmented-button> — pixel-perfect contra Figma 602:872 (sm) / 608:1173 (lg).
+  E.2.13.iter2 (2026-06-21): estrutura simplificada para 2 níveis (= mesma do
+  <ds-segmented-tabs>). Antes tinha 3 níveis aninhados que comprimiam o conteúdo
+  e divergiam visualmente da altura dos tabs irmãos.
+-->
+<button
+  type="button"
+  class="ds-segmented-button"
+  [class.ds-segmented-button--sm]="size() === 'sm'"
+  [class.ds-segmented-button--lg]="size() === 'lg'"
+  [class.ds-segmented-button--disabled]="disabled()"
+  [disabled]="disabled()"
+  [attr.aria-label]="ariaLabel() ?? label()"
+  (click)="onClick($event)"
+>
+  <span class="ds-segmented-button__frame">
+    <span class="ds-segmented-button__inner">
+      @if (iconLeft()) {
+        <ng-icon [name]="iconLeft()!" class="ds-segmented-button__icon" />
+      }
+      <span class="ds-segmented-button__label">{{ label() }}</span>
+    </span>
+  </span>
+</button>

@@ -1,0 +1,89 @@
+<div
+  class="ds-skeleton"
+  [attr.data-variant]="variant()"
+  role="status"
+  aria-live="polite"
+  [attr.aria-label]="ariaLabel()"
+>
+  @switch (variant()) {
+    @case ('line') {
+      @for (_ of items(); track $index) {
+        <div class="ds-skeleton__shimmer ds-skeleton__line" [style]="primitiveStyle()"></div>
+      }
+    }
+
+    @case ('circle') {
+      <div class="ds-skeleton__shimmer ds-skeleton__circle" [style]="primitiveStyle()"></div>
+    }
+
+    @case ('rect') {
+      <div class="ds-skeleton__shimmer ds-skeleton__rect" [style]="primitiveStyle()"></div>
+    }
+
+    @case ('card') {
+      <div class="ds-skeleton__card">
+        <div class="ds-skeleton__shimmer ds-skeleton__line ds-skeleton__line--title"></div>
+        <div class="ds-skeleton__shimmer ds-skeleton__line ds-skeleton__line--w70"></div>
+        <div class="ds-skeleton__shimmer ds-skeleton__line ds-skeleton__line--w50"></div>
+        <div class="ds-skeleton__shimmer ds-skeleton__line ds-skeleton__line--w80"></div>
+      </div>
+    }
+
+    @case ('row') {
+      <div class="ds-skeleton__rows">
+        @for (_ of items(); track $index) {
+          <div class="ds-skeleton__row">
+            <div class="ds-skeleton__shimmer ds-skeleton__circle ds-skeleton__row-avatar"></div>
+            <div class="ds-skeleton__shimmer ds-skeleton__line ds-skeleton__row-cell--lg"></div>
+            <div class="ds-skeleton__shimmer ds-skeleton__line ds-skeleton__row-cell--md"></div>
+            <div class="ds-skeleton__shimmer ds-skeleton__line ds-skeleton__row-cell--sm"></div>
+            <div class="ds-skeleton__shimmer ds-skeleton__pill ds-skeleton__row-pill"></div>
+          </div>
+        }
+      </div>
+    }
+
+    @case ('chart') {
+      <div class="ds-skeleton__chart">
+        <div class="ds-skeleton__chart-area">
+          <div class="ds-skeleton__shimmer ds-skeleton__chart-line ds-skeleton__chart-line--top"></div>
+          <div class="ds-skeleton__shimmer ds-skeleton__chart-line ds-skeleton__chart-line--mid"></div>
+          <div class="ds-skeleton__shimmer ds-skeleton__chart-line ds-skeleton__chart-line--low"></div>
+        </div>
+        <div class="ds-skeleton__chart-bars">
+          @for (_ of [0,1,2,3,4,5,6]; track $index) {
+            <div class="ds-skeleton__shimmer ds-skeleton__chart-bar" [style.height.%]="35 + ($index * 7) % 55"></div>
+          }
+        </div>
+      </div>
+    }
+
+    @case ('statsbar') {
+      <div class="ds-skeleton__statsbar">
+        @for (_ of [0,1,2,3]; track $index) {
+          <div class="ds-skeleton__stat">
+            <div class="ds-skeleton__shimmer ds-skeleton__line ds-skeleton__stat-label"></div>
+            <div class="ds-skeleton__shimmer ds-skeleton__line ds-skeleton__stat-value"></div>
+            <div class="ds-skeleton__shimmer ds-skeleton__line ds-skeleton__stat-trend"></div>
+          </div>
+        }
+      </div>
+    }
+
+    @case ('list-item') {
+      <div class="ds-skeleton__list">
+        @for (_ of items(); track $index) {
+          <div class="ds-skeleton__list-item">
+            <div class="ds-skeleton__shimmer ds-skeleton__avatar-square"></div>
+            <div class="ds-skeleton__list-item-text">
+              <div class="ds-skeleton__shimmer ds-skeleton__line ds-skeleton__line--title"></div>
+              <div class="ds-skeleton__shimmer ds-skeleton__line ds-skeleton__line--w60"></div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+  }
+
+  <span class="ds-sr-only">{{ ariaLabel() }}</span>
+</div>

@@ -1,0 +1,195 @@
+// ============================================================================
+// Design System Singulai — Animations
+// Fonte: .claude/design-system/tokens/animations.md
+// ============================================================================
+
+// Durations
+$duration-instant: 0ms;
+$duration-fast: 150ms;
+$duration-base: 200ms;
+$duration-medium: 300ms;
+$duration-slow: 500ms;
+$duration-extra-slow: 800ms;
+
+// Easings
+$ease-default: cubic-bezier(0.4, 0, 0.2, 1);
+$ease-in-out-soft: cubic-bezier(0.4, 0, 0.6, 1);
+$ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+$ease-linear: linear;
+
+// ----------------------------------------------------------------------------
+// Keyframes globais
+// ----------------------------------------------------------------------------
+
+@keyframes ds-spin-once {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+// ----------------------------------------------------------------------------
+// Active Button Spin Ring — mixin reusavel (REDASH-PREP-5.1)
+//
+// Centraliza o efeito visual de "anel azul com ponto luminoso branco
+// orbitando o botao". Usado em ai-assistant-button, notifications-button,
+// sidebar-left-nav (item raiz active) e nav-footer mobile.
+//
+// API:
+//   @include ds.ds-active-spin-ring(
+//     $iterations: 1,           // numero de voltas (default 1)
+//     $duration: 500ms,         // duracao por volta — sincronizar com
+//                               //   [spinDurationMs] da diretiva
+//                               //   DsActiveSpinDirective em modo delay
+//     $border-radius: 9px,      // raio do anel
+//     $inset: -3px              // distancia do anel ao border-edge
+//   );
+//
+// O mixin emite (no scope do seletor onde for chamado):
+//   - @property --ds-border-angle (angle, initial 0deg)
+//   - @property --ds-border-glow (number, initial 0)
+//   - @keyframes ds-border-spin-once
+//   - &.ds-spinning::before com gradient + mask + animation
+//
+// IMPORTANTE: animacao SO dispara quando classe auxiliar `.ds-spinning`
+// esta presente. Use a diretiva Angular [dsActiveSpin] para controlar
+// essa classe via signals (cobre page load + click toggle + signal externo).
+//
+// Por que NAO usar transform: rotate(0deg) -> rotate(360deg):
+//   - Chromium otimiza-out essa animacao quando combinada com
+//     mask-composite: exclude (matrices identicas + dirty region
+//     indeterminavel pelo compositor)
+//   - Engram: discovery/css-spin-pseudo-mask-composite-issue
+//
+// Por que @property + @keyframes sao emitidos LOCALMENTE:
+//   - Bug Firefox 150 (Linux): @property em CSS global apos @tailwind
+//     directives nao e registrada
+//   - Spec aceita declaracoes duplicadas (descartadas)
+//   - Engram: discovery/firefox-property-registration-bug
+//
+// Doc completa: .claude/design-system/patterns/active-button-spin.md
+// ----------------------------------------------------------------------------
+@mixin ds-active-spin-ring(
+  $iterations: 1,
+  $duration: 500ms,
+  $border-radius: 9px,
+  $inset: -3px
+) {
+  // @property + @keyframes locais (necessario pelo bug Firefox 150)
+  @property --ds-border-angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+  }
+
+  @property --ds-border-glow {
+    syntax: '<number>';
+    initial-value: 0;
+    inherits: false;
+  }
+
+  @keyframes ds-border-spin-once {
+    0%   { --ds-border-angle: 0deg;   --ds-border-glow: 1; }
+    90%  {                            --ds-border-glow: 1; }
+    100% { --ds-border-angle: 360deg; --ds-border-glow: 0; }
+  }
+
+  // Animacao SO ativa quando .ds-spinning esta presente.
+  // Diretiva [dsActiveSpin] adiciona/remove essa classe via signal effect.
+  &.ds-spinning::before {
+    content: '';
+    position: absolute;
+    inset: $inset;
+    border-radius: $border-radius;
+    padding: 2px;
+    // color-mix(--ds-border-glow * 100%) interpola entre azul base
+    // (#3577EB) e a cor highlight. Quando glow=0 (fim do keyframe), todo
+    // o gradient vira azul base uniforme.
+    //
+    // PEAK luminoso: #B5D3FF (azul claro pastel, ~50% menos saturado que
+    // #FFFFFF anterior). User pediu brilho mais suave — puxa o highlight
+    // mais para o azul do gradient base, evitando contraste excessivo.
+    background: conic-gradient(
+      from var(--ds-border-angle, 0deg),
+      #3577EB 0deg,
+      #3577EB 250deg,
+      color-mix(in srgb, #3577EB, #80B0FF calc(var(--ds-border-glow, 0) * 100%)) 290deg,
+      color-mix(in srgb, #3577EB, #B5D3FF calc(var(--ds-border-glow, 0) * 100%)) 320deg,
+      color-mix(in srgb, #3577EB, #80B0FF calc(var(--ds-border-glow, 0) * 100%)) 350deg,
+      #3577EB 360deg
+    );
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask-composite: exclude;
+    pointer-events: none;
+    // Glow alpha 0.65 — halo mais marcado
+    filter: drop-shadow(0 0 4px rgba(180, 220, 255, calc(var(--ds-border-glow, 0) * 0.65)));
+    animation: ds-border-spin-once $duration linear $iterations forwards;
+  }
+
+  // prefers-reduced-motion: fade simples sem giro
+  @media (prefers-reduced-motion: reduce) {
+    &.ds-spinning::before {
+      animation: ds-fade-in 300ms ease-out 1 forwards !important;
+    }
+  }
+}
+
+@keyframes ds-gradient-walk {
+  0%   { background-position:   0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+@keyframes ds-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+@keyframes ds-toast-in {
+  from { transform: translateX(calc(100% + 70px)); opacity: 0; }
+  to   { transform: translateX(0);                 opacity: 1; }
+}
+
+@keyframes ds-toast-out {
+  from { transform: translateX(0);                 opacity: 1; }
+  to   { transform: translateX(calc(100% + 70px)); opacity: 0; }
+}
+
+@keyframes ds-modal-scale-in {
+  from { transform: scale(0.95); opacity: 0; }
+  to   { transform: scale(1);    opacity: 1; }
+}
+
+@keyframes ds-offcanvas-slide-in-right {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+
+@keyframes ds-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes ds-hourglass-flip {
+  0%, 100% { transform: rotate(0deg);   filter: blur(0); }
+  50%      { transform: rotate(180deg); filter: blur(2px); }
+}
+
+@keyframes ds-text-gradient-stripe {
+  0%   { background-position: -100% 0; }
+  100% { background-position:  200% 0; }
+}
+
+// ----------------------------------------------------------------------------
+// Acessibilidade — respeitar prefers-reduced-motion
+// ----------------------------------------------------------------------------
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

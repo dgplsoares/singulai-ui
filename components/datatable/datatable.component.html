@@ -1,0 +1,22 @@
+<!--
+  Wrapper transparente do <app-data-table>. Toda lógica delegada;
+  ajuste visual aplicado via SCSS scoped (.ds-datatable wrapper).
+-->
+<div class="ds-datatable">
+  <app-data-table
+    [data]="data()"
+    [config]="config()"
+    [loading]="loading()"
+    [error]="error()"
+    [externalFilter]="externalFilter()"
+    (stateChange)="stateChange.emit($event)"
+    (rowClick)="rowClick.emit($event)"
+    (selectionChange)="selectionChange.emit($event)"
+    (reload)="reload.emit()"
+    (pageChange)="pageChange.emit($event)"
+    (sortChange)="sortChange.emit($event)"
+    (searchChange)="searchChange.emit($event)"
+    (filterChange)="filterChange.emit($event)"
+    (switchChange)="switchChange.emit($event)"
+  />
+</div>

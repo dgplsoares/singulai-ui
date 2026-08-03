@@ -164,7 +164,15 @@
   }
 
   <!-- Editor content -->
-  <div class="ds-rte-content-wrap" [style.min-height.px]="minHeight()">
+  <!--
+    2026-07-31 FIX click area: (click)=onWrapClick foca editor quando user
+    clica em área de padding/wrap (não só no ProseMirror interno). Antes o
+    clique só era reconhecido na área editável real. Cursor:text no SCSS
+    dá affordance visual em toda a área.
+  -->
+  <div class="ds-rte-content-wrap"
+       [style.min-height.px]="minHeight()"
+       (click)="onWrapClick($event)">
     <tiptap-editor [editor]="editor" [outputFormat]="'json'" />
   </div>
 </div>

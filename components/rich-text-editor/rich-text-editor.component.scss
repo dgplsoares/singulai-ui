@@ -220,6 +220,15 @@
   flex: 1;
   overflow-y: auto;
   padding: 15px;
+  // 2026-07-31 FIX: cursor:text em toda a área do wrap (padding + inner)
+  // para affordance visual. Handler (click)=onWrapClick foca editor quando
+  // click cai fora do ProseMirror interno.
+  cursor: text;
+}
+
+// Read-only não deve mostrar cursor de digitação
+.ds-rich-text-editor--read-only .ds-rte-content-wrap {
+  cursor: default;
 }
 
 // Estilos do ProseMirror (Tiptap gera <div class="ProseMirror">...)

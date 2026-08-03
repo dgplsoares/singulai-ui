@@ -227,9 +227,15 @@ export class RichTextEditorComponent implements OnDestroy {
     });
 
     // Sync readOnly input → editor
+    // FIX BUG3 iter4 (2026-07-31): emitUpdate=false suprime o `update` espúrio
+    // que Tiptap v3 emitia sempre em setEditable — mesmo sem mudança de valor.
+    // Sem esse guard, cada mount de RTE (tab switch) disparava contentChange
+    // com editor.getJSON() de doc vazio → parent draft sobrescrito → colidia
+    // com snapshot='' de campo null → isDirty=true falso positivo.
+    // Ver rich-text-canonical.ts (fix simétrico) e workflow iter4 investigation.
     effect(() => {
       const ro = this.readOnly();
-      if (this.editor) this.editor.setEditable(!ro);
+      if (this.editor) this.editor.setEditable(!ro, false);
     });
   }
 
@@ -302,6 +308,22 @@ export class RichTextEditorComponent implements OnDestroy {
   protected undo(): void { this.chain().undo().run(); }
   protected redo(): void { this.chain().redo().run(); }
   protected clearFormatting(): void { this.chain().unsetAllMarks().clearNodes().run(); }
+
+  /**
+   * FIX 2026-07-31: click no wrap (padding externo do ProseMirror) foca o
+   * editor. Antes só a área interna do ProseMirror capturava click; áreas
+   * de padding (15px) e min-height (500px em texto) não focavam apesar de
+   * visualmente parecerem parte do campo. Ignora clicks dentro do próprio
+   * ProseMirror (não interfere na seleção normal do usuário).
+   */
+  protected onWrapClick(event: MouseEvent): void {
+    if (!this.editor || this.readOnly()) return;
+    const target = event.target as HTMLElement;
+    // Se click já foi dentro do ProseMirror, ele foca sozinho — não interferir
+    if (target.closest('.ProseMirror')) return;
+    // Click em área de padding/wrap → foca editor no final do documento
+    this.editor.commands.focus('end');
+  }
 
   protected setHeading(level: 0 | 1 | 2 | 3): void {
     if (level === 0) this.chain().setParagraph().run();

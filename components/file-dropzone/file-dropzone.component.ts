@@ -63,6 +63,7 @@ import type { FileDropzoneKind, FileDropzonePayload, FileUploadKind } from './fi
       [uploadEndpoint]="uploadEndpoint()!"
       [showUrlInput]="showUrlInput()"
       [skipInternalUpload]="skipInternalUpload()"
+      [readOnly]="readOnly()"
       (fileUploaded)="fileUploaded.emit($event)"
       (fileRemoved)="fileRemoved.emit()"
       (fileSelected)="fileSelected.emit($event)"
@@ -121,6 +122,17 @@ export class FileDropzoneComponent {
    * pode passar o URL via [fileUrl] para renderizar chip preview.
    */
   readonly skipInternalUpload = input<boolean>(false);
+
+  /**
+   * E.6-close.5a-fix3 (2026-07-31): quando `true`, o dropzone renderiza
+   * modo somente-leitura — mostra chip preview do arquivo se houver mas
+   * SEM botão de remover (lixeira), SEM drop area editável, SEM URL input.
+   * Usado em view mode dos offcanvas de aula (videoaula tab Slides,
+   * ebook tab Ebook) para respeitar que view = só visualiza, não altera.
+   * Se `fileUrl` está setado: mostra chip + botão de visualizar/download
+   * apenas. Se vazio: renderiza empty state text-only sem drop CTA.
+   */
+  readonly readOnly = input<boolean>(false);
 
   /** Emite payload completo {url, filename?, size?, contentType?} após upload. */
   readonly fileUploaded = output<FileDropzonePayload>();

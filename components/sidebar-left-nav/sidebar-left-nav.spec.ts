@@ -105,22 +105,64 @@ describe('SidebarLeftNavComponent', () => {
   });
 
   it('emite stateChange quando toggle muda', () => {
-    let received: string | null = null;
-    component.stateChange.subscribe((s) => (received = s));
+    // Causa-raiz do TS2345 anterior: a versao original capturava a emissao em
+    // `let received: string | null = null`. O control-flow analysis do TS nao
+    // enxerga atribuicoes feitas dentro do callback do subscribe, entao na
+    // linha da assercao `received` continuava estreitado para `null` e
+    // `toBe('expanded')` batia contra `Expected<null>`. Spy e' o primitivo
+    // correto do Jasmine para "foi emitido com X" -- sem captura em closure,
+    // nao ha o que estreitar.
+    const stateChangeSpy = jasmine.createSpy('stateChange');
+    component.stateChange.subscribe(stateChangeSpy);
 
     const toggle = fixture.nativeElement.querySelector(
       '.ds-sidebar__toggle',
     ) as HTMLButtonElement;
     toggle.click();
     fixture.detectChanges();
-    expect(received).toBe('expanded');
+    expect(stateChangeSpy).toHaveBeenCalledWith('expanded');
   });
 
-  it('mostra avatar com iniciais do nome do usuario', () => {
+  // O teste anterior ('mostra avatar com iniciais do nome do usuario')
+  // cobria uma feature REMOVIDA: `.ds-sidebar__avatar` com iniciais nao
+  // existe mais no template desde os refactors SBNAV/SBNAV2. O footer hoje
+  // e um botao neumorphic com <img class="ds-sidebar__user-icon"> e o nome
+  // so aparece em estado expanded. Substituido pelos 2 testes abaixo, que
+  // descrevem o comportamento atual.
+  it('renderiza o botao de conta com o icone de usuario', () => {
     fixture.componentRef.setInput('user', { name: 'John Doe' });
     fixture.detectChanges();
-    const avatar = fixture.nativeElement.querySelector('.ds-sidebar__avatar');
-    expect(avatar.textContent.trim()).toBe('JD');
+
+    const userButton = fixture.nativeElement.querySelector(
+      '.ds-sidebar__user-button',
+    ) as HTMLButtonElement;
+    expect(userButton).toBeTruthy();
+    expect(userButton.getAttribute('aria-label')).toBe('Minha Conta');
+
+    const icon = fixture.nativeElement.querySelector(
+      '.ds-sidebar__user-icon',
+    ) as HTMLImageElement;
+    expect(icon).toBeTruthy();
+    // Default do input userIconSrc (override-avel para split OSS).
+    expect(icon.getAttribute('src')).toBe('branding/icons/menu/user.svg');
+  });
+
+  it('mostra o nome do usuario apenas em estado expanded', () => {
+    fixture.componentRef.setInput('user', { name: 'John Doe' });
+    fixture.detectChanges();
+
+    // Collapsed (default): nome nao renderiza.
+    expect(fixture.nativeElement.querySelector('.ds-sidebar__user-name')).toBeNull();
+
+    const toggle = fixture.nativeElement.querySelector(
+      '.ds-sidebar__toggle',
+    ) as HTMLButtonElement;
+    toggle.click();
+    fixture.detectChanges();
+
+    const userName = fixture.nativeElement.querySelector('.ds-sidebar__user-name');
+    expect(userName).toBeTruthy();
+    expect(userName.textContent.trim()).toBe('John Doe');
   });
 
   it('emite accountClick ao clicar no avatar', () => {

@@ -36,6 +36,7 @@ export type FooterDropdownAction = DropdownAction;
       [showDropdown]="showDropdown()"
       [dropdownActions]="dropdownActions()"
       [showCancelButton]="showCancelButton()"
+      [showSubmitButton]="showSubmitButton()"
       (cancel)="cancel.emit()"
       (formSubmit)="formSubmit.emit()"
       (dropdownAction)="dropdownAction.emit($event)"
@@ -52,6 +53,21 @@ export class PageFooterStickyComponent {
   readonly showDropdown = input<boolean>(false);
   readonly dropdownActions = input<FooterDropdownAction[]>([]);
   readonly showCancelButton = input<boolean>(true);
+  /**
+   * D.3.2b-1 (2026-08-03): simetrico de showCancelButton — esconde o botao de
+   * submit, deixando so o Cancelar (que o Figma rotula "Fechar").
+   *
+   * POR QUE EXISTE: telas de CRUD inline (offcanvas de Categorias, Figma
+   * 1073-10373) disparam as requisicoes por botoes DENTRO do body — o footer
+   * so fecha o painel. O "Fechar" do Figma tem exatamente os tokens do botao
+   * Cancelar, entao nao ha botao/SCSS novo: basta poder omitir o submit.
+   *
+   * NAO E BYPASS DA DEC-OFFCANVAS-FRAME — e o que permite esses offcanvas
+   * continuarem usando o footer DS canonico em vez de montar footer manual.
+   *
+   * Default true: nenhum consumidor existente muda.
+   */
+  readonly showSubmitButton = input<boolean>(true);
 
   readonly cancel = output<void>();
   readonly formSubmit = output<void>();

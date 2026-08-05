@@ -15,9 +15,67 @@
 //       -6 -6 20 #FFFFFF
 //       4 4 25 rgba(111,140,176,0.35)
 //
-// - Items inactive (784:14261): Manrope Bold 13/11 color #3E6FCA
-//   (Figma blue_1 — NAO o #8599AC anterior do 590:1121).
-//   Gap 6, padding 15 horizontal, sem container.
+// - Items inactive (784:14261): Manrope Bold 13/11, gap 6, padding 15
+//   horizontal, sem container. A COR depende de concluido vs pendente —
+//   ver bloco "TRES ESTADOS" abaixo.
+//
+// ----------------------------------------------------------------------------
+// TRES ESTADOS (D.3.W1 / W1c — 2026-08-05)
+// ----------------------------------------------------------------------------
+// Ate aqui o item inativo era SEMPRE #3E6FCA e a classe --completed so
+// pintava <ng-icon> (de verde #16A34A, cor que nao existe em lugar nenhum do
+// Figma). Ou seja: concluido e pendente renderizavam IDENTICOS, e para quem
+// usa iconSrc (<img> — o caso de Cursos e de Mentorias) o estado concluido
+// era literalmente inexprimivel, porque CSS `color` nao alcanca <img>.
+// Como o gate de navegacao so libera as abas concluidas + a corrente, sem
+// esta distincao o usuario nao tem como saber quais abas pode clicar.
+//
+//   | estado    | label / ng-icon | fonte                                  |
+//   |-----------|-----------------|----------------------------------------|
+//   | active    | #3A65B3         | 590:1121 text-[#3a65b3] (ja existia)   |
+//   | completed | #3E6FCA         | links-figma 1.6.1.2: "no caso de       |
+//   |           |                 | edicao, todas as steps estao completas,|
+//   |           |                 | as cores dos icones e textos sao na cor|
+//   |           |                 | #3E6FCA"                                |
+//   | pending   | #8599AC         | 590:1121 + 590:3150 text-[#8599ac] —   |
+//   |           |                 | a mesma cor que a prose nomeia para    |
+//   |           |                 | "steps ainda nao concluidas"           |
+//
+// Isto RECONCILIA a DEC-C1-iter2 (que trocou inactive #8599AC -> #3E6FCA)
+// em vez de reverte-la: #3E6FCA passa a significar CONCLUIDO. Em modo edicao
+// (todas as steps completas, que e o cenario da DEC-C1-iter2) a barra
+// continua renderizando exatamente como hoje; em modo criacao as steps
+// ainda nao concluidas voltam ao #8599AC do Figma.
+//
+// ICONE via iconSrc (<img>): os SVGs commitados em public/wizard-tabs-nav/
+// tem a cor BAKED (stroke #3E6FCA) — ja estao na paleta de CONCLUIDO. Logo
+// completed = asset natural (filter: none) e pending = filtro dessaturante.
+// Ver .ds-page-nav-item-icon-img para a derivacao do filtro.
+//
+// ----------------------------------------------------------------------------
+// CONTRASTE DA STEP BLOQUEADA (2026-08-05)
+// ----------------------------------------------------------------------------
+// A troca de paleta acima mexe no pixel de CURSOS, que ja consome este
+// componente e ja passa `disabled` (course-steps-nav deriva os dois flags do
+// gate). E o item desabilitado carregava `opacity: 0.45`. Os dois efeitos
+// SOMAM: a cor de pending ja e a mais dessaturada da barra, e o esmaecimento
+// caia por cima dela.
+//
+//   contraste do label sobre a tab bar #EFF3F8 (WCAG 2.x):
+//     antes desta entrega  #3E6FCA @ .45 -> rgb(159,184,227)  1.81:1
+//     apos a troca de cor  #8599AC @ .45 -> rgb(191,202,214)  1.49:1  REGRESSAO
+//     agora               #8599AC @ 1.0 -> rgb(133,153,172)  2.64:1
+//
+// O `opacity: 0.45` foi REMOVIDO, e a ancora e o Figma: nem 590:1121 nem
+// 590:3150 tem estado esmaecido. Nos dois nodes, TODA step nao-corrente e
+// `text-[#8599ac]` com opacidade cheia — 2.64:1 e o piso que o proprio design
+// admite para uma step nao concluida, e o design nao coloca nada abaixo dele.
+// O bloqueio passa a ser sinalizado por `cursor: not-allowed` + ausencia de
+// resposta a click/hover (o `:hover` ja excluia `:disabled`).
+//
+// Nao ha, no Figma, distincao visual entre "pendente navegavel" e "pendente
+// bloqueada" — inventar uma seria improvisar design. Specs:
+// "step bloqueado permanece legivel" pina o piso E a paridade com pendente.
 //
 // - Item ACTIVE: replica visual canonico do <ds-sidebar__menu-item--active>
 //   no estado --expanded (DEC-C1-iter2 Diogo 2026-06-16):
@@ -92,12 +150,16 @@
   font-weight: 700;
   font-size: 13px;
   line-height: 11px;
-  color: #3E6FCA; // Figma blue_1 — inactive
+  // PENDING e o default: step ainda nao concluida (Figma 590:1121 /
+  // 590:3150 text-[#8599ac]). Concluida sobe para #3E6FCA via --completed.
+  color: #8599AC;
   cursor: pointer;
   transition: color 0.18s ease, filter 0.18s ease;
 
+  // BLOQUEADA. Sem esmaecimento — ver "CONTRASTE DA STEP BLOQUEADA" no topo.
+  // O sinal de bloqueio e o cursor + a ausencia de resposta ao click e ao
+  // hover, exatamente como o Figma renderiza.
   &:disabled {
-    opacity: 0.45;
     cursor: not-allowed;
   }
 
@@ -120,6 +182,23 @@
   width: auto;
   max-width: 24px;
   object-fit: contain;
+
+  // PENDING. O asset commitado ja esta na paleta de CONCLUIDO (stroke
+  // #3E6FCA), entao o estado pendente e produzido por filtro — `color` nao
+  // atravessa <img>, e trocar de asset por estado exigiria um segundo set de
+  // SVGs + mudanca na API de PageNavStep (que os consumidores de hoje,
+  // Cursos e Eventos, nao podem receber nesta fase).
+  //
+  // A cadeia foi RESOLVIDA numericamente contra os dois tons que o Figma
+  // exporta, nao chutada:
+  //   primario   #3E6FCA -> rgb(164,178,202)  vs alvo #A1B5C8 rgb(161,181,200)
+  //   secundario #C5D2E8 -> rgb(206,211,219)  (o Figma mantem #C5D2E8 igual
+  //              nos dois estados; este e o residuo conhecido do filtro)
+  // opacity() compoe sobre o bg fixo da tab bar (#EFF3F8). Cadeias com
+  // brightness > ~1.2 foram DESCARTADAS: estouram o fill secundario para
+  // branco puro (#FFF), o que apaga o corpo do icone.
+  filter: saturate(0.7) brightness(0.8) opacity(0.42);
+  transition: filter 0.18s ease;
 }
 
 .ds-page-nav-item-icon {
@@ -168,6 +247,13 @@
     color: #3A65B3;
   }
 
+  // Icone <img> da step corrente usa o asset natural — o filtro de pending
+  // nao se aplica (Figma 590:1121 / 590:3150: o item ativo e o mais
+  // saturado da barra).
+  .ds-page-nav-item-icon-img {
+    filter: none;
+  }
+
   &:hover {
     color: #3A65B3;
     filter: brightness(1.02);
@@ -182,12 +268,24 @@
 }
 
 // ============================================================================
-// COMPLETED (futuro: check verde) — placeholder
+// COMPLETED — step ja concluida (e nao corrente).
+//
+// #3E6FCA no label E no icone, per links-figma 1.6.1.2. Nao ha check verde:
+// o #16A34A que morava aqui era invencao — nao aparece em 590:1121 nem em
+// 590:3150 nem na prose. E o icone <img> volta ao asset natural, que ja e
+// desenhado nesta paleta.
 // ============================================================================
 
 .ds-page-nav-item--completed {
+  color: #3E6FCA;
+
+  .ds-page-nav-item-label,
   .ds-page-nav-item-icon {
-    color: #16A34A;
+    color: #3E6FCA;
+  }
+
+  .ds-page-nav-item-icon-img {
+    filter: none;
   }
 }
 

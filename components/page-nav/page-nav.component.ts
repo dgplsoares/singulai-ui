@@ -34,7 +34,15 @@ export interface PageNavStep {
   iconSrc?: string;
   /** Nome do heroicon como fallback quando iconSrc nao for fornecido. */
   icon?: string;
-  /** Opcional: marca step como concluida (futuro: check verde). */
+  /**
+   * Marca a step como CONCLUIDA. Nao e cosmetico: e o unico sinal visual de
+   * quais abas o gate de navegacao libera.
+   *
+   * concluida -> #3E6FCA (label + icone, asset no tom natural)
+   * pendente  -> #8599AC (label) + icone dessaturado
+   *
+   * Ignorado na step corrente, que tem visual proprio.
+   */
   completed?: boolean;
   /** Opcional: desabilita o click. */
   disabled?: boolean;

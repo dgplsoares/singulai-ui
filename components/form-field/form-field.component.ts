@@ -28,8 +28,13 @@ let uidCounter = 0;
  * FormField — campo de formulario unificado do DS Singulai.
  *
  * Cobre 5 variants essenciais (DS-2.1): text, textarea, select, toggle, search.
- * Restantes (checkbox, radio, date, time, color, file-upload, multi-select)
- * em DS-2.2.
+ * Restantes (checkbox, radio, color, file-upload, multi-select) em DS-2.2.
+ *
+ * `date`, `datetime-local` e `time` NAO sao variants — sao valores de `type`
+ * dentro de `variant="text"`, adicionados na D.3.4 (`DEC-D.3.4-2`) junto de
+ * `min`/`max`. A DS-2.2 os listava como variants proprios; a implementacao
+ * mostrou que o input nativo ja' entrega o comportamento e que separar por
+ * variant duplicaria o mesmo `<input>` tres vezes no template.
  *
  * Implementa ControlValueAccessor para integracao com Angular Reactive Forms
  * e Template-driven forms.
@@ -103,6 +108,21 @@ export class FormFieldComponent implements ControlValueAccessor {
   /** Maximo de caracteres. */
   readonly maxLength = input<number | null>(null);
 
+  /**
+   * Limite inferior do input nativo (`min`). So aplica em `variant="text"`.
+   *
+   * Aceita `number` (caso `type="number"`: Capacidade, Preco, Ordem) e `string`
+   * (caso temporal: `YYYY-MM-DDTHH:mm`). `null` NAO emite o atributo — um
+   * `min="null"` no DOM e' restricao invalida, nao ausencia de restricao.
+   *
+   * Existe por causa do clamp da D.3.5 (`DEC-LP-E`): a sessao e' limitada a
+   * janela do produto. Sem isto, o clamp nasceria como atributo cru fora do DS.
+   */
+  readonly min = input<string | number | null>(null);
+
+  /** Limite superior do input nativo (`max`). Ver {@link min}. */
+  readonly max = input<string | number | null>(null);
+
   /** Opcoes (so variant=select). */
   readonly options = input<FormFieldOption[] | null>(null);
 
@@ -150,10 +170,27 @@ export class FormFieldComponent implements ControlValueAccessor {
     return parts.length > 0 ? parts.join(' ') : null;
   });
 
-  // Tamanho do valor atual (usado para counter no textarea)
+  // Tamanho do valor atual (usado para counter)
   protected readonly valueLength = computed(() => {
     const v = this.value();
     return typeof v === 'string' ? v.length : 0;
+  });
+
+  /**
+   * O contador de caracteres aparece?
+   *
+   * `text` entrou na D.3.4 (`DEC-D.3.4-3`) por causa do "Meta Title" do step
+   * SEO, que e' `text` e tem faixa recomendada de 50-60. Ate entao so' o
+   * `textarea` contava, e Cursos resolveu com `.char-count` inline — que ja'
+   * era copia de outro pattern do mesmo arquivo e viraria a terceira.
+   *
+   * A condicao e' por LISTA de variants, nao por `maxLength != null` sozinho:
+   * `select`, `search` e `toggle` tambem aceitam o input, e um contador
+   * pendurado sob um toggle nao significa nada. A spec cobre os tres.
+   */
+  protected readonly showsCounter = computed(() => {
+    const v = this.variant();
+    return (v === 'text' || v === 'textarea') && this.maxLength() != null;
   });
 
   // CVA callbacks

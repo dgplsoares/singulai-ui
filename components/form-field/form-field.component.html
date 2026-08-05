@@ -29,6 +29,8 @@
           [type]="type()"
           [placeholder]="placeholder()"
           [attr.maxlength]="maxLength()"
+          [attr.min]="min()"
+          [attr.max]="max()"
           [attr.aria-required]="required()"
           [attr.aria-invalid]="hasError()"
           [attr.aria-describedby]="ariaDescribedBy()"
@@ -140,7 +142,7 @@
     }
   </div>
 
-  @if (variant() === 'textarea' && maxLength() != null) {
+  @if (showsCounter()) {
     <p class="ds-form-field__counter" aria-live="polite">
       {{ valueLength() }}/{{ maxLength() }}
     </p>

@@ -63,6 +63,32 @@ let uidCounter = 0;
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './form-field.component.html',
   styleUrl: './form-field.component.scss',
+  host: {
+    // ------------------------------------------------------------------
+    // O atributo `type` NAO pode sobrar no host. (D.3.4b-fix, 2ª rodada)
+    //
+    // `@tailwindcss/forms` (estrategia base, `tailwind.config.js:134`) emite um
+    // bloco global cujo seletor e' `[type=datetime-local]`, `[type=number]`,
+    // `[type=date]` … — ATRIBUTO PURO, sem qualificar a tag. Ele casa com
+    // QUALQUER elemento que carregue o atributo, inclusive um custom element.
+    //
+    // E `<ds-form-field type="datetime-local">` escrito como atributo ESTATICO
+    // faz o Angular renderizar o atributo no DOM (ele vai para o `consts` do
+    // elemento alem de alimentar o input). Resultado medido no painel Computed:
+    // o HOST ganhava `background-color:#fff`, `border-color:#6b7280`,
+    // `border-radius:0` e `padding:.5rem .75rem` — a caixa branca em volta do
+    // label e do campo, que o fundador viu no smoke.
+    //
+    // `[attr.type]: null` remove o atributo do host. O INPUT `type` continua
+    // chegando normalmente ao `<input>` interno — sao coisas distintas, e a
+    // spec cobre as duas.
+    //
+    // Property binding (`[type]="'number'"`) ja' nao criava o atributo; esta
+    // guarda existe para que a forma estatica, que e' a natural de escrever,
+    // tambem seja segura.
+    // ------------------------------------------------------------------
+    '[attr.type]': 'null',
+  },
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,

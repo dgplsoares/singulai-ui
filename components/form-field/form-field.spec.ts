@@ -1,3 +1,4 @@
+import { Component, type Type } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { provideIcons } from '@ng-icons/core';
@@ -271,6 +272,89 @@ describe('FormFieldComponent', () => {
   // nenhum tipo destoe dele. Fixar `#F8FBFF` prenderia a spec ao token e
   // quebraria numa troca legitima de tema.
   // ==========================================================================
+  // ==========================================================================
+  // D.3.4b-fix (2ª rodada) — o RESET pega o HOST, nao o <input>
+  //
+  // Diagnostico fechado com o painel Computed enviado pelo fundador. Duas
+  // linhas entregaram o caso:
+  //
+  //     grid-column-start: span 4;   → e' o `.col-4`, ou seja o HOST
+  //     display: block;              → `:host { display: block }`
+  //
+  // O elemento estilizado nao era o `<input>`: era o `<ds-form-field>`.
+  //
+  // O seletor do @tailwindcss/forms e' `[type=datetime-local]` — ATRIBUTO PURO,
+  // sem qualificar a tag. Ele casa com QUALQUER elemento que tenha o atributo.
+  // E `<ds-form-field type="datetime-local">` escrito como atributo ESTATICO no
+  // template faz o Angular renderizar o atributo no DOM (atributo estatico vai
+  // para o consts do elemento, alem de alimentar o input). Resultado: o host
+  // ganha fundo branco, borda #6b7280, radius 0 e padding de input — a "caixa
+  // branca" em volta do label e do campo.
+  //
+  // ⚠️ POR QUE A 1ª TENTATIVA DE REPRODUZIR FALHOU: usei
+  // `componentRef.setInput('type', ...)`, que define o INPUT sem criar o
+  // ATRIBUTO. O ambiente estava certo (styles.scss carrega no runner); o
+  // gatilho e' que estava ausente. Por isso este bloco monta um host de
+  // verdade, com o atributo escrito no template.
+  //
+  // Correcao: `host: { '[attr.type]': 'null' }` remove o atributo do host. Vale
+  // para todo consumidor, escreva ele `type="..."` ou `[type]="..."`.
+  // ==========================================================================
+  describe('D.3.4b-fix 2ª rodada — o atributo `type` nao vaza para o host', () => {
+    @Component({
+      standalone: true,
+      imports: [FormFieldComponent],
+      // Atributo ESTATICO — exatamente como o consumidor escreve.
+      template: `<ds-form-field variant="text" type="datetime-local" />`,
+    })
+    class HostEstatico {}
+
+    @Component({
+      standalone: true,
+      imports: [FormFieldComponent],
+      template: `<ds-form-field variant="text" [type]="'number'" />`,
+    })
+    class HostBinding {}
+
+    function hostDe(tipo: Type<unknown>): HTMLElement {
+      const f = TestBed.createComponent(tipo);
+      f.detectChanges();
+      document.body.appendChild(f.nativeElement);
+      return f.nativeElement.querySelector('ds-form-field') as HTMLElement;
+    }
+
+    it('atributo estatico nao sobrevive no host', () => {
+      expect(hostDe(HostEstatico).hasAttribute('type')).toBeFalse();
+    });
+
+    it('property binding tambem nao deixa atributo no host', () => {
+      expect(hostDe(HostBinding).hasAttribute('type')).toBeFalse();
+    });
+
+    it('o host nao recebe o fundo branco do reset', () => {
+      // Sem `[attr.type]`, `[type=datetime-local]` casava com o host e pintava
+      // de #fff a caixa que envolve label + campo.
+      expect(getComputedStyle(hostDe(HostEstatico)).backgroundColor).not.toBe(
+        'rgb(255, 255, 255)',
+      );
+    });
+
+    it('o host nao recebe a borda cinza do reset', () => {
+      expect(getComputedStyle(hostDe(HostEstatico)).borderTopColor).not.toBe(
+        'rgb(107, 114, 128)',
+      );
+    });
+
+    it('o input INTERNO continua recebendo o type', () => {
+      // A correcao nao pode custar a funcionalidade: o atributo sai do host,
+      // mas o `type` tem de chegar ao `<input>` de dentro.
+      const f = TestBed.createComponent(HostEstatico);
+      f.detectChanges();
+      const input = f.nativeElement.querySelector('input') as HTMLInputElement;
+      expect(input.getAttribute('type')).toBe('datetime-local');
+    });
+  });
+
   describe('D.3.4b-fix — reset do Tailwind nao vence o campo do DS', () => {
     /** Renderiza um `variant="text"` com o `type` pedido e devolve o input. */
     async function inputCom(type: string): Promise<HTMLInputElement> {

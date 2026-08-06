@@ -49,24 +49,25 @@
     width: 100%;
 
     // ----------------------------------------------------------------------
-    // DEFESA CONTRA O RESET GLOBAL (D.3.4b-fix)
+    // Declaracoes explicitas contra o reset global (D.3.4b-fix)
     //
     // `styles.scss` faz `@tailwind base` e `tailwind.config.js:134` carrega
-    // `@tailwindcss/forms` na estrategia BASE. Ele emite um bloco global que
-    // atinge `[type=text]`, `[type=number]`, `[type=date]`,
-    // `[type=datetime-local]`, `[type=time]`, `select`, `textarea` e mais,
-    // impondo `appearance:none; background-color:#fff; border-color:#6b7280;
-    // border-width:1px; border-radius:0px; padding:.5rem .75rem`.
+    // `@tailwindcss/forms` na estrategia BASE, que emite um bloco global sobre
+    // `[type=text]`, `[type=number]`, `[type=date]`, `[type=datetime-local]`,
+    // `select`, `textarea` e outros.
     //
-    // O `&--select` abaixo ja' se defendia dele desde sempre (dai o
-    // `background-image: none`, que so' faz sentido contra o chevron que o
-    // reset injeta em `select`). Os demais tipos nunca precisaram — ate a
-    // `DEC-D.3.4-2` trazer `date`/`datetime-local`/`time` para o DS.
+    // ⚠️ ESTE BLOCO NAO E' A CORRECAO DA CAIXA BRANCA DO SMOKE. A causa medida
+    // era outra: o reset pegava o HOST `<ds-form-field>`, porque o seletor e'
+    // atributo puro e o atributo `type` escrito no template vazava para o DOM.
+    // Isso esta resolvido no `host: { '[attr.type]': 'null' }` do componente.
     //
-    // ⚠️ NAO troque estes longhands por shorthand nem remova o `appearance`:
-    // eles existem para que CADA propriedade que o reset toca tenha uma
-    // declaracao explicita aqui. A spec cobre o resultado comparando o chrome
-    // de cada `type` contra o de `type=text`.
+    // Aqui, no `<input>` de verdade, o DS SEMPRE venceu por especificidade
+    // (`.ds-form-field__input[_ngcontent-x]` = 0,2,0 contra 0,1,0 do reset) —
+    // comprovado por spec que compara o chrome computado de cada `type` contra
+    // o de `type=text`. As declaracoes explicitas ficam porque tornam a
+    // autoridade do DS visivel no codigo em vez de depender de uma conta de
+    // especificidade, e porque o `appearance` cobre o spinner nativo do
+    // `number`. Nao troque por shorthand.
     // ----------------------------------------------------------------------
     appearance: none;
     -webkit-appearance: none;

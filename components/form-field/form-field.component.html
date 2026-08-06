@@ -59,6 +59,18 @@
       }
 
       @case ('select') {
+        <!--
+          A seleção é dirigida por `[selected]` em cada <option>, e NÃO por
+          `[value]` no <select>.
+
+          `[value]` só funciona quando a <option> correspondente já existe no
+          DOM. Como as options vêm de um `@for` sobre `options()` — muitas vezes
+          preenchido depois (categorias de um service, fusos computados) — o
+          browser mantinha `selectedIndex = 0` e a tela exibia a primeira opção
+          da lista. Foi assim que o campo "Fuso Horário" apareceu como
+          `Etc/GMT+12` tendo `America/Sao_Paulo` no modelo, e assim que campos
+          obrigatórios VAZIOS apareciam preenchidos com a primeira opção real.
+        -->
         <select
           class="ds-form-field__input ds-form-field__input--select"
           [id]="fieldId"
@@ -66,17 +78,19 @@
           [attr.aria-invalid]="hasError()"
           [attr.aria-describedby]="ariaDescribedBy()"
           [disabled]="isDisabled()"
-          [value]="value()"
           (change)="onInput($event)"
           (blur)="onBlur($event)"
         >
           @if (placeholder()) {
-            <option value="" disabled hidden>{{ placeholder() }}</option>
+            <option value="" disabled hidden [selected]="!hasValue()">
+              {{ placeholder() }}
+            </option>
           }
           @for (opt of options() ?? []; track opt.value) {
             <option
               [value]="opt.value"
               [disabled]="opt.disabled"
+              [selected]="isSelected(opt.value)"
             >
               {{ opt.label }}
             </option>

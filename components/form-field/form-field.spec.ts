@@ -182,6 +182,137 @@ describe('FormFieldComponent', () => {
   });
 
   // ==========================================================================
+  // D.3.4b-fix — o <select> tem de REFLETIR o valor do modelo
+  //
+  // Achado do smoke do fundador (2026-08-05): o campo "Fuso Horário" nasce com
+  // `America/Sao_Paulo` no FormControl e a tela exibe `Etc/GMT+12 (GMT-12)` —
+  // a PRIMEIRA opção da lista. E "Nível"/"Idioma"/"Visibilidade", que nascem
+  // VAZIOS e obrigatórios, exibem a primeira opção real como se estivessem
+  // preenchidos.
+  //
+  // Causa: o template liga `[value]="value()"` no `<select>`. Atribuir `value`
+  // a um `<select>` só funciona se a `<option>` correspondente JÁ existir no
+  // DOM — e as options vêm de um `@for` sobre `options()`, que numa lista
+  // assíncrona (as categorias vêm do service) ou simplesmente numa ordem de
+  // avaliação diferente ainda não estão lá. O browser então mantém o
+  // `selectedIndex = 0`.
+  //
+  // É defeito do DS, não do consumidor: vale para TODO `variant="select"` do
+  // app. Um campo obrigatório que parece preenchido e está vazio é pior que um
+  // campo visivelmente vazio.
+  // ==========================================================================
+  describe('D.3.4b-fix — <select> reflete o modelo, nao o indice 0', () => {
+    const OPCOES = [
+      { value: 'a', label: 'Alfa' },
+      { value: 'b', label: 'Beta' },
+      { value: 'c', label: 'Gama' },
+    ];
+
+    function montarSelect(opcoes = OPCOES) {
+      const f = TestBed.createComponent(FormFieldComponent);
+      f.componentRef.setInput('variant', 'select');
+      f.componentRef.setInput('options', opcoes);
+      return f;
+    }
+
+    it('exibe a opcao do valor escrito ANTES das options existirem', () => {
+      // Ordem realista: o CVA escreve o default no ngOnInit, e as options só
+      // chegam depois (categorias do service, fusos computados).
+      const f = TestBed.createComponent(FormFieldComponent);
+      f.componentRef.setInput('variant', 'select');
+      f.componentRef.setInput('options', []);
+      f.detectChanges();
+
+      f.componentInstance.writeValue('c');
+      f.componentRef.setInput('options', OPCOES);
+      f.detectChanges();
+
+      const select = f.nativeElement.querySelector('select') as HTMLSelectElement;
+      expect(select.value).toBe('c');
+    });
+
+    it('exibe a opcao do valor quando as options ja existem', () => {
+      const f = montarSelect();
+      f.detectChanges();
+      f.componentInstance.writeValue('b');
+      f.detectChanges();
+
+      expect((f.nativeElement.querySelector('select') as HTMLSelectElement).value).toBe('b');
+    });
+
+    it('com valor VAZIO e placeholder, nao seleciona a primeira opcao real', () => {
+      // O `<option value="" disabled hidden>` some da lista visivel, entao o
+      // browser cai na primeira opcao REAL — e um campo obrigatorio vazio
+      // aparece preenchido. Tem de continuar apontando para o placeholder.
+      const f = montarSelect();
+      f.componentRef.setInput('placeholder', 'Selecione...');
+      f.detectChanges();
+
+      expect((f.nativeElement.querySelector('select') as HTMLSelectElement).value).toBe('');
+    });
+  });
+
+  // ==========================================================================
+  // D.3.4b-fix — o reset global do @tailwindcss/forms NAO pode vencer o DS
+  //
+  // `styles.scss` faz `@tailwind base` e `tailwind.config.js:134` carrega
+  // `@tailwindcss/forms` na estrategia BASE — que emite um bloco global
+  // atingindo `[type=text]`, `[type=number]`, `[type=date]`,
+  // `[type=datetime-local]`, `select`, `textarea` e outros, com
+  // `appearance:none; background-color:#fff; border-color:#6b7280;
+  // border-width:1px; border-radius:0px; padding:0.5rem 0.75rem`.
+  //
+  // ISTO E' REPRODUZIVEL AQUI: `angular.json` inclui `src/styles.scss` nos
+  // estilos do runner de teste, entao o bloco global existe no karma tal como
+  // no app.
+  //
+  // A asserção compara TIPO CONTRA TIPO em vez de fixar hex: o `text` e' o
+  // baseline que o projeto ja' considera correto, e o que se exige e' que
+  // nenhum tipo destoe dele. Fixar `#F8FBFF` prenderia a spec ao token e
+  // quebraria numa troca legitima de tema.
+  // ==========================================================================
+  describe('D.3.4b-fix — reset do Tailwind nao vence o campo do DS', () => {
+    /** Renderiza um `variant="text"` com o `type` pedido e devolve o input. */
+    async function inputCom(type: string): Promise<HTMLInputElement> {
+      const f = TestBed.createComponent(FormFieldComponent);
+      f.componentRef.setInput('variant', 'text');
+      f.componentRef.setInput('type', type);
+      f.detectChanges();
+      document.body.appendChild(f.nativeElement);
+      return f.nativeElement.querySelector('input') as HTMLInputElement;
+    }
+
+    const CHROME = ['backgroundColor', 'borderTopColor', 'borderTopWidth', 'borderRadius'] as const;
+
+    function chromeDe(el: HTMLInputElement): Record<string, string> {
+      const cs = getComputedStyle(el);
+      return Object.fromEntries(CHROME.map((p) => [p, cs[p]]));
+    }
+
+    for (const type of ['datetime-local', 'date', 'time', 'number']) {
+      it(`type=${type} renderiza com o mesmo chrome de type=text`, async () => {
+        const referencia = chromeDe(await inputCom('text'));
+        const alvo = chromeDe(await inputCom(type));
+
+        expect(alvo).toEqual(referencia);
+      });
+    }
+
+    it('o campo do DS nao herda o fundo branco do reset global', async () => {
+      // O reset impoe `background-color: #fff`. O campo do DS e' neumorfico e
+      // NUNCA e' branco puro — se virou, o reset venceu.
+      const bg = getComputedStyle(await inputCom('datetime-local')).backgroundColor;
+      expect(bg).not.toBe('rgb(255, 255, 255)');
+    });
+
+    it('o campo do DS nao herda o canto reto do reset global', async () => {
+      // `border-radius: 0px` e' do reset; o DS desenha 5px.
+      const radius = getComputedStyle(await inputCom('number')).borderRadius;
+      expect(radius).not.toBe('0px');
+    });
+  });
+
+  // ==========================================================================
   // DEC-D.3.4-3 — contador de caracteres tambem em variant=text
   //
   // Hoje o contador so' renderiza para textarea. O step SEO precisa dele em

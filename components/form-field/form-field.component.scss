@@ -47,8 +47,33 @@
   // ==========================================================================
   &__input {
     width: 100%;
-    background: var(--ds-form-bg);
-    border: 1px solid var(--ds-form-border);
+
+    // ----------------------------------------------------------------------
+    // DEFESA CONTRA O RESET GLOBAL (D.3.4b-fix)
+    //
+    // `styles.scss` faz `@tailwind base` e `tailwind.config.js:134` carrega
+    // `@tailwindcss/forms` na estrategia BASE. Ele emite um bloco global que
+    // atinge `[type=text]`, `[type=number]`, `[type=date]`,
+    // `[type=datetime-local]`, `[type=time]`, `select`, `textarea` e mais,
+    // impondo `appearance:none; background-color:#fff; border-color:#6b7280;
+    // border-width:1px; border-radius:0px; padding:.5rem .75rem`.
+    //
+    // O `&--select` abaixo ja' se defendia dele desde sempre (dai o
+    // `background-image: none`, que so' faz sentido contra o chevron que o
+    // reset injeta em `select`). Os demais tipos nunca precisaram — ate a
+    // `DEC-D.3.4-2` trazer `date`/`datetime-local`/`time` para o DS.
+    //
+    // ⚠️ NAO troque estes longhands por shorthand nem remova o `appearance`:
+    // eles existem para que CADA propriedade que o reset toca tenha uma
+    // declaracao explicita aqui. A spec cobre o resultado comparando o chrome
+    // de cada `type` contra o de `type=text`.
+    // ----------------------------------------------------------------------
+    appearance: none;
+    -webkit-appearance: none;
+    background-color: var(--ds-form-bg);
+    border-color: var(--ds-form-border);
+    border-width: 1px;
+    border-style: solid;
     border-radius: 5px;
     padding: 17px 15px;
     font-family: var(--ds-font-family-base);

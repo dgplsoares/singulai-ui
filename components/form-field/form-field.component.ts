@@ -232,6 +232,30 @@ export class FormFieldComponent implements ControlValueAccessor {
     this.blurred.emit(event);
   }
 
+  /**
+   * O modelo tem valor? Decide se o placeholder do `<select>` fica selecionado.
+   *
+   * `''`, `null` e `undefined` contam como AUSENTE — os três chegam de um
+   * `FormControl` que nasce vazio. `0` e `false` NÃO: são valores legítimos de
+   * uma opção, e tratá-los como ausência esconderia a escolha do usuário.
+   */
+  protected hasValue(): boolean {
+    const v = this.value();
+    return v !== '' && v !== null && v !== undefined;
+  }
+
+  /**
+   * Esta opção corresponde ao valor do modelo?
+   *
+   * Compara como STRING porque `FormFieldOption.value` é `string | number`
+   * enquanto o valor do CVA é `unknown`: um `FormControl` com `1` e uma opção
+   * com `'1'` são a mesma escolha do ponto de vista do `<select>`, que só
+   * conhece strings.
+   */
+  protected isSelected(optionValue: string | number): boolean {
+    return this.hasValue() && String(this.value()) === String(optionValue);
+  }
+
   protected clearSearch(): void {
     if (this.isDisabled()) return;
     this.value.set('');

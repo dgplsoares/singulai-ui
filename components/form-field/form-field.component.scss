@@ -107,6 +107,67 @@
     }
 
     // ----------------------------------------------------------------------
+    // Tipos TEMPORAIS e NUMERICO — chrome nativo do browser (D.3.4b-fix)
+    //
+    // O smoke da D.3.4b relatou "estilo padrao vazando" nos campos de data e no
+    // campo Ordem. A causa apontada (regra global de `styles.scss`) foi
+    // DESCARTADA por medicao: `styles.scss` tem 243 linhas e zero regra de
+    // `input`/`select`, e os 4 globais encadeados tambem nao tem.
+    //
+    // O que aparece e' o widget NATIVO do user agent. Ate a D.3.4a o unico
+    // `appearance: none` deste arquivo estava em `&--select` (acima), porque
+    // nenhum outro tipo precisava — o DS nao tinha campo de data, e `number` so'
+    // aparecia em `<input>` cru fora do DS. Ao ganhar `date`/`datetime-local`/
+    // `time` na `DEC-D.3.4-2`, herdou-se o chrome que ninguem havia neutralizado.
+    // ----------------------------------------------------------------------
+    &[type='date'],
+    &[type='datetime-local'],
+    &[type='time'] {
+      // O cap de 48px do DEC-G4.3-L zera o padding vertical, e o
+      // `line-height: 13px` da regra base CORTA a renderizacao segmentada do
+      // `::-webkit-datetime-edit` (dd/mm/aaaa em campos separados). `normal`
+      // deixa o proprio widget se medir dentro dos 48px.
+      line-height: normal;
+
+      // O indicador FICA — e' ele que abre o seletor nativo, e escondê-lo
+      // tiraria a unica forma de abrir o calendario sem digitar. O que muda e'
+      // o tamanho (Figma 862:16729 desenha 14x13) e o peso visual, para nao
+      // competir com o chevron dos selects vizinhos na mesma linha.
+      &::-webkit-calendar-picker-indicator {
+        width: 14px;
+        height: 13px;
+        padding: 0;
+        opacity: 0.55;
+        cursor: pointer;
+
+        &:hover {
+          opacity: 0.9;
+        }
+      }
+
+      // Campo vazio: o placeholder segmentado do UA usa a cor do texto. Alinha
+      // com o placeholder dos demais campos.
+      &:invalid::-webkit-datetime-edit {
+        color: var(--ds-form-placeholder);
+      }
+    }
+
+    &[type='number'] {
+      // Some com o spinner nativo, que aparece no hover e nao tem nada a ver
+      // com o neumorfico. O Figma desenha stepper PROPRIO na Capacidade
+      // (dividia registrada como `DEC-FIG-D.3-5a`) e nenhum stepper na Ordem.
+      appearance: textfield;
+      -moz-appearance: textfield;
+
+      &::-webkit-inner-spin-button,
+      &::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        appearance: none;
+        margin: 0;
+      }
+    }
+
+    // ----------------------------------------------------------------------
     // Search-specific (espaco para icone esquerda + clear direita)
     // Figma 892:9024 (DEC-G4.3-H): radius 10, border #C4D1E4, min-height 48
     // Padding-left 33px deve sobreviver aos overrides de size (--sm/--md/--lg).

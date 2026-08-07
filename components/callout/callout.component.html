@@ -1,0 +1,15 @@
+<!-- Figma 760:5891 — caixa #e6eefa com bloco de ícone neumorphic à esquerda. -->
+<div class="ds-callout" [class]="'ds-callout ds-callout--' + variant()" [attr.role]="role()">
+  @if (icon(); as nome) {
+    <span class="ds-callout__icon">
+      <ng-icon [name]="nome" />
+    </span>
+  }
+
+  <div class="ds-callout__body">
+    @if (calloutTitle(); as titulo) {
+      <strong class="ds-callout__title">{{ titulo }}</strong>
+    }
+    <div class="ds-callout__text"><ng-content /></div>
+  </div>
+</div>

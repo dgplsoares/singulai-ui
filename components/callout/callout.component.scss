@@ -1,0 +1,69 @@
+// Figma 760:5891. LIGHTMODE-FIRST: sem variante dark.
+:host { display: block; width: 100%; }
+
+.ds-callout {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid #d7e2f2;
+  border-radius: 10px;
+  background: #e6eefa;
+}
+
+.ds-callout__icon {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 35px;
+  height: 30px;
+  border: 1px solid #adc2dd;
+  border-radius: 8px;
+  background: #edf1f6;
+  color: #49566e;
+  box-shadow:
+    inset 0 2px 1px 0 #ffffff,
+    inset 0 -2px 2px 0 rgba(0, 0, 0, 0.12),
+    0 10px 10px -1.75px rgba(0, 0, 0, 0.1);
+
+  ng-icon { font-size: 15px; }
+}
+
+.ds-callout__body {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  color: #49566e;
+}
+
+.ds-callout__title {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  line-height: normal;
+}
+
+.ds-callout__text {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 14px;
+}
+
+// Os tons trocam só a moldura e o fundo — o desenho é o mesmo.
+.ds-callout--success {
+  border-color: #bfe3d0;
+  background: #e8f6ee;
+}
+
+.ds-callout--warning {
+  border-color: #f0dcae;
+  background: #fdf6e3;
+}
+
+.ds-callout--danger {
+  border-color: #e6c3c3;
+  background: #fbeceb;
+}

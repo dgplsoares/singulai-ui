@@ -50,6 +50,17 @@ import type { FileDropzoneKind, FileDropzonePayload, FileUploadKind } from './fi
   standalone: true,
   imports: [SharedFileDropzoneComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
+  styles: [
+    // O wrapper nao tinha estilo nenhum, entao o host ficava `display: inline`
+    // envolvendo um filho `display: block; width: 100%`. Caixa visual e caixa de
+    // layout divergiam, e a area util nao era a que o usuario via.
+    `
+      :host {
+        display: block;
+        width: 100%;
+      }
+    `,
+  ],
   template: `
     <app-file-dropzone
       [fileKind]="fileKind()"

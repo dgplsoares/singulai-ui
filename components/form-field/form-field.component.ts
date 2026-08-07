@@ -152,6 +152,21 @@ export class FormFieldComponent implements ControlValueAccessor {
   /** Opcoes (so variant=select). */
   readonly options = input<FormFieldOption[] | null>(null);
 
+  /**
+   * Disposicao da variante `toggle`.
+   *
+   * - `inline` (padrao): `[toggle] Rotulo`, encostados a' esquerda. E' o que as
+   *   11 telas que ja' usavam a variante esperam, entao continua sendo o default.
+   * - `spread`: `Rotulo ......... [toggle]`, ocupando a largura inteira. E' o
+   *   desenho dos cards de opcoes (Figma `764:6389` e irmaos), onde o toggle
+   *   fica alinhado a' direita da linha.
+   *
+   * Nasceu na `D.3.W3.5` porque o card "Opcoes da Live" precisava do segundo
+   * arranjo — e a alternativa seria montar o switch fora do DS, que e'
+   * exatamente o que nao se deve fazer.
+   */
+  readonly toggleAlign = input<'inline' | 'spread'>('inline');
+
   /** Pre-fixo aria-describedby externo (para concat com hint/error internos). */
   readonly externalDescribedBy = input<string | null>(null);
 

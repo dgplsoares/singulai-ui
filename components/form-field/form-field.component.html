@@ -6,6 +6,7 @@
   [class.ds-form-field--error]="hasError()"
   [class.ds-form-field--disabled]="isDisabled()"
   [class.ds-form-field--toggle]="variant() === 'toggle'"
+  [class.ds-form-field--toggle-spread]="variant() === 'toggle' && toggleAlign() === 'spread'"
   [attr.data-variant]="variant()"
 >
   @if (label()) {

@@ -300,6 +300,27 @@
     }
   }
 
+  // `toggleAlign="spread"` — rotulo a' esquerda, switch a' direita, largura
+  // inteira. Desenho dos cards de opcoes (Figma 764:6389 e irmaos).
+  //
+  // Nao substitui o `--toggle`: soma-se a ele, invertendo so' a ordem e o
+  // espalhamento. As 11 telas que ja' usavam a variante continuam iguais.
+  &--toggle-spread {
+    width: 100%;
+    justify-content: space-between;
+
+    .ds-form-field__label {
+      order: 0;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .ds-form-field__control {
+      order: 1;
+      flex: 0 0 auto;
+    }
+  }
+
   &__toggle-wrap {
     display: inline-flex;
     cursor: pointer;

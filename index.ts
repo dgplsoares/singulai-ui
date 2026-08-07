@@ -21,6 +21,7 @@ export * from './components/button';
 export * from './components/header-combo';
 export * from './components/card';
 export * from './components/form-field';
+export * from './components/number-stepper';
 export * from './components/form-section';
 export * from './components/page-footer-sticky';
 export * from './components/image-dropzone';

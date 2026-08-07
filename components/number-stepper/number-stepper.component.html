@@ -1,0 +1,47 @@
+<!-- Figma 828:4467 (Limite de participantes) e 760:5441 (Preço, com prefixo). -->
+<div class="ds-number-stepper" [class.ds-number-stepper--disabled]="estaDesabilitado()">
+  @if (prefix(); as pre) {
+    <span class="ds-number-stepper__prefix">{{ pre }}</span>
+  }
+
+  <input
+    class="ds-number-stepper__input"
+    type="text"
+    inputmode="decimal"
+    role="spinbutton"
+    [value]="texto()"
+    [placeholder]="placeholder()"
+    [disabled]="estaDesabilitado()"
+    [attr.aria-label]="ariaLabel()"
+    [attr.aria-valuemin]="min()"
+    [attr.aria-valuemax]="max()"
+    [attr.aria-valuenow]="valorAtual()"
+    (input)="onInput($any($event.target).value)"
+    (blur)="onBlur()"
+  />
+
+  <div class="ds-number-stepper__arrows">
+    <button
+      type="button"
+      class="ds-number-stepper__arrow"
+      aria-label="Aumentar"
+      [disabled]="naoPodeIncrementar()"
+      (click)="incrementar()"
+    >
+      <svg viewBox="0 0 12 8" width="12" height="8" aria-hidden="true">
+        <path d="M6 0 12 8H0z" fill="currentColor" />
+      </svg>
+    </button>
+    <button
+      type="button"
+      class="ds-number-stepper__arrow"
+      aria-label="Diminuir"
+      [disabled]="naoPodeDecrementar()"
+      (click)="decrementar()"
+    >
+      <svg viewBox="0 0 12 8" width="12" height="8" aria-hidden="true">
+        <path d="M6 8 0 0h12z" fill="currentColor" />
+      </svg>
+    </button>
+  </div>
+</div>

@@ -82,6 +82,23 @@ export class TypePickerComponent {
    */
   readonly ariaLabel = input<string>('Selecione um tipo');
 
+  /**
+   * Como os cards ocupam a largura.
+   *
+   * - `'auto'` (DEFAULT): largura minima de 104px e `wrap` — o desenho de
+   *   657:4912, com 4 cards. E' o default para NAO regredir as telas que ja'
+   *   consomem o componente.
+   * - `'fill'`: os cards dividem a largura em partes iguais (`flex: 1 0 0`),
+   *   gap 7px, uma linha so'. E' o desenho do node 1425:13231, onde os SEIS
+   *   kinds precisam caber lado a lado.
+   *
+   * Regra do CLAUDE.md: quando o Figma pede um arranjo que o DS nao tem,
+   * ESTENDE-SE o DS com input novo cujo default preserva o comportamento atual
+   * — nunca se monta o controle por fora nem se muda o default no meio do
+   * caminho.
+   */
+  readonly layout = input<'auto' | 'fill'>('auto');
+
   /** Emitido quando o usuario seleciona um card. */
   readonly selectedKindChange = output<string>();
 

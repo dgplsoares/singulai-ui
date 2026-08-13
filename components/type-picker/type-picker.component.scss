@@ -52,6 +52,34 @@
   width: 100%;
 }
 
+// layout="fill" — node 1425:13231 (`Botoes-02-Tipos-de-aula`).
+//
+// Os SEIS kinds em UMA linha: cada card e' `flex: 1 0 0` com `min-width: 0`,
+// para que dividam a largura em partes iguais em vez de estourar. O gap e' 7px
+// (era 10 no desenho de 4 cards). O `min-width: 104px` do card precisa ser
+// anulado aqui, senao 6 * 104 + gaps estoura o offcanvas.
+.ds-type-picker--fill {
+  flex-wrap: nowrap;
+  gap: 7px;
+  justify-content: stretch;
+
+  .ds-type-picker-card {
+    flex: 1 0 0;
+    min-width: 0;
+  }
+
+  // Em telas estreitas a linha unica deixa de caber: volta a quebrar, e ai o
+  // card recupera uma largura minima para o rotulo nao colapsar.
+  @media (max-width: 640px) {
+    flex-wrap: wrap;
+
+    .ds-type-picker-card {
+      flex: 1 0 auto;
+      min-width: 88px;
+    }
+  }
+}
+
 // ============================================================================
 // CARD (button outer)
 // ============================================================================

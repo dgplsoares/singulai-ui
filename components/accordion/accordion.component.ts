@@ -104,6 +104,24 @@ export class AccordionComponent {
   readonly addModuleLabel = input<string>('Adicionar Módulo');
 
   /**
+   * Titulo da subsecao que lista os itens do modulo.
+   *
+   * D.3.5: era `"Aulas do módulo"` CRAVADO no template. O componente e' do DS e
+   * ja' serve Mentorias ("Sessões do Módulo") e Eventos ("Sessões do Palco") —
+   * vocabulario de Cursos preso no HTML fazia a step de Mentorias renderizar
+   * "Aulas". A `D.3.4.5 §12` registrou a divida e nomeou esta fase como dona.
+   *
+   * Default preserva o texto atual: nenhum dos ~136 consumidores muda.
+   */
+  readonly itemsSectionLabel = input<string>('Aulas do módulo');
+
+  /** Rotulo do botao de reordenar itens. Era `"Reorganizar aulas"` cravado. */
+  readonly reorderItemsLabel = input<string>('Reorganizar aulas');
+
+  /** `aria-label` da alca de arraste do item. Era `"Arrastar aula para reordenar"`. */
+  readonly dragItemAriaLabel = input<string>('Arrastar aula para reordenar');
+
+  /**
    * E.1 (DEC-FIG-D-AULAS-E.1.A — 2026-06-21): override do estado expanded
    * de TODOS os módulos pelo caller (modo "Padrão / Expandir / Reorganizar"
    * do header do card).

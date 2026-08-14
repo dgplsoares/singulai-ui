@@ -88,7 +88,7 @@
     }
 
     <!--
-      SUBSECTION "Aulas do módulo" + ações do header.
+      SUBSECTION de itens (rotulo via `itemsSectionLabel`, D.3.5) + ações do header.
       E.9 (2026-06-22): @if alterna entre estado padrão (Reorganizar+Adicionar)
       e estado reorganizando (Cancelar+Salvar+Adicionar). Botões via
       <ds-segmented-button size=sm>; "+ Adicionar Aula" mantém estilo primary.
@@ -96,7 +96,7 @@
     <div class="ds-accordion-subsection">
       <div class="ds-accordion-subsection-title-wrap">
         <ng-icon name="heroPlayCircle" class="ds-accordion-subsection-icon" />
-        <h4 class="ds-accordion-subsection-title">Aulas do módulo</h4>
+        <h4 class="ds-accordion-subsection-title">{{ itemsSectionLabel() }}</h4>
       </div>
       <div class="ds-accordion-subsection-actions">
         @if (isLessonsDndActive(module.id)) {
@@ -114,7 +114,7 @@
           />
         } @else if (module.items.length > 1) {
           <ds-segmented-button
-            label="Reorganizar aulas"
+            [label]="reorderItemsLabel()"
             iconLeft="heroArrowsUpDown"
             size="sm"
             (clicked)="onLessonsReorderRequest(module.id)"
@@ -153,7 +153,7 @@
           [class.ds-accordion-item-wrap--dnd]="isLessonsDndActive(module.id)"
         >
           @if (isLessonsDndActive(module.id)) {
-            <span class="ds-accordion-item-drag-handle" cdkDragHandle aria-label="Arrastar aula para reordenar">
+            <span class="ds-accordion-item-drag-handle" cdkDragHandle [attr.aria-label]="dragItemAriaLabel()">
               <ng-icon name="heroBars3" />
             </span>
           }

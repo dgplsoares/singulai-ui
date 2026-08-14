@@ -20,7 +20,40 @@ export interface AccordionBadge {
 }
 
 /** Tipo do item dentro de um modulo (decide icone default). */
-export type AccordionItemKind = 'ebook' | 'aula' | 'quiz' | 'custom';
+/**
+ * Kind do item — decide o icone default e a semantica.
+ *
+ * ====================================================================
+ * D.3.5.2 — ALINHADO AOS VALORES CANONICOS DO `ContentKind`
+ * ====================================================================
+ * Esta uniao era `'ebook' | 'aula' | 'quiz' | 'custom'` — em PT, e o **setimo
+ * vocabulario** do mesmo conceito. A FASE 0 matou seis; este sobreviveu porque
+ * estava no **DS**, e a varredura olhou as features.
+ *
+ * Agora ela carrega os MESMOS valores de `ContentKind`
+ * (`app/shared/models/content-kind.ts`). Nao e' o mesmo TIPO, e nao pode ser: o
+ * DS **nao importa de `app/`** — a dependencia e' `app -> DS`, nunca o inverso.
+ * O que se garante e' o vocabulario; quem converte e' o host, na borda.
+ *
+ * ⚠️ `'aula'` fica como **alias DEPRECIADO** de `'video'`, e nao por gosto: o
+ * `step-aulas` de Cursos ainda o passa, e a `DEC-D.3.5-E` proibe abrir aquele
+ * arquivo nesta fase. Ele morre na `D.3.6`, junto da tela.
+ *
+ * Medido antes de mexer: **15 literais em 4 arquivos** — 10 no showcase de dev,
+ * 3 em Cursos (intocavel) e 2 no `live-linker`. `'custom'` tinha **0** usos.
+ */
+export type AccordionItemKind =
+  // Canonicos — espelham `ContentKind` (FASE 0 / 0.3)
+  | 'video'
+  | 'live'
+  | 'in_person'
+  | 'ebook'
+  | 'quiz'
+  | 'extra'
+  /** @deprecated Use `'video'`. Sobrevive so' pelo `step-aulas`, que morre na D.3.6. */
+  | 'aula'
+  /** Escape para itens sem kind canonico. Tinha 0 usos quando isto foi escrito. */
+  | 'custom';
 
 /** Um item dentro de um modulo (Ebook, Aula, Quiz, ...). */
 export interface AccordionItem {

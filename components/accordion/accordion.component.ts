@@ -28,6 +28,7 @@ import {
   heroXMark,
   heroCheck,
   heroArrowsUpDown,
+  heroMapPin,
 } from '@ng-icons/heroicons/outline';
 import { ButtonComponent } from '../button/button.component';
 import { SegmentedButtonComponent } from '../segmented-button/segmented-button.component';
@@ -70,6 +71,7 @@ import {
   imports: [CommonModule, NgIcon, ButtonComponent, SegmentedButtonComponent, AccordionItemComponent, CdkDropList, CdkDrag, CdkDragHandle],
   providers: [
     provideIcons({
+      heroMapPin,
       heroBookOpen,
       heroVideoCamera,
       heroCheckCircle,
@@ -99,9 +101,6 @@ export class AccordionComponent {
 
   /** Label do botao "+ Adicionar item" (header e footer dos modulos). */
   readonly addItemLabel = input<string>('Adicionar Aula');
-
-  /** Label do botao "+ Adicionar Módulo" (footer global, se exibido pelo caller). */
-  readonly addModuleLabel = input<string>('Adicionar Módulo');
 
   /**
    * Titulo da subsecao que lista os itens do modulo.
@@ -245,11 +244,22 @@ export class AccordionComponent {
   // ============================================================================
 
   /** Icone default per kind (sobrescrito por iconSrc/icon do AccordionItem). */
+  /**
+   * Icone default por kind. Os canonicos usam os mesmos icones que
+   * `CONTENT_KINDS` declara (FASE 0 / 0.3), para que o accordion e o
+   * `<ds-type-picker>` nao mostrem simbolos diferentes para o mesmo conceito.
+   */
   protected iconForKind(kind: AccordionItemKind): string {
     switch (kind) {
+      case 'live': return 'heroVideoCamera';
+      case 'video': return 'heroPlayCircle';
+      case 'in_person': return 'heroMapPin';
       case 'ebook': return 'heroBookOpen';
-      case 'aula': return 'heroVideoCamera';
       case 'quiz': return 'heroCheckCircle';
+      case 'extra': return 'heroBars3';
+      // @deprecated — mantem o icone ANTIGO de proposito: trocar aqui mudaria a
+      // aparencia do `step-aulas` sem que a D.3.5 tenha aberto aquele arquivo.
+      case 'aula': return 'heroVideoCamera';
       default: return 'heroDocumentText';
     }
   }

@@ -82,16 +82,15 @@ describe('<ds-accordion> — rótulos parametrizáveis (D.3.5.1)', () => {
       expect(texto()).toContain('Adicionar Aula');
     });
 
-    it('⚠️ ACHADO: `addModuleLabel` é um INPUT MORTO', () => {
-      // Declarado em `accordion.component.ts:104` e NUNCA usado — nem no
-      // template, nem no .ts. Trocá-lo não muda nada na tela.
-      // Descoberto ao escrever esta spec (D.3.5.1). Registrado no Gate 3 da
-      // fase; corrigir exige decidir se o botão "Adicionar Módulo" pertence ao
-      // DS ou ao host — decisão do `D.3.5.3`, não deste sub-bloco.
-      fixture.componentRef.setInput('addModuleLabel', 'XXX-NAO-RENDERIZA');
-      fixture.detectChanges();
-
-      expect(texto()).not.toContain('XXX-NAO-RENDERIZA');
+    it('o accordion NÃO renderiza botão de adicionar módulo — ele é do caller', () => {
+      // Era o `addModuleLabel`, INPUT MORTO descoberto na `D.3.5.1`: declarado
+      // e nunca lido. O fundador decidiu em 2026-08-13 pela opção (a) —
+      // remover o input e manter o botão FORA do accordion, no header do card e
+      // no rodapé da lista, que é como o `step-aulas` já fazia.
+      //
+      // Este teste é a rede contra o caminho de volta: se alguém puser o botão
+      // dentro do accordion, os consumidores passam a ter DOIS.
+      expect(texto()).not.toContain('Adicionar Módulo');
     });
   });
 
@@ -137,6 +136,52 @@ describe('<ds-accordion> — rótulos parametrizáveis (D.3.5.1)', () => {
       expect(texto()).toContain('Reorganizar aulas');
       ativarReordenacao();
       expect(alcaDeArraste()?.getAttribute('aria-label')).toBe('Arrastar aula para reordenar');
+    });
+  });
+
+  describe('kind alinhado ao vocabulário canônico (D.3.5.2)', () => {
+    /**
+     * O mapa de ícone é `protected` — testado por cast em vez de pelo DOM
+     * porque `ng-reflect-*` só existe em dev mode, e o que importa aqui é a
+     * REGRA, não o atributo renderizado.
+     */
+    const icone = (kind: string) =>
+      (fixture.componentInstance as unknown as { iconForKind(k: string): string })
+        .iconForKind(kind);
+
+    const comKind = (kind: string) => {
+      fixture.componentRef.setInput('modules', [
+        { id: 'm1', title: 'M', items: [{ id: 'i1', kind, title: 'Item' }] },
+      ]);
+      fixture.detectChanges();
+    };
+
+    it('aceita os 6 kinds canônicos — os mesmos valores do ContentKind', () => {
+      (['video', 'live', 'in_person', 'ebook', 'quiz', 'extra'] as const).forEach((k) => {
+        expect(() => comKind(k)).withContext(k).not.toThrow();
+      });
+    });
+
+    it('⚠️ "aula" continua aceito, e com o ÍCONE ANTIGO', () => {
+      // A DEC-D.3.5-E proíbe abrir o `step-aulas`, que ainda passa 'aula'.
+      // Trocar o ícone aqui mudaria a aparência daquela tela sem que esta fase
+      // a tivesse tocado — regressão silenciosa. `aula` morre na D.3.6.
+      expect(icone('aula')).toBe('heroVideoCamera');
+    });
+
+    it('os canônicos usam os MESMOS ícones que o CONTENT_KINDS declara', () => {
+      // Sem isto, o accordion e o <ds-type-picker> mostrariam símbolos
+      // diferentes para o mesmo conceito na mesma tela.
+      expect(icone('live')).toBe('heroVideoCamera');
+      expect(icone('video')).toBe('heroPlayCircle');
+      expect(icone('in_person')).toBe('heroMapPin');
+      expect(icone('ebook')).toBe('heroBookOpen');
+      expect(icone('quiz')).toBe('heroCheckCircle');
+      expect(icone('extra')).toBe('heroBars3');
+    });
+
+    it('"custom" cai no ícone default', () => {
+      expect(icone('custom')).toBe('heroDocumentText');
     });
   });
 

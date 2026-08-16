@@ -1,0 +1,28 @@
+// ============================================================================
+// <ds-char-counter> — D.3.5.9 / 9e
+// ============================================================================
+// Valores copiados VERBATIM do `.lesson-info-card-char-counter`, que era o
+// padrão já validado nas telas de Cursos. Não é desenho novo: é a mesma coisa,
+// num lugar só.
+.ds-char-counter {
+  align-self: flex-end;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 500;
+  font-size: 11px;
+  line-height: normal;
+  color: #8491a9;
+  margin-top: 3px;
+
+  // ==========================================================================
+  // No teto — o MESMO token do <ds-form-field>
+  // ==========================================================================
+  // Um campo cheio tem de avisar do mesmo jeito que um campo inválido, senão o
+  // usuário aprende duas linguagens visuais para o mesmo tipo de aviso.
+  //
+  // `600` em vez de `500`: no vermelho, o peso normal fica lavado contra o
+  // fundo claro do card.
+  &--exceeded {
+    color: var(--ds-form-border-error);
+    font-weight: 600;
+  }
+}

@@ -109,6 +109,24 @@ export class RichTextEditorComponent implements OnDestroy {
   /** Altura mínima do editor em px. */
   readonly minHeight = input<number>(240);
 
+  /**
+   * Marca o editor como INVÁLIDO — borda de erro.
+   *
+   * ⚠️ **Quem decide é o consumidor, não o editor.** O RTE não conhece limite de
+   * caractere nem regra de produto; ele só sabe pintar. Colocar a regra aqui
+   * dentro obrigaria o DS a conhecer a tabela de limites da Singulai, e este
+   * componente precisa fazer sentido num projeto Angular qualquer
+   * (critério 1 do decision tree de placement).
+   *
+   * Usa `--ds-form-border-error`, o MESMO token do `<ds-form-field>` — um campo
+   * inválido tem de parecer inválido do mesmo jeito nas duas famílias.
+   *
+   * `D.3.5.9 / 9e`: nasceu porque os cinco offcanvas passaram a ter teto de
+   * tamanho (`9d`) e um gate sem sinal visível é um botão travado sem
+   * explicação — o usuário não descobre por que não consegue salvar.
+   */
+  readonly hasError = input<boolean>(false);
+
   // ==========================================================================
   // Outputs
   // ==========================================================================

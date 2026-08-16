@@ -1,6 +1,11 @@
 @let ro = readOnly();
 
-<div class="ds-rich-text-editor" [class.ds-rich-text-editor--read-only]="ro">
+<div
+  class="ds-rich-text-editor"
+  [class.ds-rich-text-editor--read-only]="ro"
+  [class.ds-rich-text-editor--error]="hasError()"
+  [attr.aria-invalid]="hasError() ? 'true' : null"
+>
   @if (!ro) {
     <!-- Toolbar (13 grupos conforme Figma 725:10407) -->
     <div class="ds-rte-toolbar" role="toolbar" aria-label="Formatação">

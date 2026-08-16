@@ -24,6 +24,19 @@
     box-shadow: none;
     border-color: #dfe3ea;
   }
+
+  // ==========================================================================
+  // Estado de erro — MESMO token do <ds-form-field> (D.3.5.9 / 9e)
+  // ==========================================================================
+  // Um campo inválido tem de parecer inválido do mesmo jeito nas duas famílias.
+  // O token já existia (`_light.scss:55` = #A3534C) e é o que o `form-field`
+  // usa em `&--error .ds-form-field__input`.
+  //
+  // ⚠️ Borda de 1px como a normal, não 2px: engrossar deslocaria o conteúdo
+  // em 1px quando o estado muda, e o editor tem altura mínima fixa.
+  &--error {
+    border-color: var(--ds-form-border-error);
+  }
 }
 
 // ============================================================================

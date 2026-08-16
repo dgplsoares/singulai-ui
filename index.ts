@@ -21,6 +21,7 @@ export * from './components/button';
 export * from './components/header-combo';
 export * from './components/card';
 export * from './components/callout';
+export * from './components/char-counter';
 export * from './components/form-field';
 export * from './components/number-stepper';
 export * from './components/form-section';

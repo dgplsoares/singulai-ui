@@ -133,6 +133,31 @@ export class AccordionComponent {
    * Útil quando o caller precisa coordenar TODOS os módulos a partir de
    * um controle externo (ex: nav-tabs do header de step Aulas).
    */
+  /**
+   * ⛔ `CHAT-2 / 3.b` (2026-08-25) — o accordion em modo SOMENTE LEITURA.
+   *
+   * Quando `true`, some **todo o chrome de edição**:
+   *   · os 2 botões "Adicionar" (header e footer)
+   *   · `.ds-accordion-module-actions` — editar e excluir módulo
+   *   · `.ds-accordion-subsection` — o título da seção e "Reorganizar aulas"
+   *
+   * Default `false` ⇒ **nenhum consumidor existente muda de comportamento**.
+   *
+   * 📌 POR QUE UM INPUT SÓ, e não três booleanos: os três blocos são a mesma
+   * intenção — *"aqui não se edita"*. Três flags deixariam o consumidor ligar meia
+   * leitura e descobrir no smoke, que foi exatamente como estes dois blocos
+   * apareceram (o `showAddItem` sozinho escondeu um terço do chrome).
+   *
+   * ⛔ E entra no DS, não vira CSS do consumidor: a regra do projeto manda
+   * *"estender o DS com input novo, default preservando o comportamento atual —
+   * não montar o controle por fora"*. Esconder chrome do DS com CSS de fora quebra
+   * em silêncio no próximo refactor dele.
+   *
+   * ⚠️ 1º consumidor: `<app-ai-content-preview>` — ali se LÊ o que a IA gerou;
+   * editar vem depois de aplicar, nas telas do wizard.
+   */
+  readonly readOnly = input<boolean>(false);
+
   readonly forceMode = input<'auto' | 'all-expanded' | 'all-collapsed'>('auto');
 
   /**

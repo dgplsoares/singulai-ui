@@ -476,6 +476,22 @@
   // ==========================================================================
   &[data-variant='solid'] {
     color: #fff;
+
+    // ⛔ `CHAT-2 / 3.b` (2026-08-25) — O ÍCONE DE IMAGEM ACOMPANHA O TEXTO.
+    //
+    // O `solid` já era `background:#3E6FCA` + `color:#fff`, mas o DS não tratava a
+    // cor do `ds-button__icon--image` — um SVG com fill escuro ficava ilegível
+    // sobre o azul. Achado no smoke do fundador.
+    //
+    // 📌 A correção é do DS, não do consumidor: quem define que o texto é branco
+    // é este bloco, e o ícone é parte do mesmo conteúdo. Deixar o consumidor
+    // pintar por fora espalharia a mesma regra por cada tela.
+    // ⚠️ `brightness(0) invert(1)` pinta de branco QUALQUER traçado, independente
+    // do `fill` que o SVG traga — que é o que se quer para asset exportado de
+    // design, onde a cor vem do Figma e não é editável aqui.
+    .ds-button__icon--image {
+      filter: brightness(0) invert(1);
+    }
     border: none;
     border-radius: var(--ds-radius-sm);
     padding: 14px var(--ds-space-2xl);

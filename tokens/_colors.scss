@@ -46,6 +46,48 @@ $shadow-inner-grey: #5A6571;
 $shadow-white: #FFFFFF;
 $shadow-white-soft: rgba(255, 255, 255, 0.88);
 
+// ============================================================================
+// AI Assistant — conteúdo gerado e palco de geração
+// ----------------------------------------------------------------------------
+// ⛔ `CHAT-2 / 3.a` (2026-08-25). Estes 11 valores VÊM DO FIGMA, medidos com
+// `get_design_context` nos nodes `739:5890` (msgs-curso-gerado) e `568:48445`
+// (feedback-animations) do arquivo `I4wUTj88rEJzmpWXWuZu1O`.
+//
+// 📌 NÃO SÃO INVENÇÃO — a `DEC-CHAT2-E` manda parar onde o Figma cala, e aqui ele
+// FALA: dá o valor exato de cada papel. O que faltava era o DS ter o nome.
+//
+// ⚠️ Por que entram no DS e não ficam locais ao timeline: o roteiro do redesign
+// (§1.4.1.2 do doc canônico) manda o mesmo palco servir CURSO, MENTORIA e EVENTO,
+// e o preview vira componente SHARED (`DEC-CHAT2-G`). Cor que 3 produtos usam por
+// 2+ componentes é vocabulário, não detalhe de tela.
+// ============================================================================
+
+// Texto do conteúdo gerado
+$text-content:            #49566E;  // corpo e labels do preview        · 739:5894
+$text-card-title-ai:      #4E7093;  // título do card "Informações"     · 739:5913
+
+// Superfícies do conteúdo gerado
+$surface-ai-item:         #EDF1F6;  // item de aula/ebook/quiz          · 739:6005
+$surface-ai-group:        #F1F4F9;  // fundo do grupo de módulos        · 739:5991
+
+// Bordas do conteúdo gerado
+$border-ai-card:          #E1E1E5;  // borda externa do card-2          · 739:5902
+$border-ai-toggle:        #ADC2DD;  // borda do botão-toggle do módulo  · 739:5997
+$border-ai-secondary:     #CFDAE7;  // borda do botão "Gerar Nova Versão" · 739:6122
+
+// Ação primária — o botão de borda DUPLA
+$text-ai-action-primary:  #2666C0;  // "Aprovar e Aplicar"              · 739:6111
+$text-ai-action-secondary:#5D7FBD;  // "Gerar Nova Versão"              · 739:6123
+$border-ai-action-inner:  #C9D4E3;  // borda interna (a de dentro)      · 739:6109
+
+// Palco da geração
+$ai-stage-dot:            #B0B9D4;  // os dots de 1px do fundo          · 568:48445
+
+// Gradientes do conteúdo gerado — paradas nomeadas
+$ai-veil:                 #E7EDF5;  // véu a 60% sobre branco no card-2  · 739:5903
+$ai-action-grad-top:      #DFE4EB;  // topo do botão de aplicar          · 739:6109
+$ai-action-grad-mid:      #F2F6FB;  // meio do botão de aplicar          · 739:6109
+
 // Status colors (preliminar — confirmar nodes especificos em DS-2.2)
 $status-success: #3BA36F;
 $status-success-bg: #E5EFE7;

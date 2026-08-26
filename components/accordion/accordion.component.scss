@@ -243,15 +243,21 @@
 // para <ds-accordion-item> standalone em D.1.3.4 REFAC-2).
 // ============================================================================
 
+// ⛔ 2026-08-25 — A BORDA MUDOU DE DONO, e a correção é do DS (afeta os 6 consumidores).
+//
+// `.ds-accordion-items` é o CONTÊINER da lista, e ele **não tem borda** no desenho.
+// A borda `1px solid #DFE3EA` pertence a **cada item**, e é por isso que ela parecia
+// "selecionar" o grupo inteiro: uma borda só, em volta de N filhos.
+//
+// 📌 O `overflow: hidden` saiu junto. Ele existia para o `border-radius` do contêiner
+// recortar os filhos — sem borda nem raio no contêiner, ele deixa de ter função e
+// passa a ser risco (corta sombra e qualquer overlay do item).
 .ds-accordion-items {
   display: flex;
   flex-direction: column;
   gap: 10px;
   padding: 0;
-  border: 1px solid #DFE3EA;
-  border-radius: 10px;
   background: transparent;
-  overflow: hidden;
 }
 
 // ============================================================================
@@ -487,6 +493,12 @@
 .ds-accordion-item-wrap {
   position: relative;
   display: block;
+
+  // ⛔ A borda vive AQUI — veio de `.ds-accordion-items` em 2026-08-25. Cada item
+  //    tem a sua; o contêiner não tem nenhuma.
+  border: 1px solid #DFE3EA;
+  border-radius: 10px;
+  overflow: hidden;
 }
 
 .ds-accordion-item-wrap--dnd {

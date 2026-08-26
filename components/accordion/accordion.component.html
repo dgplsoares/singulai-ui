@@ -49,24 +49,26 @@
           modo Reorganizar (forceMode=all-collapsed). Nesse modo as únicas
           ações esperadas são drag-and-drop (E.4) e Salvar/Cancelar (header).
         -->
-        <div class="ds-accordion-module-actions">
+        @if (!readOnly()) {
+          <div class="ds-accordion-module-actions">
           <button
-            type="button"
-            class="ds-accordion-btn ds-accordion-btn--edit"
-            (click)="onModuleEdit(module.id)"
+          type="button"
+          class="ds-accordion-btn ds-accordion-btn--edit"
+          (click)="onModuleEdit(module.id)"
           >
-            <ng-icon name="heroPencil" class="ds-accordion-btn-icon" />
-            <span>Editar Módulo</span>
+          <ng-icon name="heroPencil" class="ds-accordion-btn-icon" />
+          <span>Editar Módulo</span>
           </button>
           <button
-            type="button"
-            class="ds-accordion-btn ds-accordion-btn--delete"
-            (click)="onModuleDelete(module.id)"
+          type="button"
+          class="ds-accordion-btn ds-accordion-btn--delete"
+          (click)="onModuleDelete(module.id)"
           >
-            <ng-icon name="heroTrash" class="ds-accordion-btn-icon" />
-            <span>Deletar Módulo</span>
+          <ng-icon name="heroTrash" class="ds-accordion-btn-icon" />
+          <span>Deletar Módulo</span>
           </button>
-        </div>
+          </div>
+        }
       }
     </div>
 
@@ -93,43 +95,47 @@
       e estado reorganizando (Cancelar+Salvar+Adicionar). Botões via
       <ds-segmented-button size=sm>; "+ Adicionar Aula" mantém estilo primary.
     -->
-    <div class="ds-accordion-subsection">
+    @if (!readOnly()) {
+      <div class="ds-accordion-subsection">
       <div class="ds-accordion-subsection-title-wrap">
-        <ng-icon name="heroPlayCircle" class="ds-accordion-subsection-icon" />
-        <h4 class="ds-accordion-subsection-title">{{ itemsSectionLabel() }}</h4>
+      <ng-icon name="heroPlayCircle" class="ds-accordion-subsection-icon" />
+      <h4 class="ds-accordion-subsection-title">{{ itemsSectionLabel() }}</h4>
       </div>
       <div class="ds-accordion-subsection-actions">
-        @if (isLessonsDndActive(module.id)) {
-          <ds-segmented-button
-            label="Cancelar reorganização"
-            iconLeft="heroXMark"
-            size="sm"
-            (clicked)="onLessonsReorderCancel(module.id)"
-          />
-          <ds-segmented-button
-            label="Salvar"
-            iconLeft="heroCheck"
-            size="sm"
-            (clicked)="onLessonsReorderSave(module.id)"
-          />
-        } @else if (module.items.length > 1) {
-          <ds-segmented-button
-            [label]="reorderItemsLabel()"
-            iconLeft="heroArrowsUpDown"
-            size="sm"
-            (clicked)="onLessonsReorderRequest(module.id)"
-          />
-        }
-        <button
-          type="button"
-          class="ds-accordion-btn ds-accordion-btn--primary ds-accordion-btn--add-header"
-          (click)="onAddItem(module.id)"
-        >
-          <ng-icon name="heroPlus" class="ds-accordion-btn-icon" />
-          <span>{{ addItemLabel() }}</span>
-        </button>
+      @if (isLessonsDndActive(module.id)) {
+      <ds-segmented-button
+      label="Cancelar reorganização"
+      iconLeft="heroXMark"
+      size="sm"
+      (clicked)="onLessonsReorderCancel(module.id)"
+      />
+      <ds-segmented-button
+      label="Salvar"
+      iconLeft="heroCheck"
+      size="sm"
+      (clicked)="onLessonsReorderSave(module.id)"
+      />
+      } @else if (module.items.length > 1) {
+      <ds-segmented-button
+      [label]="reorderItemsLabel()"
+      iconLeft="heroArrowsUpDown"
+      size="sm"
+      (clicked)="onLessonsReorderRequest(module.id)"
+      />
+      }
+      @if (!readOnly()) {
+      <button
+      type="button"
+      class="ds-accordion-btn ds-accordion-btn--primary ds-accordion-btn--add-header"
+      (click)="onAddItem(module.id)"
+      >
+      <ng-icon name="heroPlus" class="ds-accordion-btn-icon" />
+      <span>{{ addItemLabel() }}</span>
+      </button>
+      }
       </div>
-    </div>
+      </div>
+    }
 
     <!--
       LIST CONTAINER (border #DFE3EA + radius 10).
@@ -167,17 +173,19 @@
       }
     </div>
 
-    <!-- FOOTER center: + Adicionar Aula -->
-    <div class="ds-accordion-footer">
-      <button
-        type="button"
-        class="ds-accordion-btn ds-accordion-btn--primary ds-accordion-btn--add-footer"
-        (click)="onAddItem(module.id)"
-      >
-        <ng-icon name="heroPlus" class="ds-accordion-btn-icon" />
-        <span>{{ addItemLabel() }}</span>
-      </button>
-    </div>
+    <!-- FOOTER center: + Adicionar Aula  (oculto em modo leitura — `showAddItem`) -->
+    @if (!readOnly()) {
+      <div class="ds-accordion-footer">
+        <button
+          type="button"
+          class="ds-accordion-btn ds-accordion-btn--primary ds-accordion-btn--add-footer"
+          (click)="onAddItem(module.id)"
+        >
+          <ng-icon name="heroPlus" class="ds-accordion-btn-icon" />
+          <span>{{ addItemLabel() }}</span>
+        </button>
+      </div>
+    }
 
         </div>
       </div>

@@ -23,7 +23,7 @@
   @if (loading()) {
     <span class="ds-button__spinner" aria-hidden="true"></span>
   } @else {
-    @if (iconImageSrc()) {
+    @if (iconImageSrc() && iconImagePosition() === 'left') {
       <img
         class="ds-button__icon ds-button__icon--left ds-button__icon--image"
         [src]="iconImageSrc()!"
@@ -50,6 +50,17 @@
         [name]="iconRight()!"
         [size]="iconSize()"
       ></ng-icon>
+    }
+
+    @if (iconImageSrc() && iconImagePosition() === 'right') {
+      <img
+        class="ds-button__icon ds-button__icon--right ds-button__icon--image"
+        [src]="iconImageSrc()!"
+        [style.width]="iconImageSize()"
+        [style.height]="iconImageSize()"
+        alt=""
+        aria-hidden="true"
+      />
     }
   }
 </button>

@@ -58,6 +58,21 @@ export class ButtonComponent {
   readonly iconImageSize = input<string>('20px');
 
   /**
+   * `16.4` — de que lado do rótulo o `iconImageSrc` aparece.
+   *
+   * ⛔ DEFAULT `'left'` DE PROPÓSITO: era o único comportamento até aqui, e há
+   *    consumidores vivos contando com ele. Input novo que muda o default silencioso
+   *    é o modo de falha que este projeto já pagou — quem não passar nada continua
+   *    exatamente como antes.
+   *
+   * 📌 Origem: Figma `559:40436` põe o ícone DEPOIS do texto nos dois botões do fluxo
+   *    de geração (`Configurar do curso` e `Gerar curso com IA`). O DS só sabia pôr à
+   *    esquerda, e a regra do projeto manda ESTENDER o DS em vez de montar o controle
+   *    por fora.
+   */
+  readonly iconImagePosition = input<'left' | 'right'>('left');
+
+  /**
    * Override opcional do tamanho do icone (heroicon via iconLeft/iconRight).
    * Default null: usa o mapeamento size sm/md/lg → 12/14/16px abaixo.
    * Use para casos onde o icone precisa diferir do tamanho padrao do button

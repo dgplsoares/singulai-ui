@@ -177,6 +177,82 @@
   //   - danger (delete/Deletar):           outer #dfc9c9 / inner #faf4f4 / text #935050
   //   - warning (edit/Editar):             outer #e2d9c4 / inner #f4f0e2 / text #6e5a2e
   // ==========================================================================
+  /**
+   * ⭐ `action-send` — o botao quadrado de acao do chat de IA (`CHAT-2/3.e`, 2026-09-02).
+   *
+   * ⛔ **Portado do `.send-btn` do `ai-chat-timeline`, hex a hex.** Nao e' um desenho novo:
+   * e' o desenho que ja' estava no app, trazido para o DS para parar de viver solto num
+   * componente de feature. A variant `icon` foi medida e NAO servia (26px x 41px, borda e
+   * fundo diferentes) — trocar por ela teria sido regressao visual.
+   *
+   * ⚠️ **Sem `position`.** O `.send-btn` tinha `position: absolute; right: 18px; bottom: 18px`
+   * e isso NAO veio junto: onde o botao fica e' decisao de quem o usa, nao do DS. Trazer o
+   * posicionamento junto amarraria a variant ao unico layout que existe hoje.
+   *
+   * 📌 Nasce pensando nos TRES habitantes: a `DEC-CHAT2-G` manda reusar o corpo do chat de
+   * Cursos em Mentorias e Eventos. Com a variant no DS, os tres recebem o mesmo botao.
+   */
+  &[data-variant='action-send'] {
+    width: 41px;
+    height: 41px;
+    padding: 0;
+    border-radius: 12px;
+    border: 1px solid #648dc4;
+    background: linear-gradient(
+      143.7deg,
+      #dde2e8 19.4%,
+      #eff1f4 46.1%,
+      #{ds.$border-light} 63.2%
+    );
+    box-shadow:
+      2px 2px 4px 0 rgba(114, 142, 171, 0.1),
+      -5px -5px 14px 0 #{ds.$border-light},
+      3px 3px 15px 0 rgba(111, 140, 176, 0.41),
+      inset 0 0 0 4px #d7dfe9;
+    color: #648dc4;
+    transition:
+      box-shadow 150ms ease,
+      transform 150ms ease,
+      color 150ms ease,
+      opacity 150ms ease;
+
+    &:not(:disabled):hover {
+      color: #426fb3;
+      transform: scale(1.04);
+      box-shadow:
+        2px 2px 6px 0 rgba(114, 142, 171, 0.12),
+        -5px -5px 14px 0 #{ds.$border-light},
+        3px 3px 18px 0 rgba(66, 111, 179, 0.55),
+        inset 0 0 0 4px #d7dfe9;
+    }
+
+    &:not(:disabled):active {
+      transform: scale(0.98);
+      box-shadow:
+        inset 2px 2px 4px 0 rgba(111, 140, 176, 0.3),
+        inset 0 0 0 4px #d7dfe9;
+    }
+
+    &[disabled],
+    &[aria-disabled='true'] {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    /**
+     * ⚠️ `transform` some com `prefers-reduced-motion`, mas a COR e a SOMBRA ficam — quem
+     * desliga animacao ainda precisa ver que o botao respondeu ao ponteiro.
+     */
+    @media (prefers-reduced-motion: reduce) {
+      transition: box-shadow 150ms ease, color 150ms ease;
+
+      &:not(:disabled):hover,
+      &:not(:disabled):active {
+        transform: none;
+      }
+    }
+  }
+
   &[data-variant='action-icon'] {
     position: relative;
     border-radius: 8px;

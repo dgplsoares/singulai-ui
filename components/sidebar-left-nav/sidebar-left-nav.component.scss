@@ -537,9 +537,18 @@
   // Animation: fade + scale 150ms (sem reflow — overlay puro).
   // ==========================================================================
   &__floating-dropdown {
-    position: absolute;
-    left: calc(100% + 12px); // separacao do nav collapsed
-    top: 0;
+    /**
+     * ⛔ 2026-09-02: `position: absolute; left: calc(100% + 12px); top: 0` SAIU daqui.
+     *
+     * O painel agora e' pendurado por `cdkConnectedOverlay`, que o posiciona pelo
+     * `posicoesDoFlyout` do componente (mesmo `offsetX: 12`, mesma ancoragem a direita e
+     * pelo topo). Manter o posicionamento aqui brigaria com o do overlay.
+     *
+     * ⚠️ **O RESTO DESTE BLOCO E' O DESENHO APROVADO NO SBNAV2 e nao mudou.** E ele continua
+     * valendo fora do componente porque o seletor e' BEM plano — `.ds-sidebar__floating-
+     * dropdown`, sem ancestral — e a encapsulacao emulada carimba o `_ngcontent` em tempo de
+     * compilacao, nao pela posicao no DOM.
+     */
     z-index: 1000;
     min-width: 200px;
     border: 2px solid #FFFFFF;

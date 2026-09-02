@@ -54,6 +54,22 @@ export type ButtonVariant =
   | 'outline'
   | 'action'
   | 'action-icon'
+  /**
+   * ⭐ `CHAT-2/3.e` (2026-09-02) — o botao QUADRADO de acao do chat de IA.
+   *
+   * ⛔ Nasceu porque a variant `icon` NAO SERVIA, e isso foi medido antes de decidir:
+   *     `icon`         26px de altura · borda #adc2dd · #edf1f6 chapado
+   *     este desenho   41x41 · borda #648DC4 · gradiente de 3 paradas ·
+   *                    sombra de 4 camadas com `inset 0 0 0 4px #D7DFE9`
+   *
+   * ⇒ Trocar por `icon` seria REGRESSAO VISUAL. O `CLAUDE.md` prescreve exatamente
+   *   este caminho: *"se o Figma pedir um arranjo que o DS nao tem, ESTENDER o DS com
+   *   input novo — nao montar o controle por fora"*.
+   *
+   * ⚠️ A variant leva o LOOK, nunca o POSICIONAMENTO. O `position: absolute` que o
+   * chat usa continua no consumidor, que e' quem sabe onde o botao fica.
+   */
+  | 'action-send'
   | 'action-add'
   | 'icon'
   | 'submit'

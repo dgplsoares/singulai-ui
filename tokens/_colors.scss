@@ -89,6 +89,41 @@ $ai-action-grad-top:      #DFE4EB;  // topo do botão de aplicar          · 739
 $ai-action-grad-mid:      #F2F6FB;  // meio do botão de aplicar          · 739:6109
 
 // Status colors (preliminar — confirmar nodes especificos em DS-2.2)
+// ============================================================================
+// Content kind — o acento do TIPO de conteudo gerado (aula/ebook/quiz/slide)
+// ----------------------------------------------------------------------------
+// ⛔ `CHAT-2/3.a` (2026-09-02), sob a `DEC-CHAT2-I`: **Tailwind e' legado e nao se
+// usa neste projeto.** O timeline pintava o badge de tipo com o violeta do
+// Tailwind (`#8b5cf6` / `#f3e8ff`), que nao tem equivalente no DS.
+//
+// 📌 **O valor foi DERIVADO, nao escolhido.** A `DEC-CHAT2-J` manda medir o padrao
+// estetico do DS e abstrair. Medido o perfil dos 4 status do DS contra os do
+// Tailwind:
+//     success  DS S=47% L=44%   ·  Tailwind S=84% L=39%
+//     warning  DS S=71% L=38%   ·  Tailwind S=92% L=50%
+//     danger   DS S=61% L=53%   ·  Tailwind S=84% L=60%
+//     info     DS S=41% L=47%   ·  Tailwind S=91% L=60%
+//     media do DS -> cor S=55% L=45%  ·  fundo S=69% L=95%
+// ⇒ o violeta do Tailwind (H=258) reprojetado nesse perfil da' os valores abaixo.
+//   O DS DESSATURA e escurece o que o Tailwind traz vivo; e' isso que faz a paleta
+//   parecer uma so'.
+//
+// ⚠️ Nao ha node de Figma para este papel — a `DEC-CHAT2-J` autoriza desenhar. Se
+// um node aparecer, ele manda (a `DEC-CHAT2-E` continua valendo).
+// ----------------------------------------------------------------------------
+// "Pensando..." — a faixa de gradiente do `3.d` · Figma `568:48814`
+// ----------------------------------------------------------------------------
+// ⛔ Estes DOIS vem do Figma, medidos com `get_design_context`. A `DEC-CHAT2-E` vale:
+//    onde o node FALA, ele manda — e aqui ele da' o gradiente exato, com stops ALEM de
+//    100% (76,8% · 118,9% · 139,7%), que e' o que faz a faixa DESLIZAR pelo texto.
+// ⚠️ Nao sao "mais um azul": a faixa precisa de um tom claro que atravesse o escuro. Usar
+//    `$apex-blue-500` nos dois pontos mataria o efeito.
+$ai-thinking-base:        #2C4168;  // as duas pontas do gradiente     · 347:1553
+$ai-thinking-highlight:   #5781CE;  // o brilho que atravessa o texto  · 347:1553
+
+$content-kind-accent:     #5B34B4;  // texto do badge de tipo         · derivado
+$content-kind-accent-bg:  #EEE8FB;  // fundo do badge de tipo         · derivado
+
 $status-success: #3BA36F;
 $status-success-bg: #E5EFE7;
 $status-warning: #A8841C;

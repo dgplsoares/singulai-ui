@@ -174,6 +174,52 @@ $ease-linear: linear;
   50%      { transform: rotate(180deg); filter: blur(2px); }
 }
 
+/**
+ * ⭐ A FAIXA DE GRADIENTE QUE ATRAVESSA UM TEXTO — `CHAT-2/3.d` e `3.c` (2026-09-02).
+ *
+ * Nasceu como mixin porque ELA VIVE EM DOIS LUGARES: a linha *"Pensando…"*
+ * (`<app-ai-thinking-line>`) e o texto do palco de geração (`<app-ai-generation-stage>`).
+ * O fundador pediu no smoke que o segundo tivesse *"o gradiente se movimentando na
+ * horizontal, como no caso do Pensando..."* — e duas cópias do mesmo efeito divergem.
+ *
+ * 📌 Os valores vêm do Figma `568:48814`, cujos stops passam de 100% (76,8% · 118,9% ·
+ * 139,7%): gradiente parado não tem parada em 139%. É a faixa deslizando.
+ *
+ * ⛔ **O `prefers-reduced-motion` GLOBAL deste arquivo NÃO basta aqui**, e isso foi medido:
+ * ele faz `animation-duration: 0.01ms` + `iteration-count: 1`, o que **roda a animação uma
+ * vez e para no frame 100%** — que aqui é `background-position: 200%`, deixando o texto
+ * pintado com a ponta do gradiente. Por isso o mixin desliga o recorte e devolve a cor
+ * chapada. Regra global que encurta a duração assume que o frame final é o repouso; num
+ * LOOP, quase nunca é.
+ *
+ * @param $base       a cor das duas pontas (o texto em repouso)
+ * @param $brilho     o tom claro que atravessa
+ * @param $duracao    o ciclo
+ */
+@mixin ds-texto-com-faixa($base, $brilho, $duracao: 2.8s) {
+  background-image: linear-gradient(
+    90deg,
+    $base 0%,
+    $base 35%,
+    $brilho 50%,
+    $base 65%,
+    $base 100%
+  );
+  background-size: 200% 100%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  animation: ds-text-gradient-stripe $duracao linear infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+    background-image: none;
+    background-clip: border-box;
+    -webkit-background-clip: border-box;
+    color: $base;
+  }
+}
+
 @keyframes ds-text-gradient-stripe {
   0%   { background-position: -100% 0; }
   100% { background-position:  200% 0; }

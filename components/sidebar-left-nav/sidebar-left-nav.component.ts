@@ -10,6 +10,7 @@ import {
   input,
   signal,
 } from '@angular/core';
+import { ConnectedPosition, OverlayModule } from '@angular/cdk/overlay';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
@@ -47,6 +48,7 @@ const STORAGE_KEY = 'ds-sidebar-state';
   selector: 'ds-sidebar-left-nav',
   standalone: true,
   imports: [
+    OverlayModule,
     NgIconComponent,
     RouterLink,
     RouterLinkActive,
@@ -175,6 +177,67 @@ export class SidebarLeftNavComponent {
     if (!item.submenu || item.submenu.length === 0) return false;
     return !this.isExpanded() && this.isSubmenuOpen(item.key);
   }
+
+  /**
+   * ============================================================================
+   * ⛔ O FLYOUT ERA CLIPADO POR UM `overflow` QUE CHEGOU DEPOIS DELE
+   * ============================================================================
+   *
+   * **Medido em 2026-09-02**, a pedido do fundador — que lembrava do recurso entregue e nao
+   * o via funcionando. Nao era roadmap nem task engolida: era **regressao**.
+   *
+   * O `SBNAV2` (`b33e339aa`, 26/05) entregou o dropdown como `position: absolute;
+   * left: calc(100% + 12px)`, e funcionava porque `.ds-sidebar__nav` tinha `overflow: visible`
+   * — a nota da propria entrega diz isso, com todas as letras.
+   *
+   * Em 17/06 o `b1975144f` (`DEC-POLISH-6`, *"sidebar scroll"*) trocou aquilo por
+   * `overflow-y: auto; overflow-x: clip`, para dar scroll interno a nav — sem o que a
+   * sidebar expandida empurrava a row do grid para fora do viewport.
+   *
+   * ⇒ **`overflow-x: clip` corta exatamente o eixo por onde o flyout sai.** Ele passou a
+   *   renderizar e ser clipado no mesmo quadro. Nao ha `overflow-clip-margin` no projeto,
+   *   entao o corte e' na borda da caixa.
+   *
+   * ⚠️ E o comentario que acompanha aquela linha afirma que `clip` *"preserva a visibilidade
+   * dos rings no eixo horizontal (sem clipping lateral)"* — o que e' **falso**: `clip` clipa;
+   * o que ele nao faz e' criar scrollport. Comentario que promete garantia nao e' garantia.
+   *
+   * ============================================================================
+   * POR QUE `cdkConnectedOverlay`, E NAO REVERTER O `overflow`
+   * ============================================================================
+   *
+   * Reverter reintroduziria o defeito de layout que a `DEC-POLISH-6` consertou. A tensao e'
+   * real e nao tem saida dentro da caixa: **container com scroll no Y nao deixa filho escapar
+   * no X**.
+   *
+   * ⭐ **O DS-AUDIT decidiu:** `@angular/cdk` ja e' dependencia e o `cdkConnectedOverlay` ja e'
+   * o mecanismo de DOIS componentes do DS (`ds-dropdown-menu`, `ds-filter-dropdown`) e de 3
+   * shared. O painel passa a ser renderizado no overlay container, **filho de `<body>`** — e
+   * por construcao nenhum `overflow` de ancestral o alcanca.
+   *
+   * ⚠️ **O MARKUP E O SCSS DO PAINEL NAO MUDARAM.** O desenho do `SBNAV2` foi aprovado com as
+   * `DEC-SBNAV2-A..J`; o que muda e' **onde ele e' pendurado**. Isso e' seguro porque o
+   * seletor e' BEM plano (`.ds-sidebar__floating-dropdown`, sem ancestral) e a encapsulacao
+   * emulada carimba o `_ngcontent` em tempo de COMPILACAO, nao pela posicao no DOM.
+   */
+  protected readonly posicoesDoFlyout: ConnectedPosition[] = [
+    // Preferida: a direita do item, alinhado pelo topo — o desenho original.
+    {
+      originX: 'end',
+      originY: 'top',
+      overlayX: 'start',
+      overlayY: 'top',
+      offsetX: 12, // o mesmo `calc(100% + 12px)` de antes
+    },
+    // Fallback quando nao ha altura abaixo: ancora pelo rodape.
+    {
+      originX: 'end',
+      originY: 'bottom',
+      overlayX: 'start',
+      overlayY: 'bottom',
+      offsetX: 12,
+    },
+  ];
 
   // ==========================================================================
   // SBSEARCH-2026-05-25: search inline + autocomplete sobre menuItems.

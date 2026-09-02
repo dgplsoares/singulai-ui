@@ -161,6 +161,8 @@
           <button
             class="ds-sidebar__menu-item"
             type="button"
+            cdkOverlayOrigin
+            #origemDoFlyout="cdkOverlayOrigin"
             [class.ds-sidebar__menu-item--active]="isRootActive(item)"
             [attr.aria-expanded]="isSubmenuOpen(item.key)"
             [attr.aria-controls]="'submenu-' + item.key"
@@ -229,8 +231,34 @@
             </ul>
           }
 
-          <!-- SBNAV2-2026-05-25 (DEC-SBNAV2-E): floating dropdown (collapsed) -->
-          @if (isFloatingDropdownOpen(item)) {
+          <!--
+            SBNAV2-2026-05-25 (DEC-SBNAV2-E): floating dropdown (collapsed).
+
+            ⛔ 2026-09-02: saiu de `@if` + `position:absolute` para `cdkConnectedOverlay`.
+               O painel era CLIPADO por `overflow-x: clip` em `.ds-sidebar__nav`, que chegou
+               em 17/06 (`DEC-POLISH-6`) para dar scroll interno a nav. Container com scroll
+               no Y nao deixa filho escapar no X — a saida e' nao ser filho dele.
+            ⚠️ O MARKUP ABAIXO NAO MUDOU: o desenho do SBNAV2 (DECs A..J) esta preservado.
+               Mudou so' ONDE ele e' pendurado (overlay container, filho de <body>).
+          -->
+          <ng-template
+            cdkConnectedOverlay
+            [cdkConnectedOverlayOrigin]="origemDoFlyout"
+            [cdkConnectedOverlayOpen]="isFloatingDropdownOpen(item)"
+            [cdkConnectedOverlayPositions]="posicoesDoFlyout"
+          >
+            <!--
+              ⛔ SEM `hasBackdrop`, E E' DELIBERADO — a 1a versao desta migracao o tinha, e
+                 ele criava uma DUPLA-FECHADA que REABRIA o painel: o `document:click` ja
+                 zera `expandedKey`, e o `(backdropClick)` chamaria `toggleSubmenu`, que com
+                 a chave ja nula volta a abrir (`curr === key ? null : key`).
+              ⇒ Os dois handlers existentes (`document:keydown` para ESC e `document:click`
+                 para outside) sao `document`-scoped e seguem funcionando com o painel no
+                 overlay container — o `closest('.ds-sidebar__floating-dropdown')` continua
+                 casando, porque a classe viajou junto.
+              ⚠️ E sem backdrop o comportamento fica IDENTICO ao aprovado no SBNAV2: o painel
+                 absoluto tambem nao tinha backdrop.
+            -->
             <div
               class="ds-sidebar__floating-dropdown"
               [id]="'submenu-' + item.key"
@@ -268,7 +296,7 @@
                 }
               </ul>
             </div>
-          }
+          </ng-template>
         } @else {
           <a
             class="ds-sidebar__menu-item"

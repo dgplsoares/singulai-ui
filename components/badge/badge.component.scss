@@ -48,6 +48,25 @@
   }
 
   // ==========================================================================
+  // Outline — `PT.1.A` / `DEC-PT-2` (2026-09-05)
+  //
+  // Figma 1007:11134 (Recomendado) e 1007:11137 (Plano Atual): o contorno e' 0.5px e a
+  // cor dele e' uma versao DESSATURADA da propria cor do selo, nao um cinza generico.
+  // ⇒ `currentColor` com alpha resolve para as 8 variants de uma vez, sem 8 pares novos
+  //   de token — e acompanha automaticamente qualquer variant futura.
+  //
+  // ⚠️ `border` e' declarada SEMPRE (transparente no default) e nao so' no `subtle`:
+  //    acrescentar borda depois mudaria a CAIXA do badge, e um selo ao lado de outro
+  //    ficaria 1px mais alto. Reservar o espaco desde o default e' o que mantem os ~30
+  //    consumidores existentes pixel-identicos.
+  // ==========================================================================
+  border: 0.5px solid transparent;
+
+  &[data-outline='subtle'] {
+    border-color: color-mix(in srgb, currentColor 35%, transparent);
+  }
+
+  // ==========================================================================
   // Variants (8) — cores consolidadas (DEC-DSA-L)
   // bg / color extraidas das mini-tables IMPL-6/11/13 + Figma 627-3162
   // ==========================================================================

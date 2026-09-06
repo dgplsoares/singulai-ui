@@ -45,3 +45,19 @@ export type BadgeSize = 'sm' | 'md';
  *                (badge com icone, usado em status de assets de aula).
  */
 export type BadgeShape = 'pill' | 'rounded';
+
+/**
+ * Contorno do badge.
+ *   - `none`     — sem borda. **Default**, e e' o comportamento que os ~30 consumidores
+ *                  existentes ja' tinham: mudar o padrao repintaria todos eles.
+ *   - `subtle`   — borda de 0.5px na cor do texto, com opacidade. Pattern do Figma
+ *                  1007:11134 (*Recomendado*, `#F4FAFA` + `#BDD2D3`) e 1007:11137
+ *                  (*Plano Atual*, `#E6F1FF` + `#98B3D9`): o contorno e' uma versao
+ *                  dessaturada da propria cor do selo, nao um cinza generico.
+ *
+ * ⛔ **Por que INPUT NOVO e nao variants novas** (`PT.1.A` / `DEC-PT-2`): contorno e' um
+ * eixo INDEPENDENTE da cor. Criar `info-outlined`, `success-outlined` etc. dobraria as 8
+ * variants para 16 e faria o proximo eixo dobrar de novo — e a paleta ja' e' compartilhada
+ * com `ds-progress-bar` por `DEC-DSA-L`.
+ */
+export type BadgeOutline = 'none' | 'subtle';

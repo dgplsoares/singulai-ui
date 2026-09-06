@@ -22,7 +22,21 @@
         >
           <span class="ds-page-nav-item-icon-wrap">
             @if (step.iconSrc) {
-              <img [src]="step.iconSrc" [alt]="step.label" class="ds-page-nav-item-icon-img" />
+              @if (step.monocromatico) {
+                <!--
+                  Monocromatico: o SVG vira MASCARA e a cor vem do CSS — exata nos dois
+                  estados. `<img>` nao aceita troca de cor por CSS; so' filtro, que e'
+                  aproximacao (ver o docblock de `monocromatico` em PageNavStep).
+                -->
+                <span
+                  class="ds-page-nav-item-icon-mask"
+                  role="img"
+                  [attr.aria-label]="step.label"
+                  [style.--ds-page-nav-icon]="'url(' + step.iconSrc + ')'"
+                ></span>
+              } @else {
+                <img [src]="step.iconSrc" [alt]="step.label" class="ds-page-nav-item-icon-img" />
+              }
             } @else if (step.icon) {
               <ng-icon [name]="step.icon" class="ds-page-nav-item-icon" />
             }

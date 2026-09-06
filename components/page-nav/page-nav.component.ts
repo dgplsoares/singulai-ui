@@ -44,6 +44,29 @@ export interface PageNavStep {
    * Ignorado na step corrente, que tem visual proprio.
    */
   completed?: boolean;
+  /**
+   * ⭐ O ícone é **monocromático** — desenhado numa cor só.
+   *
+   * ⛔ **Muda COMO o estado pendente é pintado, e a razão está medida.** O padrão aplica
+   * `saturate(.7) brightness(.8) opacity(.42)` ao asset, uma cadeia **resolvida
+   * numericamente** contra o alvo `#A1B5C8` dos ícones de Cursos — que são **bicolores**
+   * (`#3E6FCA` + `#C5D2E8`) e por isso não podem ser achatados numa cor só.
+   *
+   * Com `monocromatico: true` o ícone vira **máscara** e a cor vem do CSS: exata nos dois
+   * estados, sem aproximação. Medido em 2026-09-05, para os ícones de Minha Assinatura:
+   * ```
+   * filtro aplicado ao #3E6FCA  ->  rgb(164,178,202)
+   * alvo do desenho  (#B6C3D4)  ->  rgb(182,195,212)   delta (-18,-17,-10)
+   * alvo antigo      (#A1B5C8)  ->  rgb(161,181,200)   delta (  3, -3,  2)
+   * ```
+   * ⇒ o filtro acerta o alvo para que foi calibrado e **erra visivelmente** o novo.
+   *
+   * ⚠️ **`false` por padrão**: os consumidores existentes (Cursos, Mentorias, Eventos)
+   * continuam no filtro, pixel por pixel. Input novo que muda o visual de quem já usa é
+   * regressão com nome de melhoria.
+   */
+  monocromatico?: boolean;
+
   /** Opcional: desabilita o click. */
   disabled?: boolean;
 }

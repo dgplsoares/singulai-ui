@@ -19,6 +19,7 @@ import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import { heroChevronDown, heroMagnifyingGlass } from '@ng-icons/heroicons/outline';
 
 import { ButtonComponent } from '../button';
+import { DropdownMenuComponent, type DropdownMenuItem } from '../dropdown-menu';
 import { DsActiveSpinDirective } from '../../directives/active-spin.directive';
 import {
   SidebarMenuItem,
@@ -54,6 +55,7 @@ const STORAGE_KEY = 'ds-sidebar-state';
     RouterLinkActive,
     ButtonComponent,
     DsActiveSpinDirective,
+    DropdownMenuComponent,
   ],
   // Icones HARDCODED no template (search + chevron). Provided no proprio
   // componente DS para garantir renderizacao independente do caller — alinhado
@@ -118,6 +120,27 @@ export class SidebarLeftNavComponent {
   @Output() readonly searchClick = new EventEmitter<void>();
 
   /** Emitido quando usuario clica no avatar (abre dropdown Minha Conta — DS-2.2). */
+  /**
+   * ⛔ **`PT.1.J` / `DEC-PT-4` — o menu do botao de usuario.**
+   *
+   * O menu EXISTIA, em `left-nav.component.html` (o layout legado), com *Minha Conta ·
+   * Minha assinatura · Chamados de Suporte · Sair*. A migracao para este componente
+   * (`SHELL-1.a`) trocou o dropdown por uma navegacao direta, e o menu ficou orfao num
+   * componente que ninguem renderiza.
+   *
+   * ⛔ **Os ITENS vem de FORA, e isso e' a decisao.** O botao vive AQUI dentro e nao e'
+   * projetado, entao o menu tem de nascer aqui — mas o DS **nao pode conhecer as rotas do
+   * produto**. Ele recebe `DropdownMenuItem[]` e emite a `key`; quem navega e' o consumidor.
+   *
+   * ⚠️ **Vazio por padrao, e o `accountClick` continua**: sem itens, o botao se comporta
+   * exatamente como hoje. Input novo que muda o comportamento de quem ja' usa e' regressao
+   * com nome de melhoria — a mesma regra do `outline` do `ds-badge`.
+   */
+  readonly userMenuItems = input<DropdownMenuItem[]>([]);
+
+  /** A `key` do item escolhido. So' dispara quando ha' `userMenuItems`. */
+  @Output() readonly userMenuSelect = new EventEmitter<string>();
+
   @Output() readonly accountClick = new EventEmitter<void>();
 
   /** Emitido quando submenu item e clicado (key do item submenu). */

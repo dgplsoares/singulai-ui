@@ -27,4 +27,14 @@ export interface SegmentedTabItem<K extends string = string> {
   closable?: boolean;
   /** Aria-label para o close button. Default "Fechar". */
   closeAriaLabel?: string;
+  /**
+   * Desabilita o item: ele continua VISIVEL, sem cursor e sem emitir `tabChange`.
+   *
+   * ⛔ **Existe porque esconder um comando o faz parecer inexistente.** Medido na `PT.3-FIX`
+   * (2026-09-05): as listas de conteudo escondiam "Reorganizar" com menos de 2 itens
+   * (`@if (length > 1)`), e a tenant de teste tinha **1 banner e 5 depoimentos** — o botao
+   * sumiu em Banners e apareceu em Depoimentos. O fundador reportou os dois como problemas
+   * DIFERENTES ("faltou" x "ajuste"), que e' exatamente o que a ausencia produz.
+   */
+  disabled?: boolean;
 }

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
-import { BadgeShape, BadgeSize, BadgeVariant } from './badge.types';
+import { BadgeOutline, BadgeShape, BadgeSize, BadgeVariant } from './badge.types';
 
 /**
  * Badge — pill/rounded de status, categoria ou tag.
@@ -38,6 +38,14 @@ export class BadgeComponent {
 
   /** Shape — pill (50px) ou rounded (8px). Default: pill. */
   readonly shape = input<BadgeShape>('pill');
+
+  /**
+   * Contorno. Default `none` — o comportamento que o componente sempre teve.
+   *
+   * ⚠️ O default preserva os consumidores existentes de proposito: input novo que muda o
+   * visual de quem ja' usa nao e' extensao, e' regressao com nome de melhoria.
+   */
+  readonly outline = input<BadgeOutline>('none');
 
   /** Aria-label opcional para screen readers. */
   readonly ariaLabel = input<string | null>(null);

@@ -153,6 +153,42 @@ export class FormFieldComponent implements ControlValueAccessor {
   readonly options = input<FormFieldOption[] | null>(null);
 
   /**
+   * ==========================================================================
+   * ⛔ **PREFIXO — o gap que a `PT.3.7` mediu no Figma `977:52935`**
+   * ==========================================================================
+   *
+   * A tela de Contatos pede dois prefixos que o DS **nao tinha**
+   * (`grep 'prefix|suffix|addon'` no DS -> **0**, medido em 2026-09-05):
+   *
+   *   Site      `https://` + campo   — Figma: `Frame 606` (w=75) colado ao
+   *                                    `Frame 607` (x=75). **Gap 0** => MESMA caixa.
+   *   Telefone  `[BR +55 v]` + campo — Figma: `Frame 293` (w=92) e `Frame 294`
+   *                                    (x=99). **Gap 7** => caixas SEPARADAS.
+   *
+   * ⇒ Sao dois desenhos diferentes, e por isso sao **dois inputs**, nao um so' com
+   *   modo. `prefix` e' addon interno; `prefixOptions` e' um seletor irmao.
+   *
+   * ⚠️ **Ambos so' valem no `variant="text"`.** Num `textarea`/`select`/`toggle` o
+   * prefixo nao tem desenho no Figma, e inventar um espalharia divergencia — o
+   * template simplesmente nao os renderiza fora do `text`.
+   */
+  readonly prefix = input<string | null>(null);
+
+  /**
+   * Opcoes do seletor de prefixo (ex.: DDI). Quando presente, um `<select>` irmao
+   * aparece ANTES do campo, em caixa propria.
+   *
+   * ⛔ O valor do seletor viaja em `prefixValue`/`prefixValueChange` — SEPARADO do
+   * `value` do campo. Concatenar os dois numa string so' obrigaria todo consumidor
+   * a fatiar de volta, e foi assim que `address: string` virou divida nesta mesma
+   * tela (ver `ContentContact`).
+   */
+  readonly prefixOptions = input<FormFieldOption[] | null>(null);
+
+  /** Valor selecionado no seletor de prefixo. */
+  readonly prefixValue = input<string>('');
+
+  /**
    * Disposicao da variante `toggle`.
    *
    * - `inline` (padrao): `[toggle] Rotulo`, encostados a' esquerda. E' o que as
@@ -181,6 +217,9 @@ export class FormFieldComponent implements ControlValueAccessor {
 
   /** Emite ao perder foco. */
   @Output() readonly blurred = new EventEmitter<FocusEvent>();
+
+  /** Mudanca no seletor de prefixo — separada do `valueChange` do campo. */
+  @Output() readonly prefixValueChange = new EventEmitter<string>();
 
   /** ID unico do campo (para label-for + aria-describedby). */
   protected readonly fieldId = `ds-field-${++uidCounter}`;
@@ -266,6 +305,12 @@ export class FormFieldComponent implements ControlValueAccessor {
     this.onChangeFn(newValue);
     this.valueChange.emit(newValue);
   }
+
+  /** Handler do seletor de prefixo. */
+  onPrefixChange(event: Event): void {
+    this.prefixValueChange.emit((event.target as HTMLSelectElement).value);
+  }
+
 
   protected onBlur(event: FocusEvent): void {
     this.touched.set(true);

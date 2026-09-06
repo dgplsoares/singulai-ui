@@ -8,8 +8,10 @@
         [class.ds-segmented-tabs__tab--last]="last"
         [class.ds-segmented-tabs__tab--active]="item.key === activeKey()"
         [class.ds-segmented-tabs__tab--has-close]="item.closable"
+        [class.ds-segmented-tabs__tab--disabled]="item.disabled"
+        [disabled]="item.disabled ?? false"
         [attr.aria-pressed]="item.key === activeKey()"
-        (click)="onTabClick(item.key)"
+        (click)="onTabClick(item)"
       >
         @if (item.icon) {
           <ng-icon

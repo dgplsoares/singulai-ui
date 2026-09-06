@@ -63,8 +63,9 @@ export class SegmentedTabsComponent<K extends string = string> {
    */
   @Output() readonly itemClose = new EventEmitter<K>();
 
-  protected onTabClick(key: K): void {
-    this.tabChange.emit(key);
+  protected onTabClick(item: SegmentedTabItem<K>): void {
+    if (item.disabled) return;
+    this.tabChange.emit(item.key);
   }
 
   protected onCloseClick(event: Event, key: K): void {

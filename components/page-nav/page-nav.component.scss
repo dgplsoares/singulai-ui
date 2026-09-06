@@ -128,7 +128,17 @@
 .ds-page-nav-items {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  // ⭐ CENTRALIZADO (2026-09-05, pedido do fundador apos o smoke da `PT.1`).
+  //
+  // ⛔ Era `space-between`, e com MUITOS steps (Cursos tem 7) a diferenca e' invisivel: os
+  //    itens ja' preenchem a barra. Com POUCOS — `minha-assinatura` tem 2 — o
+  //    `space-between` os joga para as PONTAS opostas, que nao e' o que o Figma desenha em
+  //    node nenhum: nem `590:1121` (7 steps) nem `1007:10243` (2 steps) tem step colado na
+  //    borda.
+  // ⇒ `center` e' o mesmo resultado quando a barra esta' cheia, e o resultado CERTO quando
+  //   sobra espaco. `space-between` so' parecia certo porque todos os consumidores tinham
+  //   steps suficientes para esconder a diferenca.
+  justify-content: center;
   gap: 30px;
   flex: 1;
   min-width: 0;
@@ -315,4 +325,36 @@
   .ds-page-nav-item--active {
     padding: 0 10px;
   }
+}
+
+// ============================================================================
+// ICONE MONOCROMATICO — mascara, nao filtro (2026-09-05)
+// ============================================================================
+// O `<img>` nao aceita troca de cor por CSS: so' `filter`, que e' APROXIMACAO. Para
+// icone desenhado numa cor so', a mascara entrega a cor EXATA nos dois estados — que e'
+// o que o desenho pede quando ele define os dois hexadecimais.
+//
+// ⚠️ So' vale para MONOCROMATICO: achatar um icone bicolor (Cursos: #3E6FCA + #C5D2E8)
+//    numa cor unica apagaria o segundo tom.
+.ds-page-nav-item-icon-mask {
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+  background-color: #B6C3D4; // pendente — o hexadecimal do desenho, nao um filtro
+  mask-image: var(--ds-page-nav-icon);
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+  -webkit-mask-image: var(--ds-page-nav-icon);
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
+  transition: background-color 0.18s ease;
+}
+
+// A step CORRENTE e a CONCLUIDA usam a cor ativa.
+.ds-page-nav-item--active .ds-page-nav-item-icon-mask,
+.ds-page-nav-item--completed .ds-page-nav-item-icon-mask {
+  background-color: #3E6FCA;
 }

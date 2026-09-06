@@ -450,3 +450,101 @@ describe('FormFieldComponent', () => {
     }
   });
 });
+
+/**
+ * ============================================================================
+ * ⛔ `PT.3.7` — O PREFIXO, e por que sao DOIS e nao um
+ * ============================================================================
+ *
+ * A tela de Contatos (`977:52935`) pede dois prefixos, e a **geometria do Figma** e' que
+ * separa os desenhos — nao o gosto:
+ *
+ *   Site      `Frame 606` w=75, campo em **x=75** => **gap 0**, MESMA caixa
+ *   Telefone  `Frame 293` w=92, campo em **x=99** => **gap 7**, caixas SEPARADAS
+ *
+ * ⇒ Um input so' com "modo" produziria um dos dois errado. Sao dois inputs.
+ *
+ * ⚠️ E as duas ultimas specs sao as que importam: o prefixo **nao existe** fora do
+ * `variant="text"`. Sem elas, alargar a condicao um dia poria um `https://` colado a um
+ * `textarea` — que e' exatamente como o contador de caracteres quase vazou, logo acima.
+ */
+describe('FormFieldComponent — prefixo (`PT.3.7`)', () => {
+  let fixture: ComponentFixture<FormFieldComponent>;
+
+  beforeEach(async () => {
+    await TestBed.configureTestingModule({
+      imports: [FormFieldComponent, FormsModule],
+      providers: [provideIcons({ heroChevronDown, heroMagnifyingGlass, heroXMark })],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(FormFieldComponent);
+    fixture.componentRef.setInput('variant', 'text');
+    fixture.detectChanges();
+  });
+
+  const q = (sel: string) => fixture.nativeElement.querySelector(sel) as HTMLElement | null;
+
+  it('sem `prefix` nem `prefixOptions`, nada muda no campo', () => {
+    expect(q('.ds-form-field__prefix')).toBeNull();
+    expect(q('.ds-form-field__prefix-select')).toBeNull();
+    expect(q('.ds-form-field__input--com-prefixo')).toBeNull();
+  });
+
+  it('`prefix` renderiza o texto E marca o campo como colado', () => {
+    fixture.componentRef.setInput('prefix', 'https://');
+    fixture.detectChanges();
+    expect(q('.ds-form-field__prefix')?.textContent?.trim()).toBe('https://');
+    // ⛔ A classe e' o que remove a borda dupla na costura. Sem ela o prefixo
+    //    aparece, e o controle fica com uma linha no meio.
+    expect(q('.ds-form-field__input--com-prefixo')).not.toBeNull();
+  });
+
+  it('`prefixOptions` renderiza um seletor irmao, com as opcoes', () => {
+    fixture.componentRef.setInput('prefixOptions', [
+      { value: '+55', label: 'BR +55' },
+      { value: '+1', label: 'US +1' },
+    ]);
+    fixture.componentRef.setInput('prefixValue', '+55');
+    fixture.detectChanges();
+
+    const sel = q('.ds-form-field__prefix-select') as HTMLSelectElement | null;
+    expect(sel).not.toBeNull();
+    expect(sel!.querySelectorAll('option').length).toBe(2);
+    expect(sel!.value).toBe('+55');
+    // ⛔ Caixa PROPRIA: o campo NAO recebe a classe de "colado".
+    expect(q('.ds-form-field__input--com-prefixo')).toBeNull();
+  });
+
+  it('⛔ o seletor emite em canal SEPARADO do valor do campo', () => {
+    fixture.componentRef.setInput('prefixOptions', [
+      { value: '+55', label: 'BR +55' },
+      { value: '+1', label: 'US +1' },
+    ]);
+    fixture.detectChanges();
+
+    const doPrefixo: string[] = [];
+    const doCampo: unknown[] = [];
+    fixture.componentInstance.prefixValueChange.subscribe((v) => doPrefixo.push(v));
+    fixture.componentInstance.valueChange.subscribe((v) => doCampo.push(v));
+
+    const sel = q('.ds-form-field__prefix-select') as HTMLSelectElement;
+    sel.value = '+1';
+    sel.dispatchEvent(new Event('change'));
+
+    expect(doPrefixo).toEqual(['+1']);
+    // ⛔ Concatenar os dois obrigaria todo consumidor a fatiar de volta — foi assim
+    //    que `address: string` virou divida nesta mesma tela.
+    expect(doCampo).toEqual([]);
+  });
+
+  for (const variant of ['textarea', 'select', 'search', 'toggle'] as const) {
+    it(`NAO renderiza prefixo em variant=${variant}`, () => {
+      fixture.componentRef.setInput('variant', variant);
+      fixture.componentRef.setInput('prefix', 'https://');
+      fixture.componentRef.setInput('prefixOptions', [{ value: '+55', label: 'BR +55' }]);
+      fixture.detectChanges();
+      expect(q('.ds-form-field__prefix')).toBeNull();
+      expect(q('.ds-form-field__prefix-select')).toBeNull();
+    });
+  }
+});

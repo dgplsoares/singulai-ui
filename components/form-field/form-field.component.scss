@@ -41,6 +41,67 @@
   }
 
   // ==========================================================================
+  // PREFIXO — `PT.3.7`, medido no Figma `977:52935`
+  //
+  // ⛔ Sao DOIS desenhos, e a diferenca esta na GEOMETRIA, nao no gosto:
+  //   `__prefix-select`  Frame 293 w=92, campo em x=99  => caixa PROPRIA, gap 7
+  //   `__prefix`         Frame 606 w=75, campo em x=75  => MESMA caixa, gap 0
+  // Texto a 15px da borda e centrado nos 47px de altura, nos dois.
+  // ==========================================================================
+  &__prefix-select {
+    flex: 0 0 92px;
+    width: 92px;
+    margin-right: 7px;
+    appearance: none;
+    -webkit-appearance: none;
+    background-color: var(--ds-form-bg);
+    border: 1px solid var(--ds-form-border);
+    border-radius: 5px;
+    padding: 17px 15px;
+    font-family: var(--ds-font-family-base);
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 13px;
+    color: var(--ds-form-input-text);
+    box-sizing: border-box;
+    cursor: pointer;
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+  }
+
+  &__prefix {
+    display: flex;
+    align-items: center;
+    flex: 0 0 auto;
+    padding: 17px 0 17px 15px;
+    background-color: var(--ds-form-bg);
+    border: 1px solid var(--ds-form-border);
+    border-right: 0;
+    border-radius: 5px 0 0 5px;
+    font-family: var(--ds-font-family-base);
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 13px;
+    // ⚠️ Cor de PLACEHOLDER, nao de texto: o prefixo e' moldura, nao conteudo
+    //    digitado. No Figma ele e' visivelmente mais claro que o valor.
+    color: var(--ds-form-placeholder);
+    white-space: nowrap;
+    box-sizing: border-box;
+  }
+
+  // O campo perde o canto e a borda do lado colado — senao a costura aparece
+  // como uma linha dupla no meio do controle.
+  &__input--com-prefixo {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-left: 0;
+    padding-left: 8px;
+  }
+
+  // ==========================================================================
   // Input base (text, textarea, select, search) — Figma 1088:13988
   //   bg #F8FBFF, border 1px #D7E2F2, radius 5px, padding 17px 15px,
   //   inner shadow style_neo_2

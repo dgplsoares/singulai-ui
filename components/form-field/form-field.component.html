@@ -24,8 +24,37 @@
   <div class="ds-form-field__control">
     @switch (variant()) {
       @case ('text') {
+        <!--
+          ⛔ PREFIXO SELETOR (ex.: DDI "BR +55") — CAIXA PROPRIA, irma do campo.
+             Figma `977:55045`: box de 92px, gap 7 ate' o campo. Nao e' addon interno.
+        -->
+        @if (prefixOptions()?.length) {
+          <select
+            class="ds-form-field__prefix-select"
+            [attr.aria-label]="label() ? label() + ' — prefixo' : 'prefixo'"
+            [disabled]="isDisabled()"
+            [value]="prefixValue()"
+            (change)="onPrefixChange($event)"
+          >
+            @for (opcao of prefixOptions(); track opcao.value) {
+              <option [value]="opcao.value" [selected]="opcao.value === prefixValue()">
+                {{ opcao.label }}
+              </option>
+            }
+          </select>
+        }
+
+        <!--
+          ⛔ PREFIXO TEXTO (ex.: "https://") — DENTRO da mesma caixa, com divisor.
+             Figma `977:55017`: 75px colado ao campo (x=75, gap 0).
+        -->
+        @if (prefix()) {
+          <span class="ds-form-field__prefix" aria-hidden="true">{{ prefix() }}</span>
+        }
+
         <input
           class="ds-form-field__input"
+          [class.ds-form-field__input--com-prefixo]="!!prefix()"
           [id]="fieldId"
           [type]="type()"
           [placeholder]="placeholder()"

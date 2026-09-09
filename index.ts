@@ -36,6 +36,7 @@ export * from './components/nav-footer';
 export * from './components/page-layout';
 export * from './components/page-header';
 export * from './components/progress-bar';
+export * from './components/route-progress';
 export * from './components/segmented-tabs';
 export * from './components/segmented-button';
 export * from './components/step-tabs';

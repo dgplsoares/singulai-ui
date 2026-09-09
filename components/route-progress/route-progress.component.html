@@ -1,0 +1,10 @@
+@if (ativo()) {
+  <div
+    class="ds-route-progress"
+    role="progressbar"
+    aria-busy="true"
+    [attr.aria-label]="rotulo()"
+  >
+    <div class="ds-route-progress__fill"></div>
+  </div>
+}

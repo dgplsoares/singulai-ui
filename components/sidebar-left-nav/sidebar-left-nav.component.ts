@@ -553,10 +553,10 @@ export class SidebarLeftNavComponent {
     }
   }
 
-  protected getInitials(name: string): string {
-    if (!name) return '?';
-    const words = name.trim().split(/\s+/).filter((w) => w.length > 0);
-    if (words.length === 1) return words[0].substring(0, 2).toUpperCase();
-    return (words[0][0] + words[1][0]).toUpperCase();
-  }
+  // ⛔ `DIV-D3-1` — `getInitials()` REMOVIDO em 2026-09-10, e nao repontado: era CODIGO MORTO.
+  //    Provado antes de apagar: membro `protected` (so' o proprio template alcanca),
+  //    `templateUrl` externo, e `grep -o getInitials sidebar-left-nav.component.html` -> 0.
+  //    ⚠️ Ele fazia `AM` (1a+2a), contrariando a decisao `AS` do fundador — uma das 12 copias
+  //    que a divida acumulou, e a unica que nunca chegou a aparecer na tela.
+  //    📌 Deletar vence repontar: uma copia a menos nao pode divergir de novo.
 }

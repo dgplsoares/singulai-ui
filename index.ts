@@ -65,3 +65,8 @@ export * from './components/rich-text-editor';
 // Sub-Fase E.6.B.2.5 (2026-06-30) — File-dropzone canônico (sucede
 // <ds-image-dropzone> que fica @deprecated como alias image-only).
 export * from './components/file-dropzone';
+
+// `DIV-D3-1` (2026-09-10) — a regra de iniciais passa a ter UM dono.
+// ⛔ A dívida foi medida três vezes e cresceu nas duas: 5 → 9 → 12 implementações.
+//    Aplicar a mesma regra em N lugares é como ela dobrou; por isso virou função.
+export * from './utils/iniciais';

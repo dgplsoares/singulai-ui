@@ -6,6 +6,9 @@ import {
 } from '@angular/core';
 
 import { ThumbnailAvatarSize } from './thumbnail-avatar.types';
+// ⛔ Caminho RELATIVO, nao pelo `index.ts` do proprio DS: importar o barrel de dentro dele
+//    cria ciclo (`index` -> componente -> `index`).
+import { iniciaisDe } from '../../utils/iniciais';
 
 /**
  * ThumbnailAvatar — avatar quadrado-arredondado com gradiente top-down + iniciais.
@@ -56,24 +59,17 @@ export class ThumbnailAvatarComponent {
    */
   readonly ariaLabel = input<string | null>(null);
 
-  /** Iniciais derivadas do `name`. Maximo 2 letras, maiusculas. */
-  protected readonly initials = computed(() => {
-    const raw = (this.name() ?? '').trim();
-    if (!raw) return '';
-
-    const words = raw.split(/\s+/).filter(Boolean);
-    if (words.length === 0) return '';
-
-    if (words.length === 1) {
-      // Uma palavra apenas — 2 primeiras letras
-      return words[0].slice(0, 2).toUpperCase();
-    }
-
-    // Multiplas palavras — primeira letra da primeira + primeira da ultima
-    const first = words[0][0] ?? '';
-    const last = words[words.length - 1][0] ?? '';
-    return (first + last).toUpperCase();
-  });
+  /**
+   * Iniciais derivadas do `name`. Maximo 2 letras, maiusculas.
+   *
+   * ⭐ `DIV-D3-1` — A REGRA SAIU DAQUI E VIROU FUNCAO (`utils/iniciais`), sem mudar de valor:
+   * este componente ja' fazia `AS` (primeiro + ultimo), que e' a decisao do fundador. O Gate 1
+   * achou o destino **ja' correto** — o trabalho era EXTRAIR a regra e repontar as outras 11.
+   * ⛔ A divida foi medida tres vezes e cresceu nas duas: 5 → 9 → 12. Enquanto a regra vivia
+   * dentro de um componente, ninguem tinha o que importar, e a 13a copia nasceria na proxima
+   * tela.
+   */
+  protected readonly initials = computed(() => iniciaisDe(this.name()));
 
   /** Flag computada — mostra <img> quando ha src valido. */
   protected readonly hasImage = computed(() => {

@@ -119,11 +119,9 @@
 
   // --- Backgrounds ---
   // Anula dark:bg-gray-{600,700,800} aplicados em divs, dropdowns, table rows
-  .dark\:bg-gray-600,
-  .dark\:bg-gray-700,
-  .dark\:bg-gray-800 {
-    background-color: transparent !important;
-  }
+  // ⛔ `DSC.G2` (2026-09-11) — regra removida: ela existia SO' para ANULAR
+  //    classes `dark:` do Tailwind, e essas classes nao existem mais.
+  //    Era fantasma do fantasma: seletor que nao casa com nada.
 
   // dark:bg-gray-700/30, dark:bg-gray-800/50, dark:bg-gray-700/20 (com alpha)
   // Selectors Tailwind escapam o slash com \/
@@ -134,9 +132,6 @@
   }
 
   // dark:bg-blue-* (filter dropdown active state)
-  .dark\:bg-blue-600 {
-    background-color: var(--ds-apex-blue-500, #3C72D0) !important;
-  }
   [class*='dark\\:bg-blue-900\\/'] {
     background-color: rgba(60, 114, 208, 0.1) !important; // tint sutil light
   }
@@ -154,67 +149,20 @@
 
   // --- Texts ---
   // dark:text-white -> texto principal escuro (header)
-  .dark\:text-white {
-    color: var(--ds-dt-header-color, #0B1E40) !important;
-  }
 
   // dark:text-gray-{200,300,400,500} -> cor cell DS
-  .dark\:text-gray-200,
-  .dark\:text-gray-300,
-  .dark\:text-gray-400,
-  .dark\:text-gray-500 {
-    color: var(--ds-dt-cell-color, #5C6F8E) !important;
-  }
 
   // dark:text-blue-{300,400} (filter active text)
-  .dark\:text-blue-300,
-  .dark\:text-blue-400 {
-    color: var(--ds-apex-blue-500, #3C72D0) !important;
-  }
 
   // dark:text-{red,yellow,green}-{200,300,400} (state texts)
-  .dark\:text-red-200,
-  .dark\:text-red-300,
-  .dark\:text-red-400 {
-    color: #BC3232 !important;
-  }
-  .dark\:text-yellow-400 {
-    color: #BE833F !important;
-  }
-  .dark\:text-green-400 {
-    color: #38A173 !important;
-  }
 
   // --- Borders ---
   // dark:border-gray-{600,700,800} -> divider DS
-  .dark\:border-gray-600,
-  .dark\:border-gray-700,
-  .dark\:border-gray-800 {
-    border-color: var(--ds-dt-divider, #D5DCE6) !important;
-  }
-  .dark\:border-red-800 {
-    border-color: rgba(188, 50, 50, 0.3) !important;
-  }
 
   // --- Hovers ---
   // dark:hover:bg-gray-{600,700} (filter dropdown rows, table rows)
-  .dark\:hover\:bg-gray-600:hover,
-  .dark\:hover\:bg-gray-700:hover {
-    background-color: rgba(231, 238, 247, 0.5) !important;
-  }
-  .dark\:hover\:text-gray-200:hover,
-  .dark\:hover\:text-gray-300:hover {
-    color: var(--ds-dt-header-color, #0B1E40) !important;
-  }
 
   // --- Focus rings ---
-  .dark\:focus\:ring-blue-600:focus,
-  .dark\:focus\:ring-blue-800:focus {
-    --tw-ring-color: var(--ds-apex-blue-500, #3C72D0) !important;
-  }
-  .dark\:ring-offset-gray-800 {
-    --tw-ring-offset-color: #FFFFFF !important;
-  }
 
   // --- Inputs (search) ---
   // Quando dark ativo aplicava dark:bg-gray-700 dark:text-white dark:border-gray-600

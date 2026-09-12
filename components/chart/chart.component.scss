@@ -44,9 +44,9 @@
 
   // "Sem dados" placeholder do shared (template linha 7):
   // <p class="text-sm text-gray-500 dark:text-gray-400">Sem dados</p>
-  .dark\:text-gray-400 {
-    color: var(--ds-chart-empty-color, #5C6F8E) !important;
-  }
+  // ⛔ `DSC.G2` (2026-09-11) — regra removida: ela existia SO' para ANULAR
+  //    classes `dark:` do Tailwind, e essas classes nao existem mais.
+  //    Era fantasma do fantasma: seletor que nao casa com nada.
 
   // Garante que canvas-wrapper do shared nao herda bg dark.
   // O canvas em si renderiza via Chart.js options (controlado pelo

@@ -165,6 +165,12 @@ export class AiAssistantPanelComponent {
   readonly showTabs = input<boolean>(true);
 
   /**
+   * ⭐ `IA-R13` 14.19 · `DEC-R13-BA` — o cabeçalho INATIVO: com `true`, as ações (configurações, créditos, maximizar, fechar) e as abas ficam
+   *    inertes; o corpo projetado segue ativo — é onde mora o PARAR. Padrão `false`: o painel de sempre.
+   */
+  readonly bloqueado = input<boolean>(false);
+
+  /**
    * G1 (DEC-CHAT1-API-6): configuracoes do prompt enviadas ao LLM.
    * Default = DEFAULT_AI_PROMPT_CONFIG (criatividade=medium, tomVoz=casual,
    * external=false, reasoning=false). Caller injeta config persistida.

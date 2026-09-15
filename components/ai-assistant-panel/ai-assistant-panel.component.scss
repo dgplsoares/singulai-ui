@@ -125,6 +125,12 @@
     line-height: 13px;
   }
 
+  // ⭐ `IA-R13` 14.19 · `DEC-R13-BA` — o cabeçalho inativo durante a geração: as ações e as abas inertes, apagadas como o desabilitado do DS.
+  &__actions[inert],
+  &__tabs[inert] {
+    opacity: 0.45;
+  }
+
   &__actions {
     display: inline-flex;
     align-items: center;

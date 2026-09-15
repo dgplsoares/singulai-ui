@@ -19,7 +19,7 @@
       </div>
 
       <!-- Direita: 4 botoes (settings, creditos pill, maximize, close) -->
-      <div class="ds-ai-assistant-panel__actions">
+      <div class="ds-ai-assistant-panel__actions" [attr.inert]="bloqueado() ? '' : null">
 
         <!-- Settings dropdown trigger — Figma 1163:17909 -->
         <div class="ds-ai-assistant-panel__action-wrap">
@@ -224,7 +224,7 @@
          CHAT-1.5: omitido quando showTabs=false (typical com useBodySlot=true
          onde o body projetado ja tem suas proprias tabs). -->
     @if (showTabs()) {
-      <div class="ds-ai-assistant-panel__tabs">
+      <div class="ds-ai-assistant-panel__tabs" [attr.inert]="bloqueado() ? '' : null">
         <ds-segmented-tabs
           [items]="tabItems()"
           [activeKey]="activeTab()"

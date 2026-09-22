@@ -1,0 +1,44 @@
+@if (aberto() !== null && atual(); as fonte) {
+  <!--
+    `role="dialog"` + `aria-modal`: para o leitor de tela isto é uma camada, não um trecho da
+    página. O rótulo descreve QUAL imagem está aberta, e muda com as setas.
+  -->
+  <div
+    class="ds-lightbox"
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-label]="descricao()"
+    (click)="fechar.emit()"
+  >
+    <button type="button" class="ds-lightbox__fechar" aria-label="Fechar" (click)="fechar.emit()">
+      <ng-icon name="heroXMark" size="24" />
+    </button>
+
+    @if (temVarias()) {
+      <!-- ⚠️ `stopPropagation`: sem ele o clique na seta borbulha até o fundo e FECHA a camada. -->
+      <button
+        type="button"
+        class="ds-lightbox__seta ds-lightbox__seta--anterior"
+        aria-label="Imagem anterior"
+        (click)="anterior(); $event.stopPropagation()"
+      >
+        <ng-icon name="heroChevronLeft" size="28" />
+      </button>
+    }
+
+    <img class="ds-lightbox__imagem" [src]="fonte" [alt]="descricao()" (click)="$event.stopPropagation()" />
+
+    @if (temVarias()) {
+      <button
+        type="button"
+        class="ds-lightbox__seta ds-lightbox__seta--proxima"
+        aria-label="Próxima imagem"
+        (click)="proxima(); $event.stopPropagation()"
+      >
+        <ng-icon name="heroChevronRight" size="28" />
+      </button>
+
+      <p class="ds-lightbox__contador">{{ indice() + 1 }} / {{ total() }}</p>
+    }
+  </div>
+}

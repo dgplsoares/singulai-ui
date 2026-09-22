@@ -44,6 +44,8 @@ export * from './components/sidebar-left-nav';
 export * from './components/statsbar-card';
 export * from './components/toast';
 export * from './components/modal-confirm';
+// `PORT.3` — ampliar imagem de uma coleção (galeria do portfólio). Sem nada de Singulai ⇒ DS.
+export * from './components/lightbox';
 export * from './components/datatable';
 export * from './components/chart';
 export * from './components/dropdown-menu';

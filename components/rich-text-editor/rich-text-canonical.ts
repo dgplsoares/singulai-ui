@@ -293,6 +293,56 @@ function walkPmText(node: JSONContent | null | undefined): number {
 }
 
 /**
+ * ============================================================================
+ * `DEF.8` — O MESMO CONTEÚDO, EM **TEXTO PURO** (para lista, cartão e tabela)
+ * ============================================================================
+ *
+ * ⛔ **Por que não bastava o `richTextToDisplayHtml`:** lista, cartão e coluna de tabela mostram uma LINHA de
+ * resumo, muitas vezes truncada por CSS. Injetar HTML ali traria `<p>`, `<h2>` e quebras onde cabe uma frase — e
+ * `[innerHTML]` num `<td>` é convite a layout quebrado. Quem precisa de **estrutura** usa o HTML; quem precisa de
+ * **resumo** usa isto.
+ *
+ * ⚠️ Aceita as TRÊS formas que convivem no banco, como as irmãs: objeto do ProseMirror, string JSON serializada e
+ * texto puro legado (que volta intacto). Parágrafos viram **espaço**, não colagem: sem isso, *"Aula 1"* + *"Aula 2"*
+ * viraria *"Aula 1Aula 2"*.
+ */
+export function richTextToPlainText(value: unknown): string {
+  if (value == null || value === '') return '';
+
+  const doNo = (node: JSONContent): string => {
+    const pedacos: string[] = [];
+    const walk = (n: JSONContent): void => {
+      if (typeof n.text === 'string') pedacos.push(n.text);
+      if (Array.isArray(n.content)) n.content.forEach(walk);
+    };
+    walk(node);
+    return pedacos.join(' ').replace(/\s+/g, ' ').trim();
+  };
+
+  if (typeof value === 'object') {
+    try {
+      return doNo(value as JSONContent);
+    } catch {
+      return '';
+    }
+  }
+
+  if (typeof value !== 'string') return '';
+
+  const trimmed = value.trim();
+  if (trimmed === '') return '';
+  if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+    try {
+      return doNo(JSON.parse(trimmed) as JSONContent);
+    } catch {
+      // ⚠️ Não era JSON de verdade: devolve o texto como está, em vez de engolir o conteúdo.
+      return value;
+    }
+  }
+  return value;
+}
+
+/**
  * Converte qualquer forma persistida de rich text para **HTML string
  * seguro** para exibição (consumido via `[innerHTML]` no template).
  *

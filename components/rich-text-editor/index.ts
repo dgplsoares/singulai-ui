@@ -4,5 +4,6 @@ export {
   normalizeRichTextToCanonical,
   getPlainTextLength,
   richTextToDisplayHtml,
+  richTextToPlainText,
   RTE_EXTENSIONS,
 } from './rich-text-canonical';

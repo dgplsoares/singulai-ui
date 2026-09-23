@@ -369,6 +369,10 @@
   &--toggle-spread {
     width: 100%;
     justify-content: space-between;
+    // ⛔ `CERT-UX` — **A DICA É UM TERCEIRO FILHO DESTA LINHA.** Sem quebrar, ela disputava a largura com o
+    //    rótulo (`flex: 1; min-width: 0`), que colapsava para **0** e os dois textos se atropelavam — medido no
+    //    navegador, no offcanvas de modelo de certificado, e visto pelo fundador no smoke.
+    flex-wrap: wrap;
 
     .ds-form-field__label {
       order: 0;
@@ -379,6 +383,14 @@
     .ds-form-field__control {
       order: 1;
       flex: 0 0 auto;
+    }
+
+    // A dica desce para a própria linha, sob o rótulo — que é onde ela explica o que o toggle faz.
+    .ds-form-field__hint,
+    .ds-form-field__error {
+      order: 2;
+      flex: 0 0 100%;
+      margin-top: 4px;
     }
   }
 

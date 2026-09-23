@@ -119,6 +119,22 @@ export class FormFieldComponent implements ControlValueAccessor {
   /** Mensagem de erro (override do estado interno). */
   readonly errorMessage = input<string | null>(null);
 
+  /**
+   * ⭐ `DEF.10` — MOSTRA O ERRO SEM ESPERAR O BLUR.
+   *
+   * ⛔ **O gap que isto fecha, e ele é a raiz do defeito `E2` do smoke.** O `touched` daqui é
+   * INTERNO: só vira `true` no blur do próprio campo (`onBlur`). O `markAllAsTouched()` do
+   * `FormGroup` **não tem canal** para chegar aqui — o `ControlValueAccessor` do Angular
+   * notifica `disabled`, nunca `touched`. ⇒ o campo obrigatório que o usuário **nunca tocou**
+   * (justamente o que ele esqueceu) ficava **sem erro nenhum**, mesmo com `errorMessage`
+   * preenchido: o formulário recusava o submit e a tela não apontava nada.
+   *
+   * ⚠️ **Default `false` preserva exatamente o comportamento anterior** — quem não passa o
+   * input continua vendo o erro só depois do blur, que é o certo enquanto se digita.
+   * Quem tentou salvar liga isto e o erro aparece onde está.
+   */
+  readonly showError = input<boolean>(false);
+
   /** Marca como obrigatorio (asterisco no label + aria-required). */
   readonly required = input<boolean>(false);
 
@@ -236,9 +252,9 @@ export class FormFieldComponent implements ControlValueAccessor {
     () => this.disabled() || this.internalDisabled(),
   );
 
-  // Estado de erro: ha errorMessage E foi tocado
+  // Estado de erro: ha errorMessage E (foi tocado OU quem hospeda pediu para mostrar)
   protected readonly hasError = computed(
-    () => Boolean(this.errorMessage()) && this.touched(),
+    () => Boolean(this.errorMessage()) && (this.touched() || this.showError()),
   );
 
   // Aria-describedby concatenado: externo + hint + error

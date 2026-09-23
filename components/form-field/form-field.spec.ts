@@ -1,6 +1,6 @@
 import { Component, type Type } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormsModule } from '@angular/forms';
+import { FormControl, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { provideIcons } from '@ng-icons/core';
 import {
   heroChevronDown,
@@ -88,6 +88,30 @@ describe('FormFieldComponent', () => {
     err = fixture.nativeElement.querySelector('.ds-form-field__error');
     expect(err).toBeTruthy();
     expect(err.textContent).toContain('Campo obrigatorio');
+  });
+
+  /**
+   * ⭐ `DEF.10` — o campo NUNCA TOCADO é justamente o que o usuário esqueceu.
+   *
+   * ⛔ O `touched` daqui é interno (só o blur o liga) e o `markAllAsTouched()` do `FormGroup`
+   * não tem canal até aqui. Sem `showError`, o campo obrigatório que ninguém tocou ficava
+   * sem erro nenhum — era a raiz do `E2` do smoke: *"não informa qual campo"*.
+   */
+  it('⭐ `showError` mostra o erro SEM blur — o campo esquecido é o que nunca foi tocado', () => {
+    fixture.componentRef.setInput('errorMessage', 'Título da Live é obrigatório');
+    fixture.componentRef.setInput('showError', true);
+    fixture.detectChanges();
+
+    const err = fixture.nativeElement.querySelector('.ds-form-field__error');
+    expect(err).toBeTruthy();
+    expect(err.textContent).toContain('Título da Live é obrigatório');
+  });
+
+  it('⛔ e sem `showError` o silêncio continua — o default preserva quem não pediu nada', () => {
+    fixture.componentRef.setInput('errorMessage', 'Campo obrigatorio');
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.querySelector('.ds-form-field__error')).toBeFalsy();
   });
 
   it('marca aria-required quando required=true', () => {
@@ -547,4 +571,52 @@ describe('FormFieldComponent — prefixo (`PT.3.7`)', () => {
       expect(q('.ds-form-field__prefix-select')).toBeNull();
     });
   }
+});
+/**
+ * ============================================================================
+ * `CERT-UX` — O RÓTULO NÃO PODE SER ESMAGADO PELA DICA (`toggleAlign="spread"`)
+ * ============================================================================
+ *
+ * ⛔ **Medido no navegador em 2026-09-23**, no offcanvas de modelo de certificado: o rótulo *"Template Padrão?"*
+ * tinha **largura 0** e a dica ocupava 338px **na mesma linha e no mesmo y** — os dois textos se atropelavam.
+ * Causa: em `--toggle-spread` o contêiner é `display:flex` numa linha, e a **dica é um terceiro filho**; com o
+ * rótulo em `flex:1; min-width:0`, ela toma a largura e ele colapsa.
+ *
+ * ⚠️ Rede de GEOMETRIA de propósito: o Karma roda num Chrome de verdade, então `getBoundingClientRect` mede o que
+ * o gestor vê. Um spec de markup não distinguiria — o HTML já estava "certo".
+ */
+describe('FormFieldComponent — toggle spread com dica (`CERT-UX`)', () => {
+  @Component({
+    standalone: true,
+    imports: [FormFieldComponent, ReactiveFormsModule],
+    template: `
+      <div style="width: 420px">
+        <ds-form-field
+          variant="toggle"
+          toggleAlign="spread"
+          label="Template Padrão?"
+          hint="Será usado automaticamente quando nenhum template específico for selecionado"
+          [formControl]="ctrl"
+        />
+      </div>
+    `,
+  })
+  class Hospedeiro {
+    ctrl = new FormControl(false);
+  }
+
+  it('⭐ o rótulo tem largura, e a dica fica ABAIXO — não na mesma linha', async () => {
+    await TestBed.configureTestingModule({ imports: [Hospedeiro] }).compileComponents();
+    const f = TestBed.createComponent(Hospedeiro);
+    f.detectChanges();
+    await f.whenStable();
+
+    const el = f.nativeElement as HTMLElement;
+    const rotulo = el.querySelector('.ds-form-field__label')!.getBoundingClientRect();
+    const dica = el.querySelector('.ds-form-field__hint')!.getBoundingClientRect();
+
+    expect(rotulo.width).toBeGreaterThan(60);
+    // ⛔ o que o fundador viu: os dois no MESMO y, um por cima do outro
+    expect(dica.top).toBeGreaterThanOrEqual(rotulo.bottom - 2);
+  });
 });

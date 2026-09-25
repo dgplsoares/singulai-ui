@@ -737,6 +737,19 @@
     display: flex;
     align-items: center;
     gap: var(--ds-space-md);
+
+    /*
+      ⛔ `margin-top: auto` (fundador, 2026-09-25) — o footer ROLA COM O NAV.
+
+      Ele deixou de ser irmão do `.ds-sidebar__nav` e passou a ser o ÚLTIMO FILHO dele, que é
+      quem tem `overflow-y: auto`. ⇒ com menu longo, desce junto com a rolagem, em vez de ficar
+      colado embaixo.
+
+      ⭐ E o `auto` dá o segundo comportamento de graça: com menu CURTO, a margem automática
+      consome o espaço sobrando e o footer continua no FIM da barra — igual a antes. Sem ele, o
+      footer subiria e encostaria no último item do menu.
+    */
+    margin-top: auto;
   }
 
   &__user-button {

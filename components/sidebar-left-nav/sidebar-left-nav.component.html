@@ -338,26 +338,56 @@
         }
       </div>
     }
-  </nav>
 
-  <!-- Footer: botao redondo neumorphic com icone usuario (Figma 1102:15526) -->
-  <footer class="ds-sidebar__footer">
     <!--
-      `PT.1.J` / `DEC-PT-4` — o menu do usuario.
-      ⛔ COM itens, o botao vira o TRIGGER do <ds-dropdown-menu>; SEM itens, ele continua
-      emitindo `accountClick` exatamente como antes. O default preserva os consumidores
-      que ja' existem — input novo que muda o comportamento de quem ja' usa e' regressao.
-      ⚠️ O botao e' o MESMO nos dois ramos (mesma classe, mesmo icone): duplicar o markup
-      faria os dois envelhecerem em direcoes diferentes.
+      ⛔ O FOOTER MORA DENTRO DO `<nav>` — e não é descuido (fundador, 2026-09-25):
+      *"o `ds-sidebar__footer` deve descer no scroll junto com o nav left sidebar, e não mais
+      fixar sticky, como é hoje"*.
+
+      ⚠️ **Por que DENTRO e não num wrapper novo:** quem rola é o `.ds-sidebar__nav`
+      (`overflow-y: auto`), e o conserto do sangramento da sombra (2026-09-24) depende disso —
+      ele cresce a caixa 20px para cada lado e devolve o mesmo no padding, para a borda de
+      recorte se afastar. Mover o `overflow` para um wrapper arrastaria essa técnica junto e
+      poria em risco um conserto recente. Mover o footer para dentro custa uma linha.
+
+      ⚠️ E o `margin-top: auto` no CSS dá os DOIS comportamentos: o footer fica no FIM quando o
+      menu é curto (como antes) e ROLA quando o menu é longo (o que foi pedido).
     -->
-    @if (userMenuItems().length) {
-      <ds-dropdown-menu
-        [items]="userMenuItems()"
-        position="top-start"
-        ariaLabel="Menu da conta"
-        (itemSelect)="userMenuSelect.emit($event)"
-      >
-        <button class="ds-sidebar__user-button" type="button" aria-label="Minha Conta">
+    <!-- Footer: botao redondo neumorphic com icone usuario (Figma 1102:15526) -->
+    <footer class="ds-sidebar__footer">
+      <!--
+        `PT.1.J` / `DEC-PT-4` — o menu do usuario.
+        ⛔ COM itens, o botao vira o TRIGGER do <ds-dropdown-menu>; SEM itens, ele continua
+        emitindo `accountClick` exatamente como antes. O default preserva os consumidores
+        que ja' existem — input novo que muda o comportamento de quem ja' usa e' regressao.
+        ⚠️ O botao e' o MESMO nos dois ramos (mesma classe, mesmo icone): duplicar o markup
+        faria os dois envelhecerem em direcoes diferentes.
+      -->
+      @if (userMenuItems().length) {
+        <ds-dropdown-menu
+          [items]="userMenuItems()"
+          position="top-start"
+          ariaLabel="Menu da conta"
+          (itemSelect)="userMenuSelect.emit($event)"
+        >
+          <button class="ds-sidebar__user-button" type="button" aria-label="Minha Conta">
+            <img
+              class="ds-sidebar__user-icon"
+              [src]="userIconSrc()"
+              width="14"
+              height="18"
+              alt=""
+              aria-hidden="true"
+            />
+          </button>
+        </ds-dropdown-menu>
+      } @else {
+        <button
+          class="ds-sidebar__user-button"
+          type="button"
+          aria-label="Minha Conta"
+          (click)="onAccountClick()"
+        >
           <img
             class="ds-sidebar__user-icon"
             [src]="userIconSrc()"
@@ -367,27 +397,13 @@
             aria-hidden="true"
           />
         </button>
-      </ds-dropdown-menu>
-    } @else {
-      <button
-        class="ds-sidebar__user-button"
-        type="button"
-        aria-label="Minha Conta"
-        (click)="onAccountClick()"
-      >
-        <img
-          class="ds-sidebar__user-icon"
-          [src]="userIconSrc()"
-          width="14"
-          height="18"
-          alt=""
-          aria-hidden="true"
-        />
-      </button>
-    }
+      }
 
-    @if (isExpanded() && user()) {
-      <span class="ds-sidebar__user-name">{{ user()!.name }}</span>
-    }
-  </footer>
+      @if (isExpanded() && user()) {
+        <span class="ds-sidebar__user-name">{{ user()!.name }}</span>
+      }
+    </footer>
+  </nav>
+
+
 </aside>

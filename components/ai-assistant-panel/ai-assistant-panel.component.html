@@ -131,7 +131,12 @@
             (click)="onCreditsClick($event)"
           >
             <span class="ds-ai-assistant-panel__credits-label">Créditos IA</span>
-            <span class="ds-ai-assistant-panel__credits-value">({{ credits() }})</span>
+            <!--
+              ⚠️ `saldoExibido()` e nao `credits()`: ele aplica a casa do milhar (`9.403`, pedido do
+                 fundador em 2026-09-25) e mostra `...` durante a carga, em vez de um `(0)` que e'
+                 exatamente o sintoma do defeito que esta divida consertou.
+            -->
+            <span class="ds-ai-assistant-panel__credits-value">({{ saldoExibido() }})</span>
             <ng-icon
               class="ds-ai-assistant-panel__credits-chevron"
               [class.ds-ai-assistant-panel__credits-chevron--open]="creditsDropdownOpen()"
@@ -140,47 +145,133 @@
             ></ng-icon>
           </button>
 
-          <!-- Dropdown menu — mesmo estilo do showcase__dropdown -->
+          <!--
+            ⭐ `DIV-CRED-DROPDOWN` (2026-09-25) — OS TRES ITENS INVENTADOS SAIRAM.
+
+            ⛔ O QUE ESTAVA AQUI: "Histórico de uso" · "Adicionar créditos" · "Gerenciar plano",
+               os tres chamando `onCreditsAction()`, que **so' dava `console.log`** — nao havia
+               `@Output`. O fundador: *"a versao refatorada traz opcoes do menu dropdown que nunca
+               foram desenhadas, foi invencao"*. **Provado por artefato**, nao aceito por confianca:
+               o legado (`ai-credits-dropdown.component.ts`, apagado em `d214eb2ec`) declara
+               *"Design conforme Figma node 53:10364"* e tem os SETE elementos abaixo — nenhum dos
+               tres aparece nele.
+
+            ⚠️ CONTEUDO do legado; ESTILO do Figma `1056:8903`, por instrucao escrita do fundador
+               no doc canonico de links (§1.2.1.1): *"este componente esta' perfeito, precisa agora
+               so' que o seu design tenha o mesmo estilo (...) use o componente do drop-down de
+               opcoes do card como referencia"*. ⇒ nao ha' node do painel ABERTO para creditos.
+          -->
           @if (creditsDropdownOpen()) {
-            <div class="ds-ai-assistant-panel__dropdown" role="menu">
-              <button
-                type="button"
-                class="ds-ai-assistant-panel__dropdown-item"
-                role="menuitem"
-                (click)="onCreditsAction('history')"
-              >
+            <div
+              class="ds-ai-assistant-panel__dropdown ds-ai-assistant-panel__dropdown--credits"
+              role="menu"
+            >
+              <!-- 1 · cabecalho -->
+              <div class="ds-ai-assistant-panel__credits-head">
                 <ng-icon
-                  class="ds-ai-assistant-panel__dropdown-icon"
-                  name="heroClock"
+                  class="ds-ai-assistant-panel__credits-head-icon"
+                  name="heroSparkles"
                   size="16px"
                 ></ng-icon>
-                Histórico de uso
-              </button>
+                <span>Créditos de IA</span>
+              </div>
+
+              @if (creditsLoading()) {
+                <!-- 2 · carregando -->
+                <div class="ds-ai-assistant-panel__credits-state">
+                  <ng-icon
+                    class="ds-ai-assistant-panel__credits-spin"
+                    name="heroArrowPath"
+                    size="16px"
+                  ></ng-icon>
+                  <span>Carregando...</span>
+                </div>
+              } @else if (creditsError(); as erro) {
+                <!--
+                  3 · erro com RETENTATIVA.
+                  ⛔ E ESTE RAMO E' OBRIGATORIO, nao cortesia: quando a carga falha, o service
+                     mantem `credits` em `null` e `balance()` devolve **0** (`?? 0`). Sem este
+                     ramo, a tela diria *"0 créditos"* — um numero **falso** com cara de verdade.
+                  📌 O `IA-RESIDUO` ja' tirou daqui a fabricacao oposta (o `catch` injetava
+                     `balance: 100, monthlyLimit: 500` e apagava o proprio erro). A regra que
+                     sobrou vale nos dois sentidos: o erro fica, e a tela mostra o erro.
+                -->
+                <div class="ds-ai-assistant-panel__credits-state ds-ai-assistant-panel__credits-state--error">
+                  <span>{{ erro }}</span>
+                  <button
+                    type="button"
+                    class="ds-ai-assistant-panel__credits-retry"
+                    (click)="onTentarDeNovo()"
+                  >
+                    <ng-icon name="heroArrowPath" size="14px"></ng-icon>
+                    Tentar novamente
+                  </button>
+                </div>
+              } @else {
+                <!-- 4 · créditos contratados -->
+                <div class="ds-ai-assistant-panel__credits-row">
+                  <span class="ds-ai-assistant-panel__credits-row-label">Créditos contratados</span>
+                  <span class="ds-ai-assistant-panel__credits-row-value">
+                    {{ cotaExibida() }}
+                  </span>
+                </div>
+
+                <!-- 5 · créditos restantes -->
+                <div class="ds-ai-assistant-panel__credits-row ds-ai-assistant-panel__credits-row--destaque">
+                  <span class="ds-ai-assistant-panel__credits-row-label">Créditos restantes</span>
+                  <span
+                    class="ds-ai-assistant-panel__credits-row-value"
+                    [class.ds-ai-assistant-panel__credits-row-value--baixo]="creditosBaixos()"
+                  >
+                    {{ saldoExibido() }}
+                  </span>
+                </div>
+
+                <!--
+                  6 · barra de uso — `ds-progress-bar` do DS, nao um `<div>` com width inline.
+
+                  ⚠️ SO' COM COTA: sem `monthlyLimit` o percentual e' 0 por construcao, e uma barra
+                     vazia com *"0% utilizado"* afirmaria que a tenant nao gastou nada — que e'
+                     diferente de *"nao ha' cota a comparar"*. O legado a mostrava sempre; esta e'
+                     uma divergencia deliberada, registrada como `DEC-FIG-CRED-1`.
+
+                  ⛔ E SO' QUANDO O SALDO NAO PASSA DA COTA (`mostraBarraDeUso`) — o fundador achou
+                     **`-840% utilizado`** em 2026-09-25, com saldo 9.403 sobre cota 1.000. A conta
+                     estava certa; a PREMISSA (`saldo <= cota`) e' que nao se sustenta quando ha'
+                     insercao manual de admin ou compra de creditos. Ver o docblock do
+                     `percentualUsado` no `.ts` — a medicao das transacoes esta' la'.
+                -->
+                @if (mostraBarraDeUso()) {
+                  <div class="ds-ai-assistant-panel__credits-progress">
+                    <ds-progress-bar
+                      [value]="percentualUsado()"
+                      [max]="100"
+                      size="sm"
+                      [ariaLabel]="'Créditos utilizados: ' + percentualUsado() + '%'"
+                    />
+                    <span class="ds-ai-assistant-panel__credits-progress-label">
+                      {{ percentualUsado() }}% utilizado
+                    </span>
+                  </div>
+                }
+
+                <!-- 7 · aviso de saldo baixo -->
+                @if (creditosBaixos()) {
+                  <div class="ds-ai-assistant-panel__credits-warning">
+                    Seus créditos estão acabando!
+                  </div>
+                }
+              }
+
+              <!-- 8 · rodapé: comprar mais -->
               <button
                 type="button"
-                class="ds-ai-assistant-panel__dropdown-item"
+                class="ds-ai-assistant-panel__credits-buy"
                 role="menuitem"
-                (click)="onCreditsAction('add')"
+                (click)="onComprarCreditos()"
               >
-                <ng-icon
-                  class="ds-ai-assistant-panel__dropdown-icon"
-                  name="heroPlusCircle"
-                  size="16px"
-                ></ng-icon>
-                Adicionar créditos
-              </button>
-              <button
-                type="button"
-                class="ds-ai-assistant-panel__dropdown-item"
-                role="menuitem"
-                (click)="onCreditsAction('plan')"
-              >
-                <ng-icon
-                  class="ds-ai-assistant-panel__dropdown-icon"
-                  name="heroCurrencyDollar"
-                  size="16px"
-                ></ng-icon>
-                Gerenciar plano
+                <ng-icon name="heroPlusCircle" size="16px"></ng-icon>
+                <span>Comprar mais créditos</span>
               </button>
             </div>
           }

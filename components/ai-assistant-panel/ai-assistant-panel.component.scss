@@ -259,6 +259,181 @@
       inset 0 -2px 2px rgba(0, 0, 0, 0.12);
   }
 
+  /*
+    ⭐ `DIV-CRED-DROPDOWN` (2026-09-25) — os elementos do menu de creditos.
+
+    ⚠️ O CONTAINER (`&__dropdown`, acima) NAO FOI TOCADO, e a medicao e' a razao: ele ja' implementa
+       o Figma `1056:8903` que o fundador indicou como referencia — mesmo `#EDF1F6`, mesma borda
+       `#ADC2DD`, mesmo radius 8, padding 11, gap 11 e as SETE sombras, uma a uma.
+    ⇒ o estilo estava certo; o que estava errado era o CONTEUDO. Reescrever o container teria sido
+      a segunda versao do mesmo desenho.
+
+    ⛔ LIGHTMODE-FIRST: zero `:host-context(.dark)`, zero cor da paleta dark.
+  */
+  &__dropdown--credits {
+    min-width: 232px;
+  }
+
+  &__credits-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 800;
+    font-size: 13px;
+    color: #426FB3;
+  }
+
+  &__credits-head-icon {
+    color: #5D7FBD;
+    flex-shrink: 0;
+  }
+
+  &__credits-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    font-family: 'Manrope', sans-serif;
+    font-size: 13px;
+  }
+
+  &__credits-row-label {
+    font-weight: 500;
+    color: #617BA9;
+  }
+
+  &__credits-row-value {
+    font-weight: 700;
+    color: #5D7FBD;
+    white-space: nowrap;
+
+    /*
+      ⚠️ Vermelho SO' no saldo baixo. `#C2410C` e nao `#DC2626`: a linha vive sobre `#EDF1F6`, e o
+      vermelho puro sobre fundo azulado claro vibra. Este e' o mesmo tom de alerta que o DS usa em
+      estado `warning`.
+    */
+    &--baixo {
+      color: #C2410C;
+    }
+  }
+
+  /*
+    ⚠️ REGRA PROPRIA, e nao um seletor composto solto. A 1a versao escrevia
+    `&__credits-row--destaque &__credits-row-value { font-size: 15px }` — o modificador so'
+    existia como ANCESTRAL de outra classe, nunca como regra dele mesmo, e a catraca
+    `check-classe-orfa-nao-cresce.mjs` subiu de 229 para 230 por causa disso.
+    📌 Classe que so' aparece dentro do seletor de outra e' classe sem regra: quem le' o HTML nao
+      tem onde descobrir o que ela faz.
+  */
+  &__credits-row--destaque {
+    padding-top: 1px;
+
+    .ds-ai-assistant-panel__credits-row-value {
+      font-size: 15px;
+    }
+  }
+
+  &__credits-progress {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  &__credits-progress-label {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 500;
+    font-size: 11px;
+    color: #617BA9;
+  }
+
+  &__credits-warning {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 600;
+    font-size: 12px;
+    color: #C2410C;
+    background: #FEF3E7;
+    border-radius: 6px;
+    padding: 7px 9px;
+  }
+
+  &__credits-state {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 500;
+    font-size: 12px;
+    color: #617BA9;
+
+    &--error {
+      color: #C2410C;
+    }
+  }
+
+  &__credits-spin {
+    color: #5D7FBD;
+    animation: ds-ai-panel-girar 1s linear infinite;
+  }
+
+  /*
+    ⚠️ AS DUAS REGRAS SAO SEPARADAS DE PROPOSITO, e a razao e' o MEDIDOR, nao o estilo.
+    A 1a versao escrevia `&__credits-retry,\n  &__credits-buy {` — lista de seletores em DUAS
+    linhas. O `check-classe-orfa-nao-cresce.mjs` so' resolve `&` quando a linha TERMINA em `{`
+    (ou abre e fecha na mesma linha), e o fallback dele casa `\.classe` — que `&__credits-retry`
+    nao tem. ⇒ a classe ficava invisivel para o parser e era contada como ORFA (229 -> 230).
+    📌 E' a MESMA familia do defeito que o cabecalho daquele guard ja' registra (`.sistema__grid--4`
+      em one-liner aninhado). Registrado como `DIV-CRED-DROPDOWN-1`: o guard nao enxerga lista de
+      seletores multi-linha, e outras classes podem estar passando por baixo dele.
+  */
+  &__credits-retry {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    width: 100%;
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    color: #5D7FBD;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: #426FB3;
+    }
+  }
+
+  &__credits-buy {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    width: 100%;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: 'Manrope', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    color: #5D7FBD;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: #426FB3;
+    }
+
+    /*
+      Separado do bloco de numeros por uma divisoria — ele e' ACAO, e os de cima sao INFORMACAO.
+      ⚠️ `border-top` no proprio botao em vez de um `<hr>`: o gap de 11px do container ja' separa,
+      e um elemento so' para desenhar linha e' ruido no DOM de um menu.
+    */
+    border-top: 1px solid #DCE4EF;
+    padding: 10px 0 0;
+    margin-top: 1px;
+  }
+
   &__dropdown-item {
     display: flex;
     align-items: center;
@@ -748,5 +923,15 @@
       outline: 2px solid var(--ds-apex-blue-500);
       outline-offset: 2px;
     }
+  }
+}
+
+/*
+  Giro do icone de carregamento do menu de creditos. ⚠️ Fora do bloco `&` porque `@keyframes` nao
+  aninha em seletor — e o nome e' prefixado para nao colidir com animacao de outro componente do DS.
+*/
+@keyframes ds-ai-panel-girar {
+  to {
+    transform: rotate(360deg);
   }
 }

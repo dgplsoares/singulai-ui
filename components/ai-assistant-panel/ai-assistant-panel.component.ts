@@ -153,6 +153,34 @@ export class AiAssistantPanelComponent {
     this.creditsLoading() ? '...' : this.emMilhar.format(this.credits()),
   );
 
+  /**
+   * ⭐ AS TRES LINHAS SAO DO MESMO NIVEL (fundador, 2026-09-25):
+   *    *"como se fosse uma tabela de valores disponibilizados vs consumidos. Nao ha' hierarquia.
+   *    Ha' a quantidade contratada e a quantidade consumida e a quantidade restante. Apenas isso,
+   *    mas todos os numeros sao de mesmo nivel de tratamento."*
+   *
+   * ⚠️ E O CONSUMO E' DERIVADO, NAO MEDIDO — limite declarado, nao escondido.
+   *    O `/billing/ai-credits` devolve `balance`, `reserved`, `available` e `monthlyLimit`. Nao ha'
+   *    campo de CONSUMO. ⇒ aqui ele e' `cota - saldo`, com piso em 0.
+   *
+   * ⛔ E ISSO ERRA QUANDO HA' CREDITO EXTRA. Medido na tenant `diogo-rm3a4d`: `usage` somado no
+   *    banco e' **-3.097**, e esta conta daria **0** (porque o saldo, 9.403, passa da cota de
+   *    1.000 por insercao de admin). O numero honesto exigiria o backend somar `usage` do ciclo —
+   *    e' campo novo, nao calculo de front.
+   * ⇒ enquanto isso, a linha SAI quando o saldo passa da cota (`mostraConsumo`), em vez de exibir
+   *   um zero que o proprio banco desmente.
+   */
+  protected readonly consumido = computed(() => {
+    const cota = this.creditsMonthlyLimit();
+    if (!cota) return 0;
+    return Math.max(0, cota - this.credits());
+  });
+
+  protected readonly consumidoExibido = computed(() => this.emMilhar.format(this.consumido()));
+
+  /** Mesma condicao da barra: com saldo acima da cota, "consumido" deixa de descrever a realidade. */
+  protected readonly mostraConsumo = computed(() => this.mostraBarraDeUso());
+
   protected readonly cotaExibida = computed(() => {
     const cota = this.creditsMonthlyLimit();
     return cota === null ? '∞' : this.emMilhar.format(cota);

@@ -208,23 +208,41 @@
                   </button>
                 </div>
               } @else {
-                <!-- 4 · créditos contratados -->
+                <!--
+                  4 · A TABELA: contratados · consumidos · restantes — TODOS NO MESMO NIVEL.
+
+                  ⭐ Pedido do fundador (2026-09-25): *"como se fosse uma tabela de valores
+                     disponibilizados vs consumidos. Nao ha' hierarquia. (...) todos os numeros sao
+                     de mesmo nivel de tratamento. Por tanto, mesmo tamanho de fonte, cor, fonte
+                     peso e etc."*
+                  ⛔ Por isso saiu a classe `--destaque` do "restantes": ela dava 15px ao valor
+                     enquanto os outros ficavam em 13px, e o `--baixo` o pintava de vermelho. Os
+                     tres sao fatos do mesmo tipo; um deles maior sugeria uma hierarquia que nao
+                     existe.
+                  ⚠️ O ALERTA DE SALDO BAIXO NAO SE PERDE — ele continua, no aviso proprio logo
+                     abaixo (*"Seus creditos estao acabando!"*), que e' onde ele nao compete com a
+                     leitura da tabela.
+                -->
                 <div class="ds-ai-assistant-panel__credits-row">
                   <span class="ds-ai-assistant-panel__credits-row-label">Créditos contratados</span>
-                  <span class="ds-ai-assistant-panel__credits-row-value">
-                    {{ cotaExibida() }}
-                  </span>
+                  <span class="ds-ai-assistant-panel__credits-row-value">{{ cotaExibida() }}</span>
                 </div>
 
-                <!-- 5 · créditos restantes -->
-                <div class="ds-ai-assistant-panel__credits-row ds-ai-assistant-panel__credits-row--destaque">
+                @if (mostraConsumo()) {
+                  <!--
+                    ⚠️ DERIVADO (`cota - saldo`), nao medido: a API nao devolve consumo. A linha SAI
+                       quando o saldo passa da cota, porque ali a conta daria 0 e o banco mostra
+                       -3.097 de `usage` na tenant que o fundador usou. Ver o docblock no `.ts`.
+                  -->
+                  <div class="ds-ai-assistant-panel__credits-row">
+                    <span class="ds-ai-assistant-panel__credits-row-label">Créditos consumidos</span>
+                    <span class="ds-ai-assistant-panel__credits-row-value">{{ consumidoExibido() }}</span>
+                  </div>
+                }
+
+                <div class="ds-ai-assistant-panel__credits-row">
                   <span class="ds-ai-assistant-panel__credits-row-label">Créditos restantes</span>
-                  <span
-                    class="ds-ai-assistant-panel__credits-row-value"
-                    [class.ds-ai-assistant-panel__credits-row-value--baixo]="creditosBaixos()"
-                  >
-                    {{ saldoExibido() }}
-                  </span>
+                  <span class="ds-ai-assistant-panel__credits-row-value">{{ saldoExibido() }}</span>
                 </div>
 
                 <!--

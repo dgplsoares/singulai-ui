@@ -168,6 +168,64 @@ describe('`DIV-CRED-DROPDOWN` · o menu de Créditos IA', () => {
     });
   });
 
+  describe('⭐ a TABELA: contratados · consumidos · restantes, todos no mesmo nível', () => {
+    /**
+     * Pedido do fundador (2026-09-25): *"Não há hierarquia. (...) todos os números são de mesmo
+     * nível de tratamento. Por tanto, mesmo tamanho de fonte, cor, fonte peso e etc."*
+     */
+    it('as TRÊS linhas aparecem quando o saldo cabe na cota', () => {
+      const el = abrir(montar({ credits: 250, creditsMonthlyLimit: 1000 }));
+      const t = texto(el);
+
+      expect(t).toContain('Créditos contratados');
+      expect(t).toContain('Créditos consumidos');
+      expect(t).toContain('Créditos restantes');
+      // 1000 − 250 = 750 consumidos
+      expect(t).toContain('750');
+    });
+
+    it('⛔ NENHUMA das três recebe tratamento diferente — nem classe, nem tamanho', () => {
+      const el = abrir(montar({ credits: 250, creditsMonthlyLimit: 1000 }));
+
+      const valores = Array.from(
+        el.querySelectorAll('.ds-ai-assistant-panel__credits-row-value'),
+      );
+      expect(valores.length).withContext('as três linhas').toBe(3);
+
+      // ⛔ A hierarquia que saiu: `--destaque` dava 15px ao "restantes" e `--baixo` o pintava de
+      //    vermelho. Um deles diferente sugeria uma precedência que não existe entre os três.
+      for (const v of valores) {
+        expect(v.className).not.toContain('--destaque');
+        expect(v.className).not.toContain('--baixo');
+      }
+      expect(el.querySelector('.ds-ai-assistant-panel__credits-row--destaque')).toBeNull();
+    });
+
+    it('⚠️ o "consumidos" SAI quando o saldo passa da cota — a conta daria 0 e o banco desmente', () => {
+      // Medido na tenant do relato: `usage` somado é −3.097, e `cota − saldo` daria 0.
+      const el = abrir(montar({ credits: 9403, creditsMonthlyLimit: 1000 }));
+
+      expect(texto(el)).not.toContain('Créditos consumidos');
+      // ⭐ Mas os outros dois ficam: são fatos medidos, não derivados.
+      expect(texto(el)).toContain('Créditos contratados');
+      expect(texto(el)).toContain('Créditos restantes');
+    });
+
+    it('⭐ e o alerta de saldo baixo NÃO se perdeu — mudou de lugar', () => {
+      const el = abrir(montar({ credits: 40, creditsMonthlyLimit: 1000 }));
+
+      // Ele saiu da COR do número e continua no aviso próprio, onde não compete com a leitura
+      // da tabela.
+      expect(texto(el)).toContain('Seus créditos estão acabando!');
+    });
+
+    it('o consumido também usa a casa do milhar', () => {
+      const el = abrir(montar({ credits: 500, creditsMonthlyLimit: 5000 }));
+
+      expect(texto(el)).toContain('4.500');
+    });
+  });
+
   describe('⭐ a casa do milhar (fundador, 2026-09-25)', () => {
     it('o gatilho mostra `(9.403)`, não `(9403)`', () => {
       const el = montar({ credits: 9403 });

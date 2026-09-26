@@ -308,30 +308,6 @@
     color: #5D7FBD;
     white-space: nowrap;
 
-    /*
-      ⚠️ Vermelho SO' no saldo baixo. `#C2410C` e nao `#DC2626`: a linha vive sobre `#EDF1F6`, e o
-      vermelho puro sobre fundo azulado claro vibra. Este e' o mesmo tom de alerta que o DS usa em
-      estado `warning`.
-    */
-    &--baixo {
-      color: #C2410C;
-    }
-  }
-
-  /*
-    ⚠️ REGRA PROPRIA, e nao um seletor composto solto. A 1a versao escrevia
-    `&__credits-row--destaque &__credits-row-value { font-size: 15px }` — o modificador so'
-    existia como ANCESTRAL de outra classe, nunca como regra dele mesmo, e a catraca
-    `check-classe-orfa-nao-cresce.mjs` subiu de 229 para 230 por causa disso.
-    📌 Classe que so' aparece dentro do seletor de outra e' classe sem regra: quem le' o HTML nao
-      tem onde descobrir o que ela faz.
-  */
-  &__credits-row--destaque {
-    padding-top: 1px;
-
-    .ds-ai-assistant-panel__credits-row-value {
-      font-size: 15px;
-    }
   }
 
   &__credits-progress {

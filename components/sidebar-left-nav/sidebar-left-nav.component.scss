@@ -501,6 +501,49 @@
   // Inactive: sem container (icone solto com filter)
   // Active: 40x40 centralizado com triple-border + bg
   // ==========================================================================
+  /*
+    ⭐ **O ITEM ATIVO VOLTA A 40x40 — a largura da própria coluna (2026-09-29).**
+
+    **Relato do fundador:** no recolhido, o ativo ficava *"com size contido ao espaço"*. Os
+    inativos não têm corpo (só o ícone solto), então o aperto não aparece neles; o ativo **tem**
+    fundo e borda, e ficava espremido.
+
+    ⭐ **Medido por sonda no navegador, e o número não foi escolhido — foi encontrado:**
+    ```
+    botões do topo (mesma coluna)   40 x 40  ·  x=24  ·  centro 44
+    item ativo (antes)              34 x 35  ·  x=27  ·  centro 44
+    ```
+    ⇒ o ativo era **6px mais estreito** que os botões que ficam logo acima dele, na mesma barra.
+    ⭐ **E o comentário logo abaixo já dizia `"Active: 40x40 centralizado"`** — a intenção era 40;
+    o código tinha ido para 35. O conserto **restaura o que o próprio arquivo declarava**.
+
+    ⛔ **Por que a margem negativa vai no WRAP e não no item:** o item é `width: 100%`, e 100% do
+    quê é o wrap. Alargar o wrap alarga o item **e mantém o centro em 44** (as margens são
+    simétricas), que é o alinhamento consertado ontem. Mexer no item com largura fixa
+    reintroduziria o desalinhamento de 0,5px que `margin: auto` não corrige quando a caixa é
+    maior que o contêiner.
+
+    🗄️ ~~**-3px, não -8px** — *"`-8px` dá 50px, mais largo que os botões do topo (40)"*~~
+    ⛔ **REVERTIDO PELO FUNDADOR em 2026-09-29, depois de ver os 40px na tela dele.**
+
+    Eu medi que 40px alinha o ativo com os botões do topo e recomendei `-3px` com esse número na
+    mão. Ele aplicou, olhou, e manteve o pedido original: *"o item continua com o width reduzido
+    dentro do container. Ele precisa expandir 8px para os lados para fora do container
+    `ds-sidebar__nav`"*.
+
+    ⭐ **A medição estava certa e mesmo assim perdeu** — e isso não é contradição. Eu media
+    *"alinha com os botões do topo"*; o que ele julga é **quanto respiro o corpo do ativo pede**,
+    que é uma pergunta de desenho e não de aritmética. ⇒ **-8px**, que leva a 50px: o ativo
+    passa a ser DELIBERADAMENTE mais largo que os botões do topo.
+
+    📌 Fica registrado para a próxima sessão não "consertar" isto de volta para 40 achando que
+    encontrou um desalinhamento. **Não encontrou: é escolha.**
+  */
+  &--collapsed &__menu-item-wrap {
+    margin-left: -8px;
+    margin-right: -8px;
+  }
+
   &--collapsed &__menu-item {
     justify-content: center;
     align-items: center;
@@ -535,9 +578,15 @@
     */
     &--active {
       width: 100%;
-      height: 35px;
+      /*
+        ⚠️ **A ALTURA E A MARGEM MUDAM JUNTAS, e o slot continua 44px.** Era `35px + 4,5px`;
+        agora é `40px + 2px` — a mesma soma. O slot de 44 é o que alinha o ativo com os inativos
+        no eixo vertical; mexer na altura sem recalcular a margem desalinharia a coluna inteira
+        para consertar a largura.
+      */
+      height: 40px;
       padding: 0;
-      margin: 4.5px auto;
+      margin: 2px auto;
     }
   }
 

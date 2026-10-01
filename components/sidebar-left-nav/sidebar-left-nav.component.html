@@ -217,15 +217,36 @@
             >
               @for (sub of item.submenu; track sub.key) {
                 <li role="none">
-                  <a
-                    class="ds-sidebar__submenu-item"
-                    routerLinkActive="ds-sidebar__submenu-item--active"
-                    [routerLink]="sub.route"
-                    role="menuitem"
-                    (click)="onSubmenuItemClick(sub.key)"
-                  >
-                    {{ sub.label }}
-                  </a>
+                  <!--
+                    `MENU-CAT.3` — item de ACAO renderiza <button>, nao <a>.
+                    ⛔ `<a [routerLink]="undefined">` e' LINK MORTO: sem href, e o `routerLink`
+                       vazio pode disparar navegacao para a rota atual. O <button> e' o elemento
+                       certo semanticamente (ele nao vai a lugar nenhum — ele FAZ algo) e o teclado
+                       o ativa com Space, alem de Enter.
+                    ⚠️ Sao DOIS caminhos de render neste arquivo (aqui, expandido; e o dropdown do
+                       sidebar recolhido, abaixo). Consertar um so' deixaria metade do componente
+                       com o link morto.
+                  -->
+                  @if (sub.acao) {
+                    <button
+                      type="button"
+                      class="ds-sidebar__submenu-item"
+                      role="menuitem"
+                      (click)="onSubmenuItemClick(sub.key)"
+                    >
+                      {{ sub.label }}
+                    </button>
+                  } @else {
+                    <a
+                      class="ds-sidebar__submenu-item"
+                      routerLinkActive="ds-sidebar__submenu-item--active"
+                      [routerLink]="sub.route"
+                      role="menuitem"
+                      (click)="onSubmenuItemClick(sub.key)"
+                    >
+                      {{ sub.label }}
+                    </a>
+                  }
                 </li>
               }
             </ul>
@@ -283,15 +304,27 @@
               <ul class="ds-sidebar__submenu" role="menu">
                 @for (sub of item.submenu; track sub.key) {
                   <li role="none">
-                    <a
-                      class="ds-sidebar__submenu-item"
-                      routerLinkActive="ds-sidebar__submenu-item--active"
-                      [routerLink]="sub.route"
-                      role="menuitem"
-                      (click)="onSubmenuItemClick(sub.key)"
-                    >
-                      {{ sub.label }}
-                    </a>
+                    <!-- `MENU-CAT.3` — o MESMO tratamento do caminho expandido (ver acima). -->
+                    @if (sub.acao) {
+                      <button
+                        type="button"
+                        class="ds-sidebar__submenu-item"
+                        role="menuitem"
+                        (click)="onSubmenuItemClick(sub.key)"
+                      >
+                        {{ sub.label }}
+                      </button>
+                    } @else {
+                      <a
+                        class="ds-sidebar__submenu-item"
+                        routerLinkActive="ds-sidebar__submenu-item--active"
+                        [routerLink]="sub.route"
+                        role="menuitem"
+                        (click)="onSubmenuItemClick(sub.key)"
+                      >
+                        {{ sub.label }}
+                      </a>
+                    }
                   </li>
                 }
               </ul>

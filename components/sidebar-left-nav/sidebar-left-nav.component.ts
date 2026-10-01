@@ -366,8 +366,23 @@ export class SidebarLeftNavComponent {
   /** Click em um resultado: navega + auto-expande grupo pai + limpa search. */
   protected selectSearchResult(result: SidebarSearchResult): void {
     const route = result.item.route;
+    /**
+     * ⭐ `MENU-CAT.3` — item de AÇÃO escolhido na BUSCA precisa AGIR, não ficar inerte.
+     *
+     * Este ramo existia para o placeholder "Em breve" (sem rota ⇒ não navega). Com `acao: true` a
+     * ausência de rota passou a ter outro significado: emite o `submenuItemClick` para o host, fecha
+     * a busca, e quem decide o que fazer é o produto.
+     * ⚠️ Sem isto, achar *"Abrir Chat com IA"* pela busca **não abriria nada** — e o caminho da
+     *    busca é justamente o que ninguém testa à mão.
+     */
+    if (!route && result.item.acao) {
+      this.submenuItemClick.emit(result.item.key);
+      if (result.parent) this.expandedKey.set(result.parent.key);
+      this.deactivateSearch();
+      return;
+    }
     if (!route) {
-      // Sem rota — placeholder "Em breve". Nao navega; mantem search ativo.
+      // Sem rota e sem acao — placeholder "Em breve". Nao navega; mantem search ativo.
       return;
     }
     // Auto-expand grupo pai (DEC-SBSEARCH replica legacy)
@@ -380,7 +395,18 @@ export class SidebarLeftNavComponent {
 
   /** Helper template: rota inexistente = "Em breve". */
   protected isComingSoon(result: SidebarSearchResult): boolean {
-    return !result.item.route;
+    /**
+     * ⛔ `MENU-CAT.3` — **item de AÇÃO não é "Em breve".**
+     *
+     * Este predicado era `!route`, e a partir do momento em que existe item que **não navega por
+     * desenho** (`acao: true`), a ausência de rota deixou de ser sinônimo de *"recurso ainda não
+     * existe"*. Sem esta linha, *"Abrir Chat com IA"* apareceria na busca com o badge **Em breve**
+     * — anunciando como futuro algo que funciona **agora**.
+     *
+     * 📌 É a mesma família do defeito que esta fase consertou no kanban: **um sinal servindo duas
+     *    perguntas**. A diferença é que aqui foi previsto antes de chegar ao usuário.
+     */
+    return !result.item.route && !result.item.acao;
   }
 
   /**

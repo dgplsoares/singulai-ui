@@ -45,6 +45,27 @@ export interface SidebarMenuItem {
   /** Rota Angular (routerLink). */
   route?: string;
 
+  /**
+   * `MENU-CAT.3` (2026-09-30) — **o item NÃO navega: ele PEDE UMA AÇÃO ao host.**
+   *
+   * ⛔ **POR QUE ISTO É EXPLÍCITO, E NÃO "ausência de `route`":** a ausência de rota JÁ SIGNIFICA
+   * outra coisa neste componente — o caminho da busca a trata como **"Em breve"**
+   * (`isComingSoon()`, badge em `sidebar-left-nav.component.html`). Inferir "ação" da mesma ausência
+   * faria **um sinal querer dizer duas coisas**, e o item de ação apareceria na busca como um
+   * recurso que ainda não existe.
+   *
+   * O que muda quando é `true`:
+   *   - o item renderiza `<button>` em vez de `<a [routerLink]>`  ⇒ não é link morto, e o teclado o
+   *     ativa com Space além de Enter;
+   *   - a busca **não** o rotula como "Em breve";
+   *   - o clique continua emitindo `submenuItemClick` com a `key` — **é o host que decide o que
+   *     fazer**, porque a ação é do PRODUTO e o DS não conhece produto.
+   *
+   * 📌 Primeiro uso: *"Abrir Chat com IA"* no grupo **Agentes IA**, que abre o painel de chat
+   *    (`AiAssistantStateService.open()`) em vez de trocar de rota.
+   */
+  acao?: boolean;
+
   /** Submenu items. Quando presente, click expande/colapsa em vez de navegar. */
   submenu?: SidebarMenuItem[];
 

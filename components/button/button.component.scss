@@ -196,6 +196,22 @@
     width: 41px;
     height: 41px;
     padding: 0;
+
+    /**
+     * ⭐ `DEC-R13-BR` (2026-10-02) — O ICONE ESTAVA DESALINHADO A' ESQUERDA, e a causa nao era o
+     *    icone: era o `gap` da base somado a um `<span>` VAZIO.
+     *
+     * ⛔ O template do `ds-button` renderiza `<span class="ds-button__label">` **sempre**, mesmo
+     *    sem conteudo projetado (`button.component.html:43`). Com `justify-content: center` e
+     *    `gap: var(--ds-space-sm)`, o flex centraliza o conjunto `[icone] [gap] [span vazio]` —
+     *    e o icone fica deslocado para a esquerda por metade do gap.
+     *
+     * ⇒ Este botao NUNCA tem label (e' so' icone), entao o gap nao tem o que separar. Zera-lo
+     *   centraliza o icone de verdade, sem mexer na base nem nas outras variants.
+     * ⚠️ NAO se conserta com `padding-left`: isso compensaria o sintoma num tamanho so' e
+     *    quebraria se o gap mudasse. A causa e' o espaco entre dois itens, nao a borda.
+     */
+    gap: 0;
     border-radius: 12px;
     border: 1px solid #648dc4;
     background: linear-gradient(

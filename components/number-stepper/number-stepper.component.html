@@ -1,5 +1,9 @@
 <!-- Figma 828:4467 (Limite de participantes) e 760:5441 (Preço, com prefixo). -->
-<div class="ds-number-stepper" [class.ds-number-stepper--disabled]="estaDesabilitado()">
+<div
+  class="ds-number-stepper"
+  [class.ds-number-stepper--disabled]="estaDesabilitado()"
+  [class.ds-number-stepper--error]="temErro()"
+>
   @if (prefix(); as pre) {
     <span class="ds-number-stepper__prefix">{{ pre }}</span>
   }
@@ -16,6 +20,7 @@
     [attr.aria-valuemin]="min()"
     [attr.aria-valuemax]="max()"
     [attr.aria-valuenow]="valorAtual()"
+    [attr.aria-invalid]="temErro() ? 'true' : null"
     (input)="onInput($any($event.target).value)"
     (blur)="onBlur()"
   />
@@ -45,3 +50,13 @@
     </button>
   </div>
 </div>
+
+<!--
+  A mensagem fica FORA do wrapper do controle, como no `ds-form-field`: dentro dele o
+  `display:flex` das setas a empurraria para a mesma linha do input.
+  ⚠️ `role="alert"` para que o leitor de tela anuncie a recusa — recusar em silencio e' o
+     defeito que a `DEF.10` corrigiu, e silencio para quem nao ve' a tela e' pior.
+-->
+@if (temErro()) {
+  <p class="ds-number-stepper__error" role="alert">{{ errorMessage() }}</p>
+}

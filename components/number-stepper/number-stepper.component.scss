@@ -69,3 +69,20 @@
   &:hover:not(:disabled) { color: #3e619e; }
   &:disabled { opacity: 0.35; cursor: not-allowed; }
 }
+
+// ==========================================================================
+// Estado de erro — `V2-SALA-2`. Os valores sao os MESMOS do `ds-form-field`
+// (`--ds-form-border-error` / `--ds-form-error-text`), para que os dois controles
+// nao divirjam na mesma tela.
+// ==========================================================================
+.ds-number-stepper--error .ds-number-stepper__input {
+  border-color: var(--ds-form-border-error);
+}
+
+.ds-number-stepper__error {
+  font-family: var(--ds-font-family-base);
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--ds-form-error-text);
+  margin: 3px 0 0;
+}

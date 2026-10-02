@@ -70,6 +70,33 @@ export class NumberStepperComponent implements ControlValueAccessor {
 
   readonly ariaLabel = input<string | null>(null);
 
+  /**
+   * Mensagem de erro, exibida abaixo do campo.
+   *
+   * ⭐ **ESTENDIDO na `V2-SALA-2` (2026-10-01), e o motivo é uma regra do `CLAUDE.md`:**
+   * *"se o Figma pedir um arranjo que o DS não tem, ESTENDER o DS com input novo (default
+   * preservando o comportamento atual) — não montar o controle por fora."*
+   *
+   * ⛔ **E o gap foi medido por FALHA, não por leitura.** O `[max]` já existia aqui, mas o
+   * `[errorMessage]` **não** — e `tsc --noEmit` passou **limpo**, porque **`tsc` não vê
+   * template**. Quem acusou foi o Karma, com `NG0303: Can't bind to 'errorMessage'`.
+   * 📌 Mesma família do `MOCK-1`, que só o `build --configuration production` pegou.
+   *
+   * ⚠️ **Default `null` preserva exatamente o comportamento anterior:** quem não passa o
+   * input não ganha elemento nenhum no DOM.
+   */
+  readonly errorMessage = input<string | null>(null);
+
+  /**
+   * Mostra o erro sem esperar o blur. Espelha o `showError` do `ds-form-field`, pelo mesmo
+   * motivo (`DEF.10`): o `touched` daqui é INTERNO — só o blur do próprio campo o liga —, e
+   * `markAllAsTouched()` do `FormGroup` **não tem canal** para chegar ao
+   * `ControlValueAccessor`. ⇒ o campo que o usuário nunca tocou ficaria sem erro nenhum.
+   *
+   * ⚠️ Default `false` = comportamento anterior.
+   */
+  readonly showError = input<boolean>(false);
+
   /** Valor corrente. `null` = campo vazio, que NAO e' zero. */
   private readonly valor = signal<number | null>(null);
 
@@ -92,6 +119,23 @@ export class NumberStepperComponent implements ControlValueAccessor {
   readonly texto = computed(() => this.rascunho() ?? this.formatar(this.valor()));
 
   private readonly disabledPorForm = signal(false);
+
+  /**
+   * O campo já perdeu o foco pelo menos uma vez.
+   *
+   * ⚠️ É INTERNO, como no `ds-form-field`: `markAllAsTouched()` do `FormGroup` não chega aqui
+   * (o `ControlValueAccessor` notifica `disabled`, nunca `touched`). Quem precisa mostrar o
+   * erro antes do blur usa o input `showError`.
+   */
+  private readonly foiTocado = signal(false);
+
+  /**
+   * Erro visível = há mensagem E (o campo foi tocado OU quem hospeda pediu para mostrar).
+   * A mesma condição do `ds-form-field`, para que os dois controles não divirjam na tela.
+   */
+  protected readonly temErro = computed(
+    () => Boolean(this.errorMessage()) && (this.foiTocado() || this.showError()),
+  );
 
   readonly estaDesabilitado = computed(() => this.disabled() || this.disabledPorForm());
 
@@ -144,6 +188,7 @@ export class NumberStepperComponent implements ControlValueAccessor {
    */
   onBlur(): void {
     this.onTouchedFn();
+    this.foiTocado.set(true);
 
     const limitado = this.limitar(this.valor());
     if (limitado !== this.valor()) {

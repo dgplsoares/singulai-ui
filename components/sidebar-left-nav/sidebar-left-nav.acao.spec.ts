@@ -218,4 +218,58 @@ describe('`MENU-CAT.3` — `SidebarLeftNavComponent` com item de ação', () => 
     const semNada = { item: { key: 'futuro', label: 'Futuro', icon: 'heroSquares2x2' } };
     expect((component as never as { isComingSoon(r: unknown): boolean }).isComingSoon(semNada)).toBeTrue();
   });
+
+  /**
+   * ============================================================================
+   * `DEC-MENUCAT-A` — O ITEM DE AÇÃO ALINHA À ESQUERDA, COMO OS QUE NAVEGAM
+   * ============================================================================
+   *
+   * ⛔ **Pedido do fundador no smoke (2026-10-02):** *"o novo item de abrir painel do chat está
+   * centralizado e deve ser alinhado à esquerda, como os demais."*
+   *
+   * 📌 **A causa não era o item, era o ELEMENTO.** A classe `.ds-sidebar__submenu-item` é
+   *    compartilhada: o item de rota é `<a>` (herda o alinhamento ⇒ esquerda) e o de ação é
+   *    `<button>`, que tem `text-align: center` do **UA stylesheet**. O bloco não declarava
+   *    `text-align`, então cada elemento ficava com o seu default.
+   * ⚠️ E por isso o defeito **só apareceu** quando o `MENU-CAT.3` acrescentou o primeiro item com
+   *    `acao: true`: até então todos os sub-itens eram `<a>`, e a ausência não tinha como aparecer.
+   *
+   * ⭐ **A asserção é sobre o ESTILO COMPUTADO, não sobre a presença da regra no SCSS.** Afirmar que
+   *    o arquivo contém `text-align: left` provaria que eu escrevi a linha, não que o navegador a
+   *    aplica — e o default do `<button>` é exatamente o tipo de coisa que vence uma regra ausente.
+   */
+  it('⭐ o `<button>` de ação alinha à ESQUERDA, igual ao `<a>` que navega', () => {
+    expandir();
+    abrirGrupo();
+    const itens = subItensExpandido();
+
+    const acao = itens.find((el) => el.tagName === 'BUTTON');
+    const rota = itens.find((el) => el.tagName === 'A');
+
+    expect(acao).withContext('o item de ação existe').toBeTruthy();
+    expect(rota).withContext('há item que navega, para comparar').toBeTruthy();
+
+    const alinhamentoDaAcao = getComputedStyle(acao!).textAlign;
+    const alinhamentoDaRota = getComputedStyle(rota!).textAlign;
+
+    expect(alinhamentoDaAcao)
+      .withContext('⛔ era o defeito: `<button>` cai em `center` pelo UA stylesheet')
+      .toBe('left');
+    expect(alinhamentoDaAcao)
+      .withContext('e o ponto do pedido é que os dois fiquem IGUAIS')
+      .toBe(alinhamentoDaRota);
+  });
+
+  /** ⛔ CONTROLE: vale também no flyout, que é outro caminho de render (overlay do CDK). */
+  it('no FLYOUT o alinhamento é o mesmo — é outro caminho de render', () => {
+    abrirGrupo();
+    const itens = subItensFlyout();
+    const acao = itens.find((el) => el.tagName === 'BUTTON');
+
+    if (!acao) {
+      pending('o flyout não trouxe item de ação neste arranjo');
+      return;
+    }
+    expect(getComputedStyle(acao).textAlign).toBe('left');
+  });
 });

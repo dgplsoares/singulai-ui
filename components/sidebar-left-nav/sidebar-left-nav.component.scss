@@ -620,6 +620,24 @@
   &__submenu-item {
     display: block;
     width: 100%;
+
+    /**
+     * ⭐ `DEC-MENUCAT-A` (2026-10-02) — ALINHAMENTO EXPLÍCITO, pedido do fundador no smoke:
+     *    *"o novo item de abrir painel do chat está centralizado e deve ser alinhado à esquerda,
+     *    como os demais."*
+     *
+     * ⛔ **A CAUSA NÃO ERA O ITEM, ERA O ELEMENTO.** Esta classe é compartilhada por DOIS markups
+     *    (`sidebar-left-nav.component.html:232` e `:241`):
+     *      item de ROTA  -> `<a>`       herda o alinhamento do pai  ⇒ esquerda
+     *      item de AÇÃO  -> `<button>`  tem `text-align: center` do **UA stylesheet** ⇒ centro
+     *    E o bloco não declarava `text-align`, então cada elemento ficava com o seu default.
+     *
+     * 📌 Por isso o defeito apareceu só quando o `MENU-CAT.3` acrescentou o PRIMEIRO item com
+     *    `acao: true` — antes, todos os itens de submenu eram `<a>`, e a ausência não aparecia.
+     * ⇒ Declarar aqui corrige os dois de uma vez e impede a volta: item de ação novo nasce certo.
+     */
+    text-align: left;
+
     border: 1px solid #DFE3EA;
     border-radius: 5px;
     background: transparent;

@@ -36,39 +36,3 @@ export interface AiMessage {
   agentLabel?: string;
 }
 
-// ============================================================================
-// G1 (DEC-CHAT1-API-6): Settings dropdown data-switchers
-// ============================================================================
-
-/** Nivel de criatividade enviado ao LLM. Default: 'medium'. */
-export type AiCreativityLevel = 'low' | 'medium' | 'high';
-
-/** Tom de voz da resposta. Default: 'casual'. */
-export type AiVoiceTone = 'formal' | 'casual' | 'tecnico';
-
-/**
- * Configuracoes do prompt enviadas ao LLM via payload (G1+G2 / fire-and-forget).
- * Backend ignora por ora (DEC-CHAT1-API-7); quando implementar, usa
- * transparentemente.
- */
-export interface AiPromptConfig {
-  /** Criatividade do output (low/medium/high). */
-  criatividade: AiCreativityLevel;
-
-  /** Tom de voz (formal/casual/tecnico). */
-  tomVoz: AiVoiceTone;
-
-  /** Buscar fontes externas (ja existia como `searchExternal` no legacy). */
-  searchExternal: boolean;
-
-  /** Reasoning estendido (ja existia como `extendedThinking` no legacy). */
-  extendedThinking: boolean;
-}
-
-/** Valor default usado quando localStorage vazio. */
-export const DEFAULT_AI_PROMPT_CONFIG: AiPromptConfig = {
-  criatividade: 'medium',
-  tomVoz: 'casual',
-  searchExternal: false,
-  extendedThinking: false,
-};

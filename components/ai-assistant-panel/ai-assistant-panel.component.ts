@@ -36,14 +36,10 @@ import {
 import { IconNeumorphicComponent } from '../icon-neumorphic';
 import { SegmentedTabItem, SegmentedTabsComponent } from '../segmented-tabs';
 import {
-  AiCreativityLevel,
   AiMessage,
   AiMessageParagraph,
   AiMessageSegment,
-  AiPromptConfig,
   AiTab,
-  AiVoiceTone,
-  DEFAULT_AI_PROMPT_CONFIG,
 } from './ai-assistant-panel.types';
 
 /**
@@ -302,17 +298,10 @@ export class AiAssistantPanelComponent {
   readonly showTabs = input<boolean>(true);
 
   /**
-   * ⭐ `IA-R13` 14.19 · `DEC-R13-BA` — o cabeçalho INATIVO: com `true`, as ações (configurações, créditos, maximizar, fechar) e as abas ficam
+   * ⭐ `IA-R13` 14.19 · `DEC-R13-BA` — o cabeçalho INATIVO: com `true`, as ações (créditos, maximizar, fechar) e as abas ficam
    *    inertes; o corpo projetado segue ativo — é onde mora o PARAR. Padrão `false`: o painel de sempre.
    */
   readonly bloqueado = input<boolean>(false);
-
-  /**
-   * G1 (DEC-CHAT1-API-6): configuracoes do prompt enviadas ao LLM.
-   * Default = DEFAULT_AI_PROMPT_CONFIG (criatividade=medium, tomVoz=casual,
-   * external=false, reasoning=false). Caller injeta config persistida.
-   */
-  readonly aiPromptConfig = input<AiPromptConfig>(DEFAULT_AI_PROMPT_CONFIG);
 
   // --------------------------------------------------------------------------
   // Asset overrides (split-ready). Defaults apontam para a biblioteca central
@@ -320,7 +309,6 @@ export class AiAssistantPanelComponent {
   // <ds-modal-confirm> close button. Atualizar o arquivo no filesystem
   // propaga automaticamente para todos os usos.
   // --------------------------------------------------------------------------
-  readonly settingsIconSrc = input<string>('branding/icons/icon-neumorphic/settings.svg');
   readonly maximizeIconSrc = input<string>('branding/icons/icon-neumorphic/maximize.svg');
   readonly minimizeIconSrc = input<string>('branding/icons/icon-neumorphic/minimize.svg');
   readonly closeIconSrc = input<string>('branding/icons/icon-neumorphic/close.svg');
@@ -377,7 +365,6 @@ export class AiAssistantPanelComponent {
 
   // ----- Outputs -----
 
-  @Output() readonly settingsClick = new EventEmitter<void>();
   @Output() readonly creditsClick = new EventEmitter<void>();
 
   /** O gestor quer comprar mais creditos. Quem sabe para onde levar e' o app, nao o DS. */
@@ -394,25 +381,17 @@ export class AiAssistantPanelComponent {
   /** Emite quando user clica no X do tab "Chat atual" — parent decide o que fazer (geralmente set hasCurrentChat=false). */
   @Output() readonly currentChatClose = new EventEmitter<void>();
 
-  /**
-   * G1: emite quando user altera algum switcher (criatividade/tomVoz/
-   * external/reasoning) no settings dropdown. Caller persiste e re-injeta
-   * via `[aiPromptConfig]`.
-   */
-  @Output() readonly aiPromptConfigChange = new EventEmitter<AiPromptConfig>();
-
   // ----- Estado interno -----
 
   protected readonly promptValue = signal<string>('');
   protected readonly creditsDropdownOpen = signal<boolean>(false);
-  protected readonly settingsDropdownOpen = signal<boolean>(false);
 
-  // Fecha qualquer dropdown aberto quando user clica fora. Os clicks dos
-  // proprios botoes param o stopPropagation e nao disparam este handler.
+  // Fecha o dropdown de creditos quando user clica fora. O click do proprio
+  // botao para o stopPropagation e nao dispara este handler.
+  // ⭐ `CHAT-ENGRENAGEM` — era "qualquer dropdown aberto" quando havia DOIS.
   @HostListener('document:click')
   protected onDocumentClick(): void {
     this.creditsDropdownOpen.set(false);
-    this.settingsDropdownOpen.set(false);
   }
 
   protected onPromptInput(value: string): void {
@@ -429,52 +408,6 @@ export class AiAssistantPanelComponent {
 
   // ----- Handlers do template -----
 
-  protected onSettings(): void {
-    this.settingsClick.emit();
-  }
-
-  protected onSettingsClick(event: MouseEvent): void {
-    event.stopPropagation();
-    this.settingsDropdownOpen.update((open) => !open);
-    // Mutex: ao abrir settings, fecha credits dropdown (e vice-versa)
-    this.creditsDropdownOpen.set(false);
-    this.settingsClick.emit();
-  }
-
-  protected onSettingsAction(action: 'model' | 'tone' | 'clear'): void {
-    console.log('[AI Panel] settings action:', action);
-    this.settingsDropdownOpen.set(false);
-  }
-
-  // G1 handlers — atualiza o aiPromptConfig e emite ao caller
-  protected onCriatividadeChange(level: AiCreativityLevel): void {
-    this.aiPromptConfigChange.emit({
-      ...this.aiPromptConfig(),
-      criatividade: level,
-    });
-  }
-
-  protected onTomVozChange(tom: AiVoiceTone): void {
-    this.aiPromptConfigChange.emit({
-      ...this.aiPromptConfig(),
-      tomVoz: tom,
-    });
-  }
-
-  protected onToggleSearchExternal(): void {
-    this.aiPromptConfigChange.emit({
-      ...this.aiPromptConfig(),
-      searchExternal: !this.aiPromptConfig().searchExternal,
-    });
-  }
-
-  protected onToggleExtendedThinking(): void {
-    this.aiPromptConfigChange.emit({
-      ...this.aiPromptConfig(),
-      extendedThinking: !this.aiPromptConfig().extendedThinking,
-    });
-  }
-
   protected onCredits(): void {
     this.creditsClick.emit();
   }
@@ -482,8 +415,6 @@ export class AiAssistantPanelComponent {
   protected onCreditsClick(event: MouseEvent): void {
     event.stopPropagation();
     this.creditsDropdownOpen.update((open) => !open);
-    // Mutex: ao abrir credits, fecha settings dropdown
-    this.settingsDropdownOpen.set(false);
     this.creditsClick.emit();
   }
 

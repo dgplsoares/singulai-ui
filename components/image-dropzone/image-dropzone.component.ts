@@ -36,6 +36,7 @@ import { ImageDropzoneComponent as SharedImageDropzoneComponent } from '../../..
     <app-image-dropzone
       [imageUrl]="imageUrl()"
       [context]="context()"
+      [preset]="preset()"
       [label]="label()"
       [maxSizeMb]="maxSizeMb()"
       [accept]="accept()"
@@ -49,6 +50,11 @@ import { ImageDropzoneComponent as SharedImageDropzoneComponent } from '../../..
 export class ImageDropzoneComponent {
   readonly imageUrl = input<string | null>(null);
   readonly context = input<string>('website');
+  /**
+   * ⭐ `V1-VITRINE` `V.6` — a NORMALIZAÇÃO no servidor, repassada ao dropzone shared.
+   * `'logo'` normaliza pela ALTURA (250px, largura livre — `DEC-VIT-H`); ausente guarda intacto.
+   */
+  readonly preset = input<'logo' | undefined>(undefined);
   readonly label = input<string>('Imagem');
   readonly maxSizeMb = input<number>(5);
   readonly accept = input<string>('image/jpeg,image/png,image/webp,image/gif');

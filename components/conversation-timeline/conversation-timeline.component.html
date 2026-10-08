@@ -1,0 +1,26 @@
+<div class="ds-conversation-timeline" role="log">
+  @for (group of groups(); track group.id) {
+    <div class="ds-conversation-timeline__group">
+      @for (msg of group.messages; track msg.id) {
+        <div
+          class="ds-conversation-timeline__line"
+          [class.ds-conversation-timeline__line--us]="msg.side === 'us'"
+        >
+          @if (msg.initials) {
+            <ds-thumbnail-avatar
+              class="ds-conversation-timeline__avatar"
+              [name]="msg.initials"
+              size="xs"
+              shape="circle"
+            />
+          }
+
+          <div class="ds-conversation-timeline__body">
+            <p class="ds-conversation-timeline__text">{{ msg.text }}</p>
+            <span class="ds-conversation-timeline__meta">{{ formatar(msg.at) }}</span>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

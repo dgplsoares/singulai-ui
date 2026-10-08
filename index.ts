@@ -72,3 +72,29 @@ export * from './components/file-dropzone';
 // ⛔ A dívida foi medida três vezes e cresceu nas duas: 5 → 9 → 12 implementações.
 //    Aplicar a mesma regra em N lugares é como ela dobrou; por isso virou função.
 export * from './utils/iniciais';
+
+// ⭐ `LEAD-ABAS` `LA.3` — o transcript de conversa. Entra no DS pelo decision tree lido LITERAL:
+//    *"faria sentido em outro projeto Angular sem nada de Singulai?"* → sim. Por isso ele não
+//    conhece lead, agente nem tenant; quem traduz é o chamador.
+// ⛔⛔ `LEAD-ABAS` `LA.3` — O `ds-conversation-timeline` **NÃO É EXPORTADO DAQUI**, e isso é
+//    MEDIDO, não esquecimento.
+//
+//    Exportá-lo daqui quebrou o `ng build --configuration production`:
+//      ✘ bundle initial exceeded maximum budget. Budget 2.60 MB was not met by 3.86 kB
+//
+//    Experimento de UMA variável, rodado nos dois sentidos:
+//      com `export * from './components/conversation-timeline'`  -> ERRO de budget
+//      com import por CAMINHO no consumidor                      -> passa (2.60 MB exatos)
+//
+//    ⇒ este barril é importado EAGERLY pelo código inicial, e o decorador `@Component` derrota
+//      o tree-shaking: tudo o que sai daqui entra no chunk INICIAL, mesmo que só uma rota LAZY
+//      use. O `lead-detail-offcanvas` é lazy (`app.routes.ts` → `loadComponent`) e ainda assim
+//      o componente caía no inicial pelo barril.
+//
+//    ⚠️ **E o orçamento está em 100,0% — 2.60 MB de 2.60 MB.** Não há folga: o PRÓXIMO
+//      componente que alguém exportar daqui quebra o build. Isso é dívida de projeto, não desta
+//      fase: `DIV-DS-BARRIL-INICIAL` no livro-razão.
+//
+//    ⇒ Quem precisar dele importa pelo caminho:
+//      `import { ConversationTimelineComponent } from '@/design-system/components/conversation-timeline';`
+//    🔲 E ele TAMBÉM não está no showcase (`DIV-LEAD-SHOWCASE`) — achável só pelo MCP, por ora.

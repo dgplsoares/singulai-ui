@@ -5,7 +5,7 @@ import {
   input,
 } from '@angular/core';
 
-import { ThumbnailAvatarSize } from './thumbnail-avatar.types';
+import { ThumbnailAvatarShape, ThumbnailAvatarSize } from './thumbnail-avatar.types';
 // ⛔ Caminho RELATIVO, nao pelo `index.ts` do proprio DS: importar o barrel de dentro dele
 //    cria ciclo (`index` -> componente -> `index`).
 import { iniciaisDe } from '../../utils/iniciais';
@@ -52,6 +52,15 @@ export class ThumbnailAvatarComponent {
 
   /** Tamanho. Default: md (40px — Figma 875-21663). */
   readonly size = input<ThumbnailAvatarSize>('md');
+
+  /**
+   * Forma. Default `'rounded'` — **preserva todo uso existente** (`DEC-LEAD-G`).
+   *
+   * ⚠️ `'circle'` NÃO muda o tamanho: ele troca só o `border-radius`, que no SCSS é definido
+   * **por tamanho** (6/8/10/12px). ⇒ a regra de círculo precisa VENCER a de tamanho, e por
+   * isso ela vive num seletor mais específico, depois dos blocos de size.
+   */
+  readonly shape = input<ThumbnailAvatarShape>('rounded');
 
   /**
    * Aria-label custom. Quando ausente, usa `name`. Util quando o thumbnail

@@ -1,0 +1,94 @@
+// ============================================================================
+// ds-conversation-timeline — Estilos
+// Figma 932:17802 (o `timeline` da aba `Chat IA` do offcanvas do lead)
+// ============================================================================
+
+@use '../../tokens' as ds;
+
+:host {
+  display: block;
+}
+
+.ds-conversation-timeline {
+  display: flex;
+  flex-direction: column;
+  // Figma: gap 20px ENTRE GRUPOS
+  gap: 20px;
+
+  &__group {
+    display: flex;
+    flex-direction: column;
+    // Figma: gap 25px entre mensagens do mesmo grupo
+    gap: 25px;
+  }
+
+  // ==========================================================================
+  // A linha — `them` à esquerda (default), `us` à direita
+  // ==========================================================================
+  &__line {
+    display: flex;
+    align-items: flex-start;
+    // Figma: gap 10px no lado do agente
+    gap: 10px;
+
+    // ⚠️ `--us` inverte a ORDEM com `row-reverse`, e não com `order` nos filhos: assim o avatar
+    //    continua sendo o primeiro no DOM, e um leitor de tela anuncia QUEM fala antes do que
+    //    foi dito. Trocar a ordem visual não pode trocar a ordem de leitura.
+    &--us {
+      flex-direction: row-reverse;
+      // Figma: gap 3px no lado do lead
+      gap: 3px;
+    }
+  }
+
+  &__avatar {
+    flex-shrink: 0;
+  }
+
+  &__body {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    min-width: 0;
+  }
+
+  &__line--us &__body {
+    align-items: flex-end;
+    gap: 3px;
+  }
+
+  // ==========================================================================
+  // O texto
+  // ==========================================================================
+  &__text {
+    margin: 0;
+    font-family: var(--ds-font-family-base);
+    font-size: 13px;
+    font-weight: 400;
+    line-height: normal;
+    color: ds.$text-content;
+    // ⛔ `pre-wrap`: a mensagem vem do chat e PODE ter quebras de linha. Sem isto, uma resposta
+    //    de várias linhas vira um parágrafo só e o gestor lê outra coisa.
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  // O balão só existe do lado do lead — o agente é texto chapado (Figma).
+  &__line--us &__text {
+    padding: 10px 15px;
+    border-radius: 15px;
+    background: ds.$ai-veil;
+    font-weight: 600;
+  }
+
+  // ==========================================================================
+  // O carimbo de tempo
+  // ==========================================================================
+  &__meta {
+    font-family: 'Poppins', var(--ds-font-family-base);
+    font-style: italic;
+    font-size: 10px;
+    line-height: 12px;
+    color: ds.$text-content;
+  }
+}

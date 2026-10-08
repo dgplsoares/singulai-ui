@@ -72,6 +72,20 @@
   }
 
   // ==========================================================================
+  // ⭐ `LEAD-ABAS` `LA.2` / `DEC-LEAD-G` — Forma
+  // ==========================================================================
+  //
+  // ⛔ **DEPOIS dos blocos de size, e isso é NECESSÁRIO, não arrumação.** O radius é definido
+  //    POR TAMANHO acima (6 / 8 / 10 / 12px); uma regra de círculo declarada antes deles seria
+  //    sobrescrita pelo size e o avatar sairia quadrado-arredondado com o `data-shape='circle'`
+  //    posto — defeito mudo, do tipo que passa por toda checagem.
+  // 📌 Mesma especificidade (um atributo), então quem vence é a ORDEM. Mover este bloco para
+  //    cima quebra o componente sem quebrar nenhum teste de unidade: é o DOM que acusa.
+  &[data-shape='circle'] {
+    border-radius: 50%;
+  }
+
+  // ==========================================================================
   // Elementos
   // ==========================================================================
   &__img {

@@ -47,7 +47,23 @@ export * from './components/modal-confirm';
 // `PORT.3` — ampliar imagem de uma coleção (galeria do portfólio). Sem nada de Singulai ⇒ DS.
 export * from './components/lightbox';
 export * from './components/datatable';
-export * from './components/chart';
+/*
+  ⛔⛔ `C4.1` (2026-10-08) — O CHART SAIU DESTE BARRIL, pela MESMA razao do editor de texto rico.
+
+  Caminho medido no grafo de entrada:
+      main.ts -> app.component.ts -> design-system/index.ts -> components/chart/index.ts
+        -> chart.component.ts -> app/shared/.../chart-widget.component.ts -> [pkg] chart.js  192 kB
+
+  ⇒ o `AppComponent` importa **duas coisas** deste barril (`ToastHostComponent`,
+    `RouteProgressComponent`) e levava `chart.js` junto — para TODO visitante da vitrine publica,
+    que nao ve grafico nenhum.
+  📌 **Barril e' transitivo: ele exporta o GRAFO, nao o que voce pediu.** Segunda ocorrencia no
+    mesmo arquivo, com a mesma forma.
+  ⚠️ E ha' uma INVERSAO de dependencia no meio, que fica NOMEADA e nao foi consertada aqui: o
+    `design-system/components/chart/chart.component.ts:8` importa de `app/shared/components/widgets`
+    — o DS dependendo da aplicacao. E' divida de arquitetura, nao de bundle.
+  ⚠️ Medido antes de remover: **UM unico importador** pelo barril (o `ds-showcase`, pagina de dev).
+*/
 export * from './components/dropdown-menu';
 export * from './components/pipeline-funnel';
 export * from './components/kanban-board';
@@ -62,7 +78,25 @@ export * from './components/stats-bar';
 export * from './components/filter-dropdown';
 
 // Sub-Fase E.6.B (2026-06-30) — Rich text editor headless com toolbar DS
-export * from './components/rich-text-editor';
+/*
+  ⛔⛔ `C4.1` (2026-10-08) — O EDITOR DE TEXTO RICO SAIU DESTE BARRIL, e a razao e' de BUNDLE.
+
+  Medido no grafo do empacotador: este barril -> `components/rich-text-editor/index.ts` ->
+  `rich-text-canonical.ts` -> **~315 kB de Tiptap/ProseMirror**. E o `AppComponent` importa daqui
+  (`app.component.ts:9`, o `ToastHostComponent`) ⇒ o editor inteiro entrava no **bundle inicial**,
+  baixado por TODO visitante da vitrine publica, que nao edita nada.
+
+  📌 **Barril e' transitivo: ele nao exporta o que voce pediu, exporta o GRAFO.** Com componentes
+  Angular o tree-shaking nao salva — o decorator e' efeito colateral.
+  ⚠️ Medido antes de remover: **UM unico arquivo** importava o editor por aqui
+    (`step-informacoes.component.ts`), e passou a usar o caminho profundo.
+  🔔 Cobrado por exit code: `scripts/check-leitura-de-texto-rico-sem-editor.mjs`.
+
+  ⇒ Quem precisa do EDITOR importa
+      `design-system/components/rich-text-editor/rich-text-editor.component`
+    Quem precisa so' LER texto rico importa
+      `design-system/components/rich-text-editor/rich-text-sem-editor`   (sem Tiptap)
+*/
 
 // Sub-Fase E.6.B.2.5 (2026-06-30) — File-dropzone canônico (sucede
 // <ds-image-dropzone> que fica @deprecated como alias image-only).

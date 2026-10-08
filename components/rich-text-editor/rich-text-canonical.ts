@@ -39,6 +39,35 @@
  * @see Engram bugfix/E.6-bug3-isdirty-canonical
  */
 
+/*
+  ⭐⭐ `C4.1` (2026-10-08) — AS LEITURAS PURAS SAÍRAM DAQUI, e a razão é de BUNDLE.
+
+  `richTextToPlainText`, `getPlainTextLength` e o `walkPmText` que as serve **não precisam do
+  Tiptap** — percorrem o JSON. E a vitrine pública importava justamente elas
+  (`themes/_base/produto/subtitulo-do-heroi.ts`), arrastando **~315 kB de editor** para o bundle
+  que todo visitante baixa.
+  ⇒ foram para `rich-text-sem-editor.ts`, que não importa Tiptap. A razão completa está lá.
+  ⚠️ **E são REEXPORTADAS aqui**, para que nenhum dos importadores existentes quebre: quem já
+    importava deste arquivo continua funcionando.
+  ⛔ Mas quem está no CAMINHO INICIAL tem de importar do módulo PURO — importar daqui traz o editor
+    de volta. Os 3 do portal foram repontados; o guard cobra por exit code.
+*/
+/*
+  ⛔⛔ **AQUI HAVIA UMA REEXPORTAÇÃO, E ELA DESFAZIA A SEPARAÇÃO INTEIRA.**
+
+  Eu a pus para "não quebrar nenhum importador". Medido depois, no grafo do empacotador:
+
+      chunk-54T3OCL2.js   418 kB   <- importado pelo `main`
+        rich-text-sem-editor.ts    0,8 kB
+        rich-text-canonical.ts     1,8 kB     ← os DOIS no mesmo chunk
+
+  ⇒ a reexportação **acopla os dois módulos no empacotador**, e o chunk volta a carregar o Tiptap
+    inteiro. O ganho da separação era exatamente esse acoplamento.
+  📌 **Compatibilidade por reexportação recria o acoplamento que a separação existe para remover.**
+    O empacotador decide por MÓDULO; uma ponte de uma linha é uma ponte.
+  ⇒ os importadores foram repontados para `./rich-text-sem-editor`, e o `tsc` cobrou cada um.
+*/
+
 import { generateJSON, generateHTML } from '@tiptap/core';
 import type { JSONContent } from '@tiptap/core';
 import type { RichTextContent } from './rich-text-editor.types';
@@ -274,73 +303,7 @@ export function normalizeRichTextToCanonical(v: unknown): string {
   return htmlToCanonicalOrEmpty(html);
 }
 
-/**
- * Walk ProseMirror JSON tree e conta caracteres de plain text (soma
- * `n.text.length` para todo node com `type: 'text'`).
- *
- * Helper interno de `getPlainTextLength` — exportado apenas para casos
- * que já têm o node parseado (evita reparsing).
- */
-function walkPmText(node: JSONContent | null | undefined): number {
-  if (!node) return 0;
-  let count = 0;
-  const walk = (n: JSONContent): void => {
-    if (typeof n.text === 'string') count += n.text.length;
-    if (Array.isArray(n.content)) n.content.forEach(walk);
-  };
-  walk(node);
-  return count;
-}
 
-/**
- * ============================================================================
- * `DEF.8` — O MESMO CONTEÚDO, EM **TEXTO PURO** (para lista, cartão e tabela)
- * ============================================================================
- *
- * ⛔ **Por que não bastava o `richTextToDisplayHtml`:** lista, cartão e coluna de tabela mostram uma LINHA de
- * resumo, muitas vezes truncada por CSS. Injetar HTML ali traria `<p>`, `<h2>` e quebras onde cabe uma frase — e
- * `[innerHTML]` num `<td>` é convite a layout quebrado. Quem precisa de **estrutura** usa o HTML; quem precisa de
- * **resumo** usa isto.
- *
- * ⚠️ Aceita as TRÊS formas que convivem no banco, como as irmãs: objeto do ProseMirror, string JSON serializada e
- * texto puro legado (que volta intacto). Parágrafos viram **espaço**, não colagem: sem isso, *"Aula 1"* + *"Aula 2"*
- * viraria *"Aula 1Aula 2"*.
- */
-export function richTextToPlainText(value: unknown): string {
-  if (value == null || value === '') return '';
-
-  const doNo = (node: JSONContent): string => {
-    const pedacos: string[] = [];
-    const walk = (n: JSONContent): void => {
-      if (typeof n.text === 'string') pedacos.push(n.text);
-      if (Array.isArray(n.content)) n.content.forEach(walk);
-    };
-    walk(node);
-    return pedacos.join(' ').replace(/\s+/g, ' ').trim();
-  };
-
-  if (typeof value === 'object') {
-    try {
-      return doNo(value as JSONContent);
-    } catch {
-      return '';
-    }
-  }
-
-  if (typeof value !== 'string') return '';
-
-  const trimmed = value.trim();
-  if (trimmed === '') return '';
-  if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
-    try {
-      return doNo(JSON.parse(trimmed) as JSONContent);
-    } catch {
-      // ⚠️ Não era JSON de verdade: devolve o texto como está, em vez de engolir o conteúdo.
-      return value;
-    }
-  }
-  return value;
-}
 
 /**
  * Converte qualquer forma persistida de rich text para **HTML string
@@ -427,44 +390,3 @@ export function richTextToDisplayHtml(value: unknown): string {
   return `<p>${escapeHtml(trimmed)}</p>`;
 }
 
-/**
- * Conta caracteres de plain text em qualquer `RichTextContent`.
- *
- * Cobre:
- *  1. `null` / `undefined` / `''` → 0
- *  2. Plain string (não JSON serializado) → `.length`
- *  3. JSON string serializado (persistência backend legacy) → parse + walk
- *  4. JSONContent object (do editor.getJSON()) → walk direto
- *
- * Se JSON parse falhar (input malformado), fallback = `content.length`
- * (contagem como string plain — seguro, evita crash).
- *
- * ### Extraído em 2026-07-31 (E.6-close.2a STEP 0)
- *
- * Antes desta extração, 4 arquivos duplicavam a mesma função inline:
- *  - `lesson-ebook-offcanvas.component.ts`
- *  - `lesson-quiz-offcanvas.component.ts`
- *  - `lesson-texto-offcanvas.component.ts`
- *  - `step-informacoes.component.ts`
- * Consolidação exigida como pré-requisito para extração do
- * `<app-lesson-info-card>` shared — parents precisam do helper para
- * `hasUnsavedChanges()` add-mode gate sem acessar internal state do card.
- *
- * @see Workflow adversarial w2fbq1t4a (BLOCKER — dirty-check-iter4 lens)
- * @see Engram bugfix/getPlainTextLength-consolidation
- */
-export function getPlainTextLength(content: RichTextContent): number {
-  if (content === null || content === undefined || content === '') return 0;
-  if (typeof content === 'string') {
-    const trimmed = content.trim();
-    if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
-      try {
-        return walkPmText(JSON.parse(trimmed));
-      } catch {
-        return content.length;
-      }
-    }
-    return content.length;
-  }
-  return walkPmText(content as JSONContent);
-}

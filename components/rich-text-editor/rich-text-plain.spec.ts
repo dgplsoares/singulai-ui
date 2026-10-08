@@ -1,4 +1,4 @@
-import { richTextToPlainText } from './rich-text-canonical';
+import { richTextToPlainText } from './rich-text-sem-editor';
 
 /**
  * `DEF.8` — lista, cartão e tabela mostram RESUMO: precisam de texto puro, não de HTML nem do JSON do editor.

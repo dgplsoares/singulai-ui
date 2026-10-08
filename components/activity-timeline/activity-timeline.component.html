@@ -1,0 +1,39 @@
+<!--
+  ⛔ **UMA GRADE DE TRÊS COLUNAS, e não duas listas lado a lado.** Duas listas independentes
+     (`timeline-col-1` / `timeline-col-2`, como o Figma as nomeia) **não alinham** o marcador com
+     o cartão: o desenho acerta isso com `gap` e `pt` em pixels literais, porque é um mock
+     estático. Numa lista real, cada cartão tem altura própria.
+  ⇒ cada item ocupa UMA LINHA da grade e escolhe a coluna 1 ou 3; o marcador vive na coluna 2
+    da MESMA linha, então acompanha o cartão qualquer que seja a altura dele.
+-->
+<ol class="ds-atl">
+  @for (par of comLado(); track par.item.id) {
+    <li class="ds-atl__linha" [class.ds-atl__linha--direita]="par.direita">
+      <!-- A régua + o marcador. `aria-hidden`: é cromo, e o leitor de tela já tem a <ol>. -->
+      <span class="ds-atl__marcador" aria-hidden="true">
+        <span class="ds-atl__ponto"></span>
+      </span>
+
+      <article class="ds-atl__cartao" [attr.data-accent]="par.item.accent">
+        <h4 class="ds-atl__titulo">
+          <ng-icon [name]="par.item.icon" class="ds-atl__icone" aria-hidden="true" />
+          {{ par.item.title }}
+        </h4>
+
+        @if (par.item.description) {
+          <p class="ds-atl__descricao">{{ par.item.description }}</p>
+        }
+
+        @if (par.item.badges.length) {
+          <div class="ds-atl__selos">
+            @for (selo of par.item.badges; track selo.label) {
+              <span class="ds-atl__selo" [attr.data-tone]="selo.tone">{{ selo.label }}</span>
+            }
+          </div>
+        }
+
+        <time class="ds-atl__em" [attr.datetime]="par.item.at">{{ par.item.at }}</time>
+      </article>
+    </li>
+  }
+</ol>

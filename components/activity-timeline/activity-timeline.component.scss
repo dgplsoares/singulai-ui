@@ -1,0 +1,166 @@
+/*
+  `ds-activity-timeline` — Figma `927:16262`.
+
+  ⚠️ **LIGHTMODE-FIRST:** nenhuma regra `:host-context(.dark)` nem classe `dark:`. O guard
+  `check-paleta-lightmode.mjs` cobra os VALORES, não só o interruptor.
+*/
+
+:host {
+  display: block;
+}
+
+.ds-atl {
+  display: grid;
+  /* coluna 1 = cartão · coluna 2 = a régua (20px, como no desenho) · coluna 3 = cartão */
+  grid-template-columns: 1fr 20px 1fr;
+  gap: 15px 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ds-atl__linha {
+  display: contents;
+}
+
+/*
+  ⭐ **A COLUNA É ESCOLHIDA PELA LINHA, e os dois `grid-column` explícitos importam.** Sem o
+  `grid-column: 1` no caso par, o item cairia na primeira célula livre e a alternância se
+  perderia assim que um item fosse omitido.
+*/
+.ds-atl__cartao {
+  grid-column: 1;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.25);
+  border: 1px solid #FFFFFF;
+  border-radius: 10px;
+  box-shadow: 0 0 0 1px #DFE3EA;
+}
+
+.ds-atl__linha--direita .ds-atl__cartao {
+  grid-column: 3;
+}
+
+/*
+  A régua ocupa SEMPRE a coluna do meio, e cada linha desenha o seu trecho — assim ela
+  acompanha a altura do cartão sem `height` fixo (o Figma usa `h-[707px]`, que é mock).
+*/
+.ds-atl__marcador {
+  grid-column: 2;
+  position: relative;
+  display: block;
+  justify-self: center;
+  width: 2px;
+  background: #D6DEE9;
+}
+
+.ds-atl__ponto {
+  position: absolute;
+  top: 24px; /* alinha com a linha do título do cartão */
+  left: 50%;
+  width: 15px;
+  height: 15px;
+  background: #FFFFFF;
+  border: 1px solid #D6DEE9;
+  border-radius: 50%;
+  transform: translateX(-50%);
+
+  &::after {
+    position: absolute;
+    inset: 3px;
+    content: '';
+    background: #3E70BD;
+    border-radius: 50%;
+  }
+}
+
+.ds-atl__titulo {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  margin: 0;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 14px;
+}
+
+.ds-atl__icone {
+  flex-shrink: 0;
+  font-size: 13px;
+}
+
+.ds-atl__descricao {
+  margin: 7px 0 0;
+  font-family: 'Manrope', sans-serif;
+  font-size: 12px;
+  line-height: 14px;
+  color: #697997;
+}
+
+.ds-atl__selos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 7px;
+}
+
+.ds-atl__selo {
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 10px;
+  font-family: 'Manrope', sans-serif;
+  font-weight: 600;
+  font-size: 11px;
+  border: 0.5px solid;
+  border-radius: 8px;
+}
+
+.ds-atl__em {
+  display: block;
+  margin-top: 7px;
+  font-family: 'Manrope', sans-serif;
+  font-size: 11px;
+  line-height: 11px;
+  color: #8491A9;
+}
+
+/*
+  ⭐ **A PALETA VIVE EM UM LUGAR SÓ, indexada pelo atributo.** Quatro acentos, cada um com a
+  cor do título, o fundo e a borda do selo — os valores são os do Figma, não aproximações.
+*/
+.ds-atl__cartao[data-accent='blue'] .ds-atl__titulo { color: #3E70BD; }
+.ds-atl__cartao[data-accent='orange'] .ds-atl__titulo { color: #DB6B1A; }
+.ds-atl__cartao[data-accent='teal'] .ds-atl__titulo { color: #46969C; }
+.ds-atl__cartao[data-accent='purple'] .ds-atl__titulo { color: #503C97; }
+
+.ds-atl__selo[data-tone='blue'] { color: #3E70BD; background: #E8F1FF; border-color: #A6BFE5; }
+.ds-atl__selo[data-tone='teal'] { color: #46969C; background: #F4FAFA; border-color: #BDD2D3; }
+.ds-atl__selo[data-tone='purple'] { color: #503C97; background: #E4DDFF; border-color: #A69BD0; }
+.ds-atl__selo[data-tone='orange'] { color: #DB6B1A; background: #FFF1E6; border-color: #E5C2A6; }
+
+/*
+  ⛔ **ABAIXO DE 520px A ALTERNÂNCIA MORRE, e é deliberado.** Dois cartões de ~200px lado a
+  lado num offcanvas estreito ficam ilegíveis. Vira uma coluna só, com a régua à esquerda.
+  ⚠️ A medida é do CONTAINER (`@container`), não da janela — foi medindo a janela que a
+  `MA.2` errou hoje, e aqui o componente vive dentro de um offcanvas de largura própria.
+*/
+:host {
+  container-type: inline-size;
+}
+
+@container (max-width: 520px) {
+  .ds-atl {
+    grid-template-columns: 20px 1fr;
+  }
+
+  .ds-atl__cartao,
+  .ds-atl__linha--direita .ds-atl__cartao {
+    grid-column: 2;
+  }
+
+  .ds-atl__marcador {
+    grid-column: 1;
+  }
+}

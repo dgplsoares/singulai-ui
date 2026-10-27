@@ -435,4 +435,158 @@ describe('PageNavComponent — estados visuais de step (D.3.W1 W1c)', () => {
       .withContext('step bloqueada precisa sinalizar o bloqueio pelo cursor')
       .toBe('not-allowed');
   });
+
+  /*
+    ⭐⭐ SCROLL HORIZONTAL SEM BARRA — pedido do fundador em 2026-10-26, sobre o nav de
+    `setup/website`, que passou a ter 11 abas.
+
+    > *"precisaremos de um scroll x neste nav, porém sem barra de rolagem aparente. Apenas o
+    > movimento de scroll horizontal, sendo acionado tanto por clique e arraste, quanto por
+    > movimento do cursor (caso do trackpad do macbook com dois dedos)."*
+
+    ⛔⛔ **A ASSERÇÃO QUE MAIS IMPORTA NÃO É O `overflow` — É O `safe center`.** `justify-content:
+    center` com conteúdo maior que a caixa transborda **para os dois lados**, e não existe scroll
+    negativo: os primeiros itens ficam **inalcançáveis**. ⇒ ligar o scroll sem `safe` entregaria
+    uma barra que rola e ainda assim esconde abas, que é pior que o problema original.
+    ⚠️ E o `padding`/`margin` tem razão de correção, não de estética: CSS **promove**
+    `overflow-y: visible` a `auto` quando o outro eixo rola, então o anel de 5px do item ativo
+    seria CORTADO — e é justamente o que o `overflow: visible` da tabbar existe para proteger.
+  */
+  describe('o scroll horizontal do nav', () => {
+    const itens = (): HTMLElement =>
+      fixture.nativeElement.querySelector('.ds-page-nav-items') as HTMLElement;
+
+    it('⭐⭐ rola na horizontal e a barra NÃO aparece', () => {
+      render(stepsWithIconSrc, 'informacoes');
+      const estilo = getComputedStyle(itens());
+
+      expect(estilo.overflowX).toBe('auto');
+      /* `scrollbar-width: none` é o padrão; o `::-webkit-scrollbar` não é observável aqui. */
+      expect(estilo.scrollbarWidth).toBe('none');
+      /* Toque segue rolando nativamente, e o gesto vertical fica para a página. */
+      expect(estilo.touchAction).toBe('pan-x');
+    });
+
+    it('⭐⭐⭐ `safe center`: com transbordo, o PRIMEIRO item não fica inalcançável', () => {
+      render(stepsWithIconSrc, 'informacoes');
+      const container = itens();
+
+      /*
+        Força o transbordo com a própria caixa, sem depender da largura do iframe do Karma: 40px
+        de largura é menor que qualquer item, então `scrollWidth > clientWidth` com certeza.
+      */
+      container.style.width = '40px';
+      container.style.flex = '0 0 auto';
+      container.scrollLeft = 0;
+
+      expect(container.scrollWidth).withContext('o cenário precisa transbordar').toBeGreaterThan(
+        container.clientWidth,
+      );
+
+      /*
+        ⛔ O PREDICADO QUE DISTINGUE: com `center`, o conteúdo transborda à esquerda e o primeiro
+        item fica com a borda ANTES da borda do container, em `scrollLeft: 0` — inalcançável. Com
+        `safe center`, o alinhamento cai para o início e as bordas coincidem.
+      */
+      const bordaDoContainer = container.getBoundingClientRect().left;
+      const bordaDoPrimeiro = itemAt(0).getBoundingClientRect().left;
+      expect(bordaDoPrimeiro).toBeGreaterThanOrEqual(bordaDoContainer - 1);
+    });
+
+    it('⛔ o anel do item ativo tem folga vertical — senão o scroll o CORTA', () => {
+      render(stepsWithIconSrc, 'informacoes');
+      const estilo = getComputedStyle(itens());
+
+      /* 10px de cada lado: o anel é `0 0 0 5px`, e o negativo devolve o layout. */
+      expect(estilo.paddingTop).toBe('10px');
+      expect(estilo.paddingBottom).toBe('10px');
+      expect(estilo.marginTop).toBe('-10px');
+      expect(estilo.marginBottom).toBe('-10px');
+    });
+  });
+
+  /*
+    ⭐⭐ O ARRASTE, e o risco dele NÃO é o arraste: é o CLIQUE.
+
+    Os itens são `<button>`. Drag-to-scroll ingênuo faz **cada arraste trocar de aba** — e o
+    gestor perde o formulário que estava preenchendo. ⇒ limiar + supressão do `click`, e são estes
+    dois casos que valem a diretiva existir.
+    ⚠️ O trackpad NÃO aparece aqui porque não passa por código nosso: dois dedos na horizontal é
+    nativo do container rolável. O caso acima (`overflowX`) é o que o cobre.
+  */
+  describe('arrastar para rolar', () => {
+    const itens = (): HTMLElement =>
+      fixture.nativeElement.querySelector('.ds-page-nav-items') as HTMLElement;
+
+    const apertar = (el: HTMLElement, x: number) =>
+      el.dispatchEvent(
+        new PointerEvent('pointerdown', {
+          clientX: x,
+          button: 0,
+          pointerId: 1,
+          pointerType: 'mouse',
+          bubbles: true,
+        }),
+      );
+    const mover = (el: HTMLElement, x: number) =>
+      el.dispatchEvent(
+        new PointerEvent('pointermove', {
+          clientX: x,
+          pointerId: 1,
+          pointerType: 'mouse',
+          bubbles: true,
+          cancelable: true,
+        }),
+      );
+    const soltar = (el: HTMLElement) =>
+      el.dispatchEvent(new PointerEvent('pointerup', { pointerId: 1, pointerType: 'mouse', bubbles: true }));
+
+    function comTransbordo(): HTMLElement {
+      render(stepsWithIconSrc, 'informacoes');
+      const container = itens();
+      container.style.width = '40px';
+      container.style.flex = '0 0 auto';
+      container.scrollLeft = 0;
+      return container;
+    }
+
+    it('⭐⭐ arrastar para a esquerda avança o scroll', () => {
+      const container = comTransbordo();
+
+      apertar(container, 200);
+      mover(container, 140);
+      soltar(container);
+
+      expect(container.scrollLeft).toBeGreaterThan(0);
+    });
+
+    it('⭐⭐⭐ arrastar NÃO troca de aba — o clique é suprimido', () => {
+      const container = comTransbordo();
+      let cliquesRecebidos = 0;
+      fixture.componentInstance.stepClick.subscribe(() => cliquesRecebidos++);
+
+      apertar(container, 200);
+      mover(container, 140);
+      soltar(container);
+      /* O `click` que o navegador dispara depois do `pointerup` sobre o botão. */
+      itemAt(0).click();
+
+      expect(cliquesRecebidos).withContext('arrastar navegou — o gestor perderia o formulário').toBe(0);
+    });
+
+    it('⛔ CLIQUE COMUM continua navegando — o limiar protege a mão que treme', () => {
+      const container = comTransbordo();
+      let cliquesRecebidos = 0;
+      fixture.componentInstance.stepClick.subscribe(() => cliquesRecebidos++);
+
+      apertar(container, 200);
+      /* 2px: abaixo do limiar de 4px ⇒ é clique, não arraste. */
+      mover(container, 198);
+      soltar(container);
+      itemAt(0).click();
+
+      expect(cliquesRecebidos).withContext('o nav parou de responder a clique').toBe(1);
+      expect(container.scrollLeft).withContext('não devia ter rolado').toBe(0);
+    });
+  });
 });

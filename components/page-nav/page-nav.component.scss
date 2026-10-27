@@ -142,6 +142,53 @@
   gap: 30px;
   flex: 1;
   min-width: 0;
+
+  // ==========================================================================
+  // ⭐⭐ SCROLL HORIZONTAL SEM BARRA — pedido do fundador em 2026-10-26
+  // ==========================================================================
+  //
+  // > "O nav steps da tela app/setup/website/sobre tem limite de largura e ja temos muitos itens
+  // >  nele, sendo assim, precisaremos de um scroll x neste nav, porem sem barra de rolagem
+  // >  aparente. Apenas o movimento de scroll horizontal, sendo acionado tanto por clique e
+  // >  arraste, quanto por movimento do cursor (caso do trakpad do macbook com dois dedos)."
+  //
+  // ⭐ O TRACKPAD JA' VEM DE GRACA: dois dedos na horizontal e' comportamento NATIVO de container
+  //   rolavel. Nao ha' JS para isso. O que exige JS e' so' o clique-e-arraste, e ele mora numa
+  //   diretiva (`dsArrastaParaRolar`) para nao prender comportamento em CSS.
+  //
+  // ⛔⛔ E ESTE PASSO TEM DUAS ARMADILHAS MEDIDAS, nenhuma obvia:
+  //
+  // 1. `justify-content: center` + overflow = OS PRIMEIROS ITENS FICAM INALCANCAVEIS. Com o
+  //    conteudo maior que a caixa, `center` o transborda PARA OS DOIS LADOS, e `scrollLeft: 0`
+  //    nao alcanca o que ficou a' esquerda — nao ha' scroll negativo.
+  //    ⇒ `safe center` resolve: ele CAI PARA `flex-start` exatamente quando ha' transbordo, e
+  //      mantem o centro quando nao ha'. A declaracao `center` fica acima como fallback: em
+  //      navegador que nao entende `safe`, a declaracao invalida e' descartada e o `center`
+  //      sobrevive (a centralizacao que o fundador pediu em 2026-09-05 para navs de 2 itens).
+  //
+  // 2. ⛔ CSS NAO PERMITE `overflow-x: auto` COM `overflow-y: visible` — o eixo visivel e'
+  //    promovido a `auto` pela especificacao. ⇒ ligar o scroll CORTA o anel do item ativo
+  //    (`box-shadow: 0 0 0 5px`), que e' justamente o que o `overflow: visible` da `.ds-page-nav-
+  //    tabbar` existe para proteger (o comentario dela diz isso desde sempre).
+  //    ⇒ `padding: 10px 0` da' ao anel 10px de folga DENTRO da caixa de rolagem, e
+  //      `margin: -10px 0` devolve o layout ao que era. A tabbar segue `overflow: visible`,
+  //      entao este container pode transbordar ELA sem ser cortado.
+  //    ⚠️ TRADEOFF DECLARADO: a sombra de queda do ativo (`0 8px 10px`) estende ~18px para baixo
+  //      e ainda e' cortada pelos 10px. E' `rgba(0, 0, 0, 0.05)` — quase invisivel. Dar 18px de
+  //      folga inflaria a area de clique do nav em 36px, que custa mais do que a sombra vale.
+  justify-content: safe center;
+  overflow-x: auto;
+  padding: 10px 0;
+  margin: -10px 0;
+  // `pan-x` mantem o toque rolando nativamente e deixa o gesto vertical para a pagina.
+  touch-action: pan-x;
+  // Sem barra: `scrollbar-width` e' o padrao; o `::-webkit-scrollbar` cobre Chrome e Safari.
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 // ============================================================================
@@ -310,7 +357,10 @@
 
   .ds-page-nav-items {
     gap: 12px;
-    overflow-x: auto;
+    // 🗄️ ~~`overflow-x: auto`~~ — subiu para a REGRA BASE em 2026-10-26, com a barra escondida e
+    //    o `safe center`. Mantida aqui a linha seria duplicata que a proxima sessao leria como
+    //    regra propria do mobile — e no mobile ela vinha SEM esconder a barra e SEM o `safe`,
+    //    ou seja: COM o defeito dos primeiros itens inalcancaveis.
   }
 
   .ds-page-nav-item {

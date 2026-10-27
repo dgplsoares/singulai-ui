@@ -5,7 +5,13 @@
 -->
 <div class="ds-page-nav">
   <div class="ds-page-nav-tabbar">
-    <div class="ds-page-nav-items">
+    <!--
+      ⭐ A diretiva vai no container ROLAVEL, nao na tabbar: quem tem `overflow-x` e'
+        `.ds-page-nav-items`, e arrastar o que nao rola nao faz nada.
+      ⚠️ O trackpad NAO passa por ela — dois dedos na horizontal e' nativo do container rolavel.
+        Ela cobre so' o clique-e-arraste, com limiar e supressao do clique (os itens sao botoes).
+    -->
+    <div class="ds-page-nav-items" dsArrastaParaRolar>
 
       @for (step of steps(); track step.id) {
         <button

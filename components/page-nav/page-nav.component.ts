@@ -16,6 +16,7 @@ import {
   heroCog6Tooth,
 } from '@ng-icons/heroicons/outline';
 import { DsActiveSpinDirective } from '../../directives/active-spin.directive';
+import { ArrastaParaRolarDirective } from '../../directives/arrasta-para-rolar.directive';
 
 /**
  * Item do nav (uma "step" do wizard).
@@ -94,7 +95,7 @@ export interface PageNavStep {
 @Component({
   selector: 'ds-page-nav',
   standalone: true,
-  imports: [CommonModule, NgIcon, DsActiveSpinDirective],
+  imports: [CommonModule, NgIcon, DsActiveSpinDirective, ArrastaParaRolarDirective],
   providers: [
     provideIcons({
       heroDocumentText,

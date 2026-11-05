@@ -53,6 +53,12 @@ export class FormSectionComponent {
   /** Subtitulo opcional (abaixo do title). */
   readonly subtitle = input<string>('');
 
+  /**
+   * ⭐ `BSTAT-2` — desce o slot `header-actions` para a linha de baixo, largura cheia.
+   * ⛔ Default `false`: o header de todas as outras telas fica idêntico.
+   */
+  readonly acoesAbaixoDoTitulo = input<boolean>(false);
+
   /** Permite colapsar a secao via click no header. */
   readonly collapsible = input<boolean>(false);
 

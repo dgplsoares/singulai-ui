@@ -75,6 +75,7 @@ import type { FileDropzoneKind, FileDropzonePayload, FileUploadKind } from './fi
       [showUrlInput]="showUrlInput()"
       [skipInternalUpload]="skipInternalUpload()"
       [readOnly]="readOnly()"
+      [bloqueio]="bloqueio()"
       (fileUploaded)="fileUploaded.emit($event)"
       (fileRemoved)="fileRemoved.emit()"
       (fileSelected)="fileSelected.emit($event)"
@@ -144,6 +145,19 @@ export class FileDropzoneComponent {
    * apenas. Se vazio: renderiza empty state text-only sem drop CTA.
    */
   readonly readOnly = input<boolean>(false);
+
+  /**
+   * ⭐ `DIV-STOR-22` — motivo pelo qual o envio está bloqueado, repassado ao shared.
+   *
+   * ⚠️ **Normalmente não se passa:** o bloqueio por **cota** é calculado dentro do
+   * `<app-image-dropzone>`, que lê o `PlanUsageService`. Isto existe para bloqueio por **outro**
+   * motivo, com a mensagem do consumer.
+   *
+   * ⛔ **E ele existe aqui porque este wrapper é FINO:** ele repassa tudo. Um `@Input` que o shared
+   * tem e o wrapper do DS **não** repassa é um campo invisível para quem usa o DS — e o DS é a
+   * porta documentada no MCP.
+   */
+  readonly bloqueio = input<string | null>(null);
 
   /** Emite payload completo {url, filename?, size?, contentType?} após upload. */
   readonly fileUploaded = output<FileDropzonePayload>();
